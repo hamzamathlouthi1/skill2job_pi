@@ -3,10 +3,32 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
+import { NavbarComponent } from './shared/navbar/navbar.component';
+import { SidebarComponent } from './shared/sidebar/sidebar.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { UsersComponent } from './pages/users/users.component';
+import { LoaderComponent } from './shared/loader/loader.component';
+import { TrainingCoursesComponent } from './pages/training-courses/training-courses.component';
+import { ExamsComponent } from './pages/exams/exams.component';
+import { SessionsComponent } from './pages/sessions/sessions.component';
+import { PartnersComponent } from './pages/partners/partners.component';
+import { HrComponent } from './pages/hr/hr.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    AdminLayoutComponent,
+    NavbarComponent,
+    SidebarComponent,
+    DashboardComponent,
+    UsersComponent,
+    LoaderComponent,
+    TrainingCoursesComponent,
+    ExamsComponent,
+    SessionsComponent,
+    PartnersComponent,
+    HrComponent
   ],
   imports: [
     BrowserModule,
