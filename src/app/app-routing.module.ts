@@ -10,6 +10,8 @@ import { ExamsComponent } from './pages/exams/exams.component';
 import { SessionsComponent } from './pages/sessions/sessions.component';
 import { PartnersComponent } from './pages/partners/partners.component';
 import { HrComponent } from './pages/hr/hr.component';
+import { SessionFormComponent } from './pages/sessions/components/session-form/session-form.component'; 
+
 
 const routes: Routes = [
   {
@@ -21,6 +23,8 @@ const routes: Routes = [
   { path: 'training-courses', component: TrainingCoursesComponent },
   { path: 'exams', component: ExamsComponent },
   { path: 'sessions', component: SessionsComponent },
+  { path: 'sessions/add', component: SessionFormComponent },
+  { path: 'sessions/edit/:id', component: SessionFormComponent },
   { path: 'partners', component: PartnersComponent },
   { path: 'hr', component: HrComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

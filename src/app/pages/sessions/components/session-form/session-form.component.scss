@@ -1,0 +1,90 @@
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.form-card {
+  background: white;
+  width: 480px;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+  border-top: 5px solid #c22b33;
+}
+
+.form-header {
+  margin-bottom: 25px;
+
+  h2 {
+    margin: 0;
+    color: #c22b33;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 5px 0 0;
+    color: #777;
+    font-size: 13px;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+
+  label {
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #555;
+    font-weight: 600;
+  }
+
+  input, select {
+    padding: 11px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.2s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: #c22b33;
+    box-shadow: 0 0 0 2px rgba(194,43,51,0.1);
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.save-btn {
+  flex: 1;
+  background: #c22b33;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.save-btn:hover {
+  background: #a82129;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  flex: 1;
+  background: #e6e6e6;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}

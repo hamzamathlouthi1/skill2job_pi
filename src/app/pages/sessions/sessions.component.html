@@ -1,1 +1,13 @@
-<p>sessions works!</p>
+<div class="sessions-page-header">
+  <button class="add-btn" routerLink="/sessions/add">
+    + Add Session
+  </button>
+</div>
+<div class="page-wrapper">
+  <app-session-table
+  [sessions]="sessions"
+  (delete)="deleteSession($event)"
+    (edit)="editSession($event)">
+</app-session-table>
+
+</div>

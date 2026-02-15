@@ -14,6 +14,10 @@ import { ExamsComponent } from './pages/exams/exams.component';
 import { SessionsComponent } from './pages/sessions/sessions.component';
 import { PartnersComponent } from './pages/partners/partners.component';
 import { HrComponent } from './pages/hr/hr.component';
+import { SessionTableComponent } from './pages/sessions/components/session-table/session-table.component';
+import { SessionFormComponent } from './pages/sessions/components/session-form/session-form.component';
+import {HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -28,11 +32,15 @@ import { HrComponent } from './pages/hr/hr.component';
     ExamsComponent,
     SessionsComponent,
     PartnersComponent,
-    HrComponent
+    HrComponent,
+    SessionTableComponent,
+    SessionFormComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

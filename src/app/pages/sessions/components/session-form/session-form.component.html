@@ -1,0 +1,70 @@
+<div class="form-wrapper">
+
+  <div class="form-card">
+
+    <div class="form-header">
+      <h2>➕ Add New Session</h2>
+      <p>Create a new training session</p>
+    </div>
+
+    <form (ngSubmit)="submit()" #sessionForm="ngForm">
+
+      <!-- TYPE -->
+      <div class="field">
+        <label>Session Type</label>
+        <select [(ngModel)]="session.type" name="type" required>
+          <option value="ONLINE">🌐 ONLINE</option>
+          <option value="ONSITE">🏫 ONSITE</option>
+        </select>
+      </div>
+
+      <!-- START DATE -->
+      <div class="field">
+        <label>Start Date & Time</label>
+        <input
+          type="datetime-local"
+          [(ngModel)]="session.startAt"
+          name="startAt"
+          required
+        />
+      </div>
+
+      <!-- END DATE -->
+      <div class="field">
+        <label>End Date & Time</label>
+        <input
+          type="datetime-local"
+          [(ngModel)]="session.endAt"
+          name="endAt"
+          required
+        />
+      </div>
+
+      <!-- CAPACITY -->
+      <div class="field">
+        <label>Capacity</label>
+        <input
+          type="number"
+          [(ngModel)]="session.capacity"
+          name="capacity"
+          placeholder="Enter number of participants"
+          required
+        />
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <button type="submit" class="save-btn">
+          💾 Save Session
+        </button>
+
+        <button type="button" routerLink="/sessions" class="cancel-btn">
+          Cancel
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

@@ -1,0 +1,58 @@
+<div class="sessions-container">
+
+  <div class="header">
+    <h2>📅 Sessions</h2>
+    <span class="count">{{ sessions.length }} total</span>
+  </div>
+
+  <div class="cards-grid">
+
+    <div class="session-card" *ngFor="let s of sessions">
+
+      <div class="card-top">
+        <span 
+          class="type"
+          [ngClass]="{
+            'online': s.type === 'ONLINE',
+            'onsite': s.type === 'ONSITE'
+          }">
+          {{ s.type }}
+        </span>
+
+        <span class="id">#{{ s.id }}</span>
+      </div>
+
+      <div class="card-body">
+
+        <div class="info">
+          <span class="label">Start</span>
+          <span class="value">{{ s.startAt | date:'medium' }}</span>
+        </div>
+
+        <div class="info">
+          <span class="label">End</span>
+          <span class="value">{{ s.endAt | date:'medium' }}</span>
+        </div>
+
+        <div class="info capacity">
+          <span class="label">Capacity</span>
+          <span class="value">{{ s.capacity }}</span>
+        </div>
+
+      </div>
+      <div class="card-actions">
+        <button class="edit-btn" (click)="onEdit(s.id)">✏ Edit</button>
+    <button class="delete-btn" (click)="onDelete(s.id)">
+      🗑 Remove
+    </button>
+  </div>
+
+    </div>
+
+  </div>
+
+  <div *ngIf="sessions.length === 0" class="empty">
+    No sessions available
+  </div>
+
+</div>
