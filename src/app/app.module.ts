@@ -18,6 +18,13 @@ import { SessionTableComponent } from './pages/sessions/components/session-table
 import { SessionFormComponent } from './pages/sessions/components/session-form/session-form.component';
 import {HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { EquipmentTableComponent } from './pages/sessions/components/equipment-table/equipment-table.component';
+import { EquipmentFormComponent } from './pages/sessions/components/equipment-form/equipment-form.component';
+import { EmployerLayoutComponent } from './layout/employer-layout/employer-layout.component';
+import { EmployerSidebarComponent } from './shared/employer-sidebar/employer-sidebar.component';
+import { PartnerProfileComponent } from './pages/employer/partner-profile/partner-profile.component';
+import { OffersComponent } from './pages/employer/offers/offers.component';
+import { PartnerDetailsComponent } from './pages/partners/components/partner-details/partner-details.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +41,13 @@ import { FormsModule } from '@angular/forms';
     PartnersComponent,
     HrComponent,
     SessionTableComponent,
-    SessionFormComponent
+    SessionFormComponent,
+    EquipmentTableComponent,
+    EmployerLayoutComponent,
+    EmployerSidebarComponent,
+    PartnerProfileComponent,
+    OffersComponent,
+    PartnerDetailsComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,48 @@
+<div class="page">
+  <div class="top">
+    <h2>Partner Details</h2>
+    <a class="back" routerLink="/partners">← Back</a>
+  </div>
+
+  <p *ngIf="loading">Loading...</p>
+  <p class="msg" *ngIf="message">{{ message }}</p>
+
+  <div *ngIf="partner && !loading" class="grid">
+
+    <!-- Partner Info -->
+    <div class="card">
+      <h3>{{ partner.companyName }}</h3>
+      <p><b>Status:</b> {{ partner.status }}</p>
+      <p><b>Industry:</b> {{ partner.industry }}</p>
+      <p><b>Email:</b> {{ partner.companyEmail }}</p>
+      <p><b>Phone:</b> {{ partner.phone }}</p>
+      <p><b>Address:</b> {{ partner.address }}</p>
+      <p><b>Website:</b> {{ partner.website }}</p>
+      <p><b>Description:</b> {{ partner.description }}</p>
+    </div>
+
+    <!-- Offers List -->
+    <div class="card">
+      <h3>Offers</h3>
+
+      <div class="offer" *ngFor="let o of offers">
+        <div class="head">
+          <b>{{ o.title }}</b>
+          <span class="badge">{{ o.status }}</span>
+        </div>
+
+        <p class="desc">{{ o.description }}</p>
+
+        <div class="meta">
+          <span><b>Type:</b> {{ o.type }}</span>
+          <span><b>Mode:</b> {{ o.mode }}</span>
+          <span><b>Location:</b> {{ o.location }}</span>
+          <span><b>Deadline:</b> {{ o.deadline }}</span>
+        </div>
+      </div>
+
+      <p *ngIf="offers.length === 0">No offers for this partner.</p>
+    </div>
+
+  </div>
+</div>

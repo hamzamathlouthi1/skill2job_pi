@@ -1,0 +1,59 @@
+.page { padding: 10px; }
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.back {
+  text-decoration: none;
+  font-weight: 600;
+  color: #c4161c;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.06);
+}
+
+.offer {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #f3f3f3;
+  font-size: 12px;
+}
+
+.desc { margin: 8px 0; color: #444; }
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+  color: #555;
+}
+
+.msg { color: #b00020; font-weight: 600; }

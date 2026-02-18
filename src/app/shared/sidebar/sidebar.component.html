@@ -1,9 +1,7 @@
 <div class="sidebar">
 
-  <!-- Logo -->
   <div class="logo"></div>
 
-  <!-- Main Menu -->
   <ul class="menu">
 
     <li routerLink="/dashboard" routerLinkActive="active">
@@ -22,9 +20,30 @@
       Exams
     </li>
 
-    <li routerLink="/sessions" routerLinkActive="active">
-      Sessions
-    </li>
+   <li class="menu-parent">
+
+  <div class="menu-title" (click)="toggleSessionsMenu()">
+    <span>Sessions</span>
+    <span class="arrow" [class.rotate]="isSessionsOpen">▸</span>
+  </div>
+
+  <ul class="submenu" [class.open]="isSessionsOpen">
+
+  <li routerLink="/sessions" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+
+    Sessions List
+  </li>
+
+  <li routerLink="/sessions/equipments" routerLinkActive="active">
+    Equipments
+  </li>
+
+</ul>
+
+
+</li>
+
+
 
     <li routerLink="/partners" routerLinkActive="active">
       Partners
@@ -35,7 +54,5 @@
     </li>
 
   </ul>
-
-
 
 </div>

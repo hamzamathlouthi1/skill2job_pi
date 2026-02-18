@@ -1,0 +1,49 @@
+<h2>Partner Profile</h2>
+
+<p *ngIf="loading">Loading...</p>
+<p class="msg" *ngIf="msg">{{ msg }}</p>
+
+<div class="card">
+  <div class="row">
+    <label>Company Name</label>
+    <input [(ngModel)]="form.companyName" />
+  </div>
+
+  <div class="row">
+    <label>Industry</label>
+    <input [(ngModel)]="form.industry" />
+  </div>
+
+  <div class="row">
+    <label>Email</label>
+    <input [(ngModel)]="form.companyEmail" />
+  </div>
+
+  <div class="row">
+    <label>Phone</label>
+    <input [(ngModel)]="form.phone" />
+  </div>
+
+  <div class="row">
+    <label>Address</label>
+    <input [(ngModel)]="form.address" />
+  </div>
+
+  <div class="row">
+    <label>Website</label>
+    <input [(ngModel)]="form.website" />
+  </div>
+
+  <div class="row">
+    <label>Description</label>
+    <textarea [(ngModel)]="form.description"></textarea>
+  </div>
+
+  <button (click)="save()">Save</button>
+ <button class="danger" (click)="deleteMyPartner()">Delete Partner Profile</button>
+
+  <p *ngIf="partner">
+    <b>Status:</b> {{ partner.status }}
+
+  </p>
+</div>

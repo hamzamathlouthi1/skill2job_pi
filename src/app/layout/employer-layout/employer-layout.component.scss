@@ -1,0 +1,17 @@
+/* Container principal */
+.layout {
+  position: relative;
+}
+
+/* Le contenu doit être décalé, PAS le container qui contient la sidebar */
+.page-content {
+  margin-left: 270px;   /* même largeur que la sidebar */
+  margin-top: 0px;    /* même hauteur que la navbar */
+  padding: 30px;
+
+  height: calc(100vh - 120px);
+  overflow: auto;
+
+  background: transparent;
+  width: calc(100% - 270px);
+}

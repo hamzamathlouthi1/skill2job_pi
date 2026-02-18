@@ -1,1 +1,60 @@
-<p>partners works!</p>
+<div class="page">
+  <h2>Partners Management</h2>
+
+  <p class="msg" *ngIf="message">{{ message }}</p>
+
+  <div class="cards-container" *ngIf="partners.length > 0">
+
+    <div class="partner-card" *ngFor="let p of partners">
+
+      <div class="card-header">
+        <h3>{{ p.companyName }}</h3>
+        <span class="status"
+              [ngClass]="{
+                'approved': p.status === 'APPROVED',
+                'pending': p.status === 'PENDING',
+                'suspended': p.status === 'SUSPENDED'
+              }">
+          {{ p.status }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <p><b>Industry:</b> {{ p.industry }}</p>
+        <p><b>Email:</b> {{ p.companyEmail }}</p>
+        <p><b>Phone:</b> {{ p.phone }}</p>
+        <p><b>Address:</b> {{ p.address }}</p>
+        <p><b>Website:</b> {{ p.website }}</p>
+        <p><b>Description:</b> {{ p.description }}</p>
+      </div>
+
+      <div class="card-actions">
+        <button 
+          class="approve-btn"
+          (click)="changeStatus(p.id!, 'APPROVED')"
+          [disabled]="p.status === 'APPROVED'">
+          Approve
+        </button>
+
+        <button 
+          class="suspend-btn"
+          (click)="changeStatus(p.id!, 'SUSPENDED')"
+          [disabled]="p.status === 'SUSPENDED'">
+          Suspend
+        </button>
+        <button class="details-btn" [routerLink]="['/partners', p.id]">
+  Details
+</button>
+
+        <button class="danger" (click)="deletePartner(p.id)">Delete</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <p *ngIf="partners.length === 0 && !loading">
+    No partners available.
+  </p>
+</div>
