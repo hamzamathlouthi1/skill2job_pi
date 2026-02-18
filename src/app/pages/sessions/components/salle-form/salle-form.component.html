@@ -1,0 +1,52 @@
+<div class="page">
+
+  <div class="card">
+
+    <!-- HEADER -->
+    <div class="card-header">
+      <div class="icon">🏫</div>
+      <div>
+        <h2>{{ isEdit ? 'Edit Salle' : 'Add New Salle' }}</h2>
+        <p>Manage training room information</p>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="card-body">
+
+      <!-- NAME -->
+      <div class="input-group">
+        <label>Salle Name</label>
+        <input
+          type="text"
+          [(ngModel)]="salle.name"
+          placeholder="Example: Room A1"
+        />
+      </div>
+
+      <!-- CAPACITY -->
+      <div class="input-group">
+        <label>Capacity</label>
+        <input
+          type="number"
+          [(ngModel)]="salle.capacity"
+          placeholder="Number of seats"
+        />
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <button class="btn-save" (click)="save()">
+          💾 Save
+        </button>
+
+        <button class="btn-cancel" routerLink="/sessions/salles">
+          Cancel
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

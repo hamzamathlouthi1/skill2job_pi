@@ -1,0 +1,204 @@
+/* PAGE */
+.equipment-page {
+  padding: 40px;
+  min-height: 100vh;
+
+  /* Transparent glass effect */
+  background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+  backdrop-filter: blur(8px);
+}
+
+/* HEADER */
+.equipment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+}
+
+.equipment-header h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1f2937;
+  letter-spacing: 0.5px;
+}
+
+/* ADD BUTTON */
+.add-btn {
+  background: linear-gradient(135deg, #c22b33, #e14a52);
+  color: white;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 10px 25px rgba(194,43,51,0.25);
+}
+
+.add-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 35px rgba(194,43,51,0.35);
+}
+
+/* GRID */
+.equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 30px;
+}
+
+/* CARD */
+.equipment-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 22px;
+
+  /* GLASS STYLE */
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.4);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transition: all 0.35s ease;
+  overflow: hidden;
+}
+
+/* Gradient glow on hover */
+.equipment-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(194,43,51,0.15), transparent);
+  opacity: 0;
+  transition: 0.4s;
+  pointer-events: none; /* 👈 IMPORTANT */
+}
+
+
+.equipment-card:hover::before {
+  opacity: 1;
+}
+
+.equipment-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+}
+
+/* TEXT */
+.card-body h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.capacity {
+  margin-top: 10px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* STATUS STYLE */
+.card-body h3:nth-child(2) {
+  font-size: 14px;
+  margin-top: 6px;
+  color: #c22b33;
+  font-weight: 600;
+}
+
+/* ACTIONS */
+.actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* EDIT BUTTON */
+.edit-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(16,185,129,0.35);
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.delete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(239,68,68,0.35);
+}
+.meeting-link-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(194,43,51,0.08);
+  border: 1px solid rgba(194,43,51,0.2);
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: 0.3s;
+}
+
+.meeting-link-box:hover {
+  background: rgba(194,43,51,0.15);
+  transform: translateY(-2px);
+}
+
+.link-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.link-text a {
+  color: #c22b33;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.link-text a:hover {
+  text-decoration: underline;
+}
+
+.copy-btn {
+  background: #c22b33;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.copy-btn:hover {
+  background: #a32028;
+  transform: scale(1.05);
+}
+

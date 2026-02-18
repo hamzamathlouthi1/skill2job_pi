@@ -1,0 +1,51 @@
+<div class="equipment-page">
+
+  <!-- HEADER -->
+  <div class="equipment-header">
+    <h2>Equipments</h2>
+
+    <button class="add-btn" routerLink="/sessions/equipments/add">
+      + Add Equipment
+    </button>
+  </div>
+
+  <!-- GRID -->
+  <div class="equipment-grid">
+
+    <div class="equipment-card" *ngFor="let e of equipments">
+
+      <!-- IMAGE -->
+      <div class="image-container">
+        <img
+          *ngIf="e.photo"
+          [src]="'http://localhost:8081/api/equipments/photo/' + e.photo"
+          class="equipment-img"
+        />
+
+        <div *ngIf="!e.photo" class="no-image">
+          No Image
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="card-body">
+        <h3>{{ e.name }}</h3>
+        <p class="qty">Available: {{ e.quantity }}</p>
+
+        <div class="actions">
+          <button class="edit-btn"
+                  [routerLink]="['/sessions/equipments/edit', e.id]">
+            Edit
+          </button>
+
+          <button class="delete-btn"
+                  (click)="deleteEquipment(e.id!)">
+            Delete
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

@@ -21,4 +21,5 @@ onDelete(id: number) {
 onEdit(id: number) {
   this.edit.emit(id);
 }
+
 }

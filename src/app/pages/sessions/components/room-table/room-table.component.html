@@ -1,0 +1,51 @@
+<div class="equipment-page">
+
+  <!-- HEADER -->
+  <div class="equipment-header">
+    <h2>Virtual Rooms</h2>
+
+    
+  </div>
+
+  <!-- CARDS -->
+  <div class="equipment-grid">
+
+    <div class="equipment-card" *ngFor="let r of rooms">
+
+<div class="card-body">
+
+        <div class="meeting-link-box">
+
+  <div class="link-text">
+    <span class="icon">🌐</span>
+    <a
+      [href]="r.meetingLink"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{ r.meetingLink }}
+    </a>
+  </div>
+
+  <button
+    class="copy-btn"
+    (click)="copyLink(r.meetingLink)"
+    type="button"
+  >
+    📋
+  </button>
+
+</div>
+
+        <p class="capacity">Start at: {{ r.startAt }}</p>
+        <p class="capacity">End at: {{ r.endAt }}</p>
+        <p class="capacity">Session id: {{ r.session?.id }}</p>
+
+       
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

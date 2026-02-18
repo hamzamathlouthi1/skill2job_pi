@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SessionsService } from '../../services/sessions.service';
+import { SalleService } from '../../services/salle.service';
 
 @Component({
   selector: 'app-session-form',
@@ -13,35 +14,42 @@ export class SessionFormComponent implements OnInit {
     type: 'ONLINE',
     startAt: '',
     endAt: '',
-    capacity: 0
+    capacity: 0,
   };
+  salles: any[] = [];
+  durationHours: number = 1;
+ 
 
   isEdit = false;
   sessionId!: number;
 
   constructor(
     private sessionsService: SessionsService,
+    private salleService: SalleService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
 
-    // If there is an ID → EDIT MODE
-    if (id) {
-      this.isEdit = true;
-      this.sessionId = +id;
+  // 🔥 LOAD SALLES LIST
+  this.loadSalles();
 
-      this.sessionsService.getSessionById(this.sessionId).subscribe((data: any) => {
-        this.session = data;
+  const id = this.route.snapshot.paramMap.get('id');
 
-        // 🔥 VERY IMPORTANT: fix datetime format
-        this.session.startAt = this.session.startAt?.substring(0, 16);
-        this.session.endAt = this.session.endAt?.substring(0, 16);
-      });
-    }
+  if (id) {
+    this.isEdit = true;
+    this.sessionId = +id;
+
+    this.sessionsService.getSessionById(this.sessionId).subscribe((data: any) => {
+      this.session = data;
+
+      this.session.startAt = this.session.startAt?.substring(0, 16);
+      this.session.endAt = this.session.endAt?.substring(0, 16);
+    });
   }
+}
+
 
   submit() {
     if (this.isEdit) {
@@ -58,4 +66,43 @@ export class SessionFormComponent implements OnInit {
       });
     }
   }
+  onTypeChange() {
+    if (this.session.type === 'ONLINE') {
+      this.session.salle = null;
+    }
+  }
+   loadSalles() {
+    this.salleService.getAll().subscribe((data: any) => {
+      this.salles = data;
+    });
+  }
+ calculateEndDate() {
+
+  if (!this.session.startAt || !this.durationHours) return;
+
+  const start = new Date(this.session.startAt);
+
+  // Add duration in milliseconds (safe method)
+  const end = new Date(start.getTime() + this.durationHours * 60 * 60 * 1000);
+
+  // Format properly for datetime-local
+  const year = end.getFullYear();
+  const month = String(end.getMonth() + 1).padStart(2, '0');
+  const day = String(end.getDate()).padStart(2, '0');
+  const hours = String(end.getHours()).padStart(2, '0');
+  const minutes = String(end.getMinutes()).padStart(2, '0');
+
+  this.session.endAt = `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+onDurationChange() {
+
+  // Prevent values under 1
+  if (!this.durationHours || this.durationHours < 1) {
+    this.durationHours = 0;
+  }
+
+  this.calculateEndDate();
+}
+
 }

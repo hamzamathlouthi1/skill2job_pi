@@ -1,0 +1,39 @@
+<div class="equipment-page">
+
+  <!-- HEADER -->
+  <div class="equipment-header">
+    <h2>Rooms</h2>
+
+    <button class="add-btn" routerLink="/sessions/salles/add">
+      + Add Salle
+    </button>
+  </div>
+
+  <!-- CARDS -->
+  <div class="equipment-grid">
+
+    <div class="equipment-card" *ngFor="let s of salles">
+
+      <div class="card-body">
+        <h3>{{ s.name }}</h3>
+        <h3>Status: {{ s.status }}</h3>
+        <p class="capacity">Capacity: {{ s.capacity }}</p>
+
+        <div class="actions">
+          <button class="edit-btn"
+                  [routerLink]="['/sessions/salles/edit', s.id]">
+            Edit
+          </button>
+
+          <button class="delete-btn"
+        (click)="deleteSalle(s.id!)">
+  Delete 
+</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

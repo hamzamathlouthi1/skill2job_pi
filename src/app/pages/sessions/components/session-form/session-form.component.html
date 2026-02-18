@@ -12,7 +12,12 @@
       <!-- TYPE -->
       <div class="field">
         <label>Session Type</label>
-        <select [(ngModel)]="session.type" name="type" required>
+        <select
+          [(ngModel)]="session.type"
+          name="type"
+          required
+          (change)="onTypeChange()"
+        >
           <option value="ONLINE">🌐 ONLINE</option>
           <option value="ONSITE">🏫 ONSITE</option>
         </select>
@@ -28,6 +33,21 @@
           required
         />
       </div>
+      <!-- DURATION -->
+<div class="field">
+  <label>Duration (hours)</label>
+  <input
+    type="number"
+    [(ngModel)]="durationHours"
+    name="durationHours"
+    min="1"
+    step="1"
+    required
+    (input)="onDurationChange()"
+  />
+</div>
+
+
 
       <!-- END DATE -->
       <div class="field">
@@ -50,6 +70,17 @@
           placeholder="Enter number of participants"
           required
         />
+      </div>
+
+      <!-- SALLE (VISIBLE ONLY IF ONSITE) -->
+      <div class="field" *ngIf="session.type === 'ONSITE'">
+        <label>Select Salle</label>
+
+        <select [(ngModel)]="session.salle" name="salle" required>
+          <option *ngFor="let s of salles" [ngValue]="{ id: s.id }">
+            {{ s.name }} ({{ s.capacity }} places)
+          </option>
+        </select>
       </div>
 
       <!-- ACTIONS -->

@@ -1,0 +1,122 @@
+/* PAGE CENTERING */
+.page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+/* CARD */
+.card {
+  width: 520px;
+  background: white;
+  border-radius: 18px;
+  padding: 35px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  border-top: 6px solid #c22b33;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* HEADER */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card-header h2 {
+  margin: 0;
+  color: #c22b33;
+  font-size: 24px;
+}
+
+.card-header p {
+  margin: 3px 0 0;
+  color: #888;
+  font-size: 13px;
+}
+
+/* ICON */
+.icon {
+  font-size: 30px;
+  background: #ffe9eb;
+  color: #c22b33;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* INPUT GROUP */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+/* INPUT STYLE */
+.input-group input {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #c22b33;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(194,43,51,0.1);
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+/* SAVE BUTTON */
+.btn-save {
+  flex: 1;
+  background: linear-gradient(135deg, #c22b33, #e14a52);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(194,43,51,0.25);
+}
+
+/* CANCEL BUTTON */
+.btn-cancel {
+  flex: 1;
+  background: #f1f1f1;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #e5e5e5;
+}

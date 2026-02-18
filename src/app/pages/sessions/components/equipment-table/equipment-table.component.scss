@@ -1,0 +1,151 @@
+/* PAGE */
+.equipment-page {
+  padding: 40px;
+  min-height: 100vh;
+
+  /* same transparent background as salle */
+  background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+  backdrop-filter: blur(8px);
+}
+
+/* HEADER */
+.equipment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+}
+
+.equipment-header h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+/* ADD BUTTON (same as salle style with your red theme) */
+.add-btn {
+  background: linear-gradient(135deg, #c22b33, #e14a52);
+  color: white;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 10px 25px rgba(194,43,51,0.25);
+}
+
+.add-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(194,43,51,0.35);
+}
+
+/* GRID */
+.equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 30px;
+}
+
+/* CARD (same glass style as salle) */
+.equipment-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.4);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transition: all 0.35s ease;
+}
+
+.equipment-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+}
+
+/* IMAGE */
+.image-container {
+  height: 150px;
+  background: #f4f6f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.equipment-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* NO IMAGE PLACEHOLDER */
+.no-image {
+  font-size: 14px;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+/* BODY */
+.card-body {
+  padding: 18px;
+}
+
+.card-body h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.qty {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ACTIONS */
+.actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* EDIT BUTTON */
+.edit-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(16,185,129,0.35);
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.delete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(239,68,68,0.35);
+}

@@ -18,6 +18,11 @@ import { SessionTableComponent } from './pages/sessions/components/session-table
 import { SessionFormComponent } from './pages/sessions/components/session-form/session-form.component';
 import {HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { EquipmentTableComponent } from './pages/sessions/components/equipment-table/equipment-table.component';
+import { EquipmentFormComponent } from './pages/sessions/components/equipment-form/equipment-form.component';
+import { SalleTableComponent } from './pages/sessions/components/salle-table/salle-table.component';
+import { SalleFormComponent } from './pages/sessions/components/salle-form/salle-form.component';
+import { RoomTableComponent } from './pages/sessions/components/room-table/room-table.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +39,13 @@ import { FormsModule } from '@angular/forms';
     PartnersComponent,
     HrComponent,
     SessionTableComponent,
-    SessionFormComponent
+    SessionFormComponent,
+    EquipmentTableComponent,
+    EquipmentFormComponent,
+    SalleTableComponent,
+    SalleFormComponent,
+    RoomTableComponent,
+    
   ],
   imports: [
     BrowserModule,
