@@ -1,1 +1,61 @@
-<p>hr works!</p>
+<h2>Trainer Applications (HR)</h2>
+
+<div class="toolbar">
+  <div class="filter">
+    <label><b>Status:</b></label>
+    <select [(ngModel)]="selectedStatus" (change)="loadApplications()">
+      <option value="">ALL</option>
+      <option value="PENDING">PENDING</option>
+      <option value="ACCEPTED">ACCEPTED</option>
+      <option value="REJECTED">REJECTED</option>
+    </select>
+  </div>
+
+  <button class="btn refresh" (click)="loadApplications()">🔄 Refresh</button>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>User ID</th>
+      <th>Status</th>
+      <th>CV</th>
+      <th>Motivation</th>
+      <th>Updated At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let app of applications">
+      <td>{{ app.id }}</td>
+      <td>{{ app.userId }}</td>
+
+      <td>
+        <span class="badge" [ngClass]="app.status?.toLowerCase()">
+          {{ app.status }}
+        </span>
+      </td>
+
+      <td>
+        <a [href]="app.cvUrl" target="_blank" rel="noopener">Open CV</a>
+      </td>
+
+      <td class="motivation">{{ app.motivation }}</td>
+
+      <td>{{ app.updatedAt | date:'yyyy-MM-dd HH:mm' }}</td>
+
+      <td class="actions">
+        <button class="btn refresh" (click)="analyze(app.id)">🤖 Analyze</button>
+        <button class="btn approve" (click)="approve(app.id)">✅ Approve</button>
+        <button class="btn reject" (click)="reject(app.id)">❌ Reject</button>
+        <button class="btn delete" (click)="deleteApplication(app.id)">🗑 Delete</button>
+      </td>
+    </tr>
+
+    <tr *ngIf="applications.length === 0">
+      <td colspan="7" class="empty">No applications yet</td>
+    </tr>
+  </tbody>
+</table>

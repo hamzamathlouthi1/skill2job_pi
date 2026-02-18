@@ -1,0 +1,46 @@
+<h2>Trainer Profiles</h2>
+
+<table class="table">
+  <tr>
+    <th>ID</th>
+    <th>User ID</th>
+    <th>Speciality</th>
+    <th>Level</th>
+    <th>Status</th>
+    <th>Activated At</th>
+    <th>Actions</th>
+  </tr>
+
+  <tr *ngFor="let p of profiles">
+    <td>{{ p.id }}</td>
+    <td>{{ p.userId }}</td>
+    <td>{{ p.mainSpeciality }}</td>
+    <td>{{ p.level }}</td>
+    <td>
+      <span class="badge"
+            [ngClass]="{
+              'accepted': p.status === 'ACTIVE',
+              'rejected': p.status === 'SUSPENDED'
+            }">
+        {{ p.status }}
+      </span>
+    </td>
+    <td>{{ p.activatedAt | date:'short' }}</td>
+    <td>
+      <button class="btn approve"
+              (click)="changeStatus(p.id, 'ACTIVE')">
+        Activate
+      </button>
+
+      <button class="btn reject"
+              (click)="changeStatus(p.id, 'SUSPENDED')">
+        Suspend
+      </button>
+
+      <button class="btn delete"
+              (click)="delete(p.id)">
+        Delete
+      </button>
+    </td>
+  </tr>
+</table>

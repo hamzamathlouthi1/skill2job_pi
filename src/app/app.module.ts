@@ -18,6 +18,10 @@ import { SessionTableComponent } from './pages/sessions/components/session-table
 import { SessionFormComponent } from './pages/sessions/components/session-form/session-form.component';
 import {HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { EquipmentTableComponent } from './pages/sessions/components/equipment-table/equipment-table.component';
+import { EquipmentFormComponent } from './pages/sessions/components/equipment-form/equipment-form.component';
+import { TrainerProfilesComponent } from './pages/trainer-profiles/trainer-profiles.component';
+import { TrainerDetailsComponent } from './pages/trainer-details/trainer-details.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +38,11 @@ import { FormsModule } from '@angular/forms';
     PartnersComponent,
     HrComponent,
     SessionTableComponent,
-    SessionFormComponent
+    SessionFormComponent,
+    EquipmentTableComponent,
+    EquipmentFormComponent,
+    TrainerProfilesComponent,
+    TrainerDetailsComponent
   ],
   imports: [
     BrowserModule,

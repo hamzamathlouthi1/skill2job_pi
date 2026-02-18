@@ -1,0 +1,256 @@
+.page {
+    padding: 18px 18px 28px;
+  }
+  
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+  
+    h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+  
+    .subtitle {
+      margin: 6px 0 0;
+      opacity: 0.7;
+      font-size: 13px;
+    }
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #e7e7e7;
+    border-radius: 10px;
+    padding: 8px 10px;
+    min-width: 320px;
+  
+    .icon {
+      opacity: 0.6;
+    }
+  
+    input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 13px;
+      background: transparent;
+    }
+  }
+  
+  .card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  
+  .table-wrap {
+    overflow: auto;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  
+    th {
+      text-align: left;
+      font-size: 12px;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      opacity: 0.75;
+      padding: 14px 14px;
+      background: #fafafa;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;
+    }
+  
+    td {
+      padding: 14px 14px;
+      border-bottom: 1px solid #f1f1f1;
+      vertical-align: top;
+    }
+  
+    tr:hover td {
+      background: #fcfcfc;
+    }
+  }
+  
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+  
+  .pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    border: 1px solid #e6e8ee;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 12px;
+    border: 1px solid transparent;
+  
+    &.junior { background: #fff7d6; border-color: #ffe9a1; }
+    &.mid    { background: #e9f4ff; border-color: #cfe8ff; }
+    &.senior { background: #eafff1; border-color: #c7f6d7; }
+  }
+  
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  
+    .chip {
+      background: #f5f5f7;
+      border: 1px solid #e8e8ec;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+  
+  .exp {
+    display: inline-block;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: #f7f7f7;
+    border: 1px solid #eee;
+  }
+  
+  .summary {
+    max-width: 520px;
+    line-height: 1.45;
+    font-size: 13px;
+    color: #222;
+    white-space: normal;
+  }
+  
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  
+  .btn.ghost {
+    background: #f2f2f2;
+  }
+  
+  .btn.danger {
+    background: #e74c3c;
+    color: #fff;
+  }
+  
+  .empty {
+    text-align: center;
+    padding: 18px;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+  
+  .muted {
+    opacity: 0.6;
+  }
+  /* AI Summary Card */
+.ai-card {
+    border: 1px solid #e6ecff;
+    background: linear-gradient(135deg, #fbfcff, #f2f6ff);
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    max-width: 640px;
+  }
+  
+  .ai-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .ai-title {
+    font-weight: 800;
+    font-size: 14px;
+    color: #203047;
+    letter-spacing: .2px;
+  }
+  
+  .ai-badge {
+    font-size: 12px;
+    font-weight: 800;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  
+  .ai-badge.ok {
+    background: #eafff1;
+    color: #116a33;
+    border-color: #bfead0;
+  }
+  
+  .ai-badge.warn {
+    background: #fff7e6;
+    color: #7a4a00;
+    border-color: #ffe2b8;
+  }
+  
+  .ai-badge.risk {
+    background: #fff0f0;
+    color: #7a1f1f;
+    border-color: #ffd0d0;
+  }
+  
+  .ai-body .summary {
+    white-space: pre-line;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #2c3e50;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #f1f4ff;
+  }
+  
+  /* Optional: make long summary scroll inside cell */
+  .ai-body .summary {
+    max-height: 220px;
+    overflow: auto;
+  }
+  
+  /* small scrollbar */
+  .ai-body .summary::-webkit-scrollbar {
+    width: 8px;
+  }
+  .ai-body .summary::-webkit-scrollbar-thumb {
+    background: #d6ddff;
+    border-radius: 999px;
+  }
+  
