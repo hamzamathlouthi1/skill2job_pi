@@ -1,14 +1,23 @@
 <div class="page">
-  <h2>Partners Management</h2>
+  <div class="page-head">
+    <div>
+      <h2>Partners Management</h2>
+    </div>
+  </div>
 
   <p class="msg" *ngIf="message">{{ message }}</p>
+  <p class="loading" *ngIf="loading">Loading...</p>
 
   <div class="cards-container" *ngIf="partners.length > 0">
 
     <div class="partner-card" *ngFor="let p of partners">
 
       <div class="card-header">
-        <h3>{{ p.companyName }}</h3>
+        <div class="title">
+          <h3>{{ p.companyName }}</h3>
+          <span class="small">Employer ID: {{ p.employerId }}</span>
+        </div>
+
         <span class="status"
               [ngClass]="{
                 'approved': p.status === 'APPROVED',
@@ -20,41 +29,66 @@
       </div>
 
       <div class="card-body">
-        <p><b>Industry:</b> {{ p.industry }}</p>
-        <p><b>Email:</b> {{ p.companyEmail }}</p>
-        <p><b>Phone:</b> {{ p.phone }}</p>
-        <p><b>Address:</b> {{ p.address }}</p>
-        <p><b>Website:</b> {{ p.website }}</p>
-        <p><b>Description:</b> {{ p.description }}</p>
+        <div class="row">
+          <span class="label">Industry</span>
+          <span class="value">{{ p.industry }}</span>
+        </div>
+
+        <div class="row">
+          <span class="label">Email</span>
+          <span class="value break">{{ p.companyEmail }}</span>
+        </div>
+
+        <div class="row">
+          <span class="label">Phone</span>
+          <span class="value">{{ p.phone }}</span>
+        </div>
+
+        <div class="row">
+          <span class="label">Address</span>
+          <span class="value">{{ p.address }}</span>
+        </div>
+
+        <div class="row">
+          <span class="label">Website</span>
+          <span class="value break">{{ p.website }}</span>
+        </div>
+
+        <div class="row desc-row">
+          <span class="label">Description</span>
+          <span class="value desc">{{ p.description }}</span>
+        </div>
       </div>
 
       <div class="card-actions">
-        <button 
-          class="approve-btn"
+        <button
+          class="btn success"
           (click)="changeStatus(p.id!, 'APPROVED')"
           [disabled]="p.status === 'APPROVED'">
           Approve
         </button>
 
-        <button 
-          class="suspend-btn"
+        <button
+          class="btn danger"
           (click)="changeStatus(p.id!, 'SUSPENDED')"
           [disabled]="p.status === 'SUSPENDED'">
           Suspend
         </button>
-        <button class="details-btn" [routerLink]="['/partners', p.id]">
-  Details
-</button>
 
-        <button class="danger" (click)="deletePartner(p.id)">Delete</button>
+        <a class="btn dark" [routerLink]="['/partners', p.id]">
+          Details
+        </a>
 
+        <button class="btn ghost" (click)="deletePartner(p.id)">
+          Delete
+        </button>
       </div>
 
     </div>
 
   </div>
 
-  <p *ngIf="partners.length === 0 && !loading">
+  <p class="empty" *ngIf="partners.length === 0 && !loading">
     No partners available.
   </p>
 </div>
