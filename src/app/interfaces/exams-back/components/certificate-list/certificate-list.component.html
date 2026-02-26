@@ -1,0 +1,34 @@
+<div class="certificate-container">
+  <h2>All Certificates</h2>
+  
+  <div *ngIf="loading" class="loading">Loading certificates...</div>
+  
+  <div *ngIf="!loading && certificates.length === 0" class="no-data">
+    No certificates found.
+  </div>
+  
+  <table *ngIf="!loading && certificates.length > 0" class="certificate-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Certificate Code</th>
+        <th>Issue Date</th>
+        <th>User ID</th>
+        <th>Exam</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cert of certificates">
+        <td>{{ cert.id }}</td>
+        <td>{{ cert.certificateCode }}</td>
+        <td>{{ cert.issueDate }}</td>
+        <td>{{ cert.evaluation?.userId }}</td>
+        <td>{{ cert.evaluation?.exam?.title }}</td>
+        <td>
+          <button [routerLink]="['/admin/exams/certificates', cert.id]">View</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

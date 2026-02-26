@@ -1,0 +1,207 @@
+.exam-table-container {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: 100vh;
+  margin-left: 270px; // ← pushes content away from sidebar
+  box-sizing: border-box;
+  width: calc(100% - 270px); // ← constrains width
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    background: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #d32f2f;
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0;
+      letter-spacing: -0.3px;
+    }
+
+    .btn-add {
+      background: #d32f2f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+
+      i { font-size: 16px; }
+
+      &:hover {
+        background: #b71c1c;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+      }
+
+      &:active { transform: translateY(0); }
+    }
+  }
+
+  .loading-spinner {
+    text-align: center;
+    padding: 60px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: #666;
+
+    i { margin-right: 8px; color: #d32f2f; }
+  }
+
+  .error-message {
+    background: white;
+    color: #d32f2f;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #d32f2f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    i { margin-right: 8px; }
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 60px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: #666;
+
+    i {
+      font-size: 48px;
+      color: #d32f2f;
+      margin-bottom: 16px;
+      opacity: 0.5;
+      display: block;
+    }
+
+    p { font-size: 16px; color: #1a1a1a; }
+  }
+
+  .exam-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    table-layout: fixed; // ← prevents columns from overflowing
+
+    // Fixed column widths so nothing gets hidden
+    col.col-id          { width: 60px; }
+    col.col-title       { width: 160px; }
+    col.col-description { width: auto; }
+    col.col-passscore   { width: 110px; }
+    col.col-actions     { width: 220px; }
+
+    th {
+      background: #1a1a1a;
+      color: white;
+      padding: 14px 16px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &:first-child {
+        font-weight: 600;
+        color: #d32f2f;
+      }
+    }
+
+    tr {
+      transition: background 0.2s ease;
+
+      &:hover { background: #fafafa; }
+      &:last-child td { border-bottom: none; }
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: nowrap;
+
+      .action-btn {
+        width: 34px;
+        height: 34px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        background: white;
+        color: #1a1a1a;
+        flex-shrink: 0;
+
+        i { font-size: 14px; }
+
+        &:hover {
+          background: #d32f2f;
+          color: white;
+          border-color: #d32f2f;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(211, 47, 47, 0.2);
+        }
+
+        &.delete:hover {
+          background: #b71c1c;
+          border-color: #b71c1c;
+        }
+
+        &:active { transform: translateY(0); }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .exam-table-container {
+    margin-left: 0;
+    width: 100%;
+    padding: 16px;
+
+    .header {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+
+      .btn-add { justify-content: center; }
+    }
+
+    .exam-table {
+      display: block;
+      overflow-x: auto;
+      table-layout: auto;
+    }
+  }
+}

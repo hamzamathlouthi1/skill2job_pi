@@ -1,0 +1,66 @@
+<div class="certificates-platform">
+  <!-- Header -->
+  <div class="header">
+    <h1>My Certificates</h1>
+    <p class="subtitle">All your earned certificates in one place</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading your certificates...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Oops!</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="loadCertificates()">Try Again</button>
+  </div>
+
+  <!-- Certificates Grid -->
+  <div *ngIf="!loading && !error" class="certificates-grid">
+    <div *ngFor="let cert of certificates" class="certificate-card">
+      <!-- Certificate Icon -->
+      <div class="certificate-icon">🏆</div>
+      
+      <!-- Certificate Info -->
+      <div class="certificate-info">
+        <h3>{{ getExamTitle(cert) }}</h3>
+        <div class="certificate-details">
+          <p class="cert-code">
+            <span class="label">Code:</span>
+            <span class="value">{{ cert.certificateCode }}</span>
+          </p>
+          <p class="cert-date">
+            <span class="label">Issued:</span>
+            <span class="value">{{ formatDate(cert.issueDate) }}</span>
+          </p>
+          <p class="cert-pass">
+            <span class="label">Passing Score:</span>
+            <span class="value">{{ getExamPassScore(cert) }}%</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="certificate-actions">
+        <button class="btn btn-outline" (click)="viewCertificate(cert)" title="View Details">
+          👁️
+        </button>
+        <button class="btn btn-primary" (click)="downloadCertificate(cert)" title="Download">
+          ⬇️
+        </button>
+      </div>
+    </div>
+
+    <!-- No Certificates Message -->
+    <div *ngIf="certificates.length === 0" class="no-certificates">
+      <div class="empty-icon">📜</div>
+      <h3>No Certificates Yet</h3>
+      <p>You haven't earned any certificates yet. Pass an exam to get one!</p>
+      <button class="btn btn-primary" (click)="goToExams()">Browse Exams</button>
+    </div>
+  </div>
+</div>

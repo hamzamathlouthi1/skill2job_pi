@@ -1,0 +1,74 @@
+<div class="exam-table-container">
+  <div class="header">
+    <h2>Exams List</h2>
+    <button type="button" class="btn-add" (click)="addExam(); $event.preventDefault()">
+  Add New Exam
+</button>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i> Loading exams...
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && exams.length === 0" class="no-data">
+    <i class="fas fa-folder-open"></i>
+    <p>No exams found. Click "Add New Exam" to create one.</p>
+  </div>
+
+  <table *ngIf="!loading && exams.length > 0" class="exam-table">
+    <colgroup>
+    <col class="col-id" />
+    <col class="col-title" />
+    <col class="col-description" />
+    <col class="col-passscore" />
+    <col class="col-actions" />
+  </colgroup>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Pass Score</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let exam of exams">
+        <td>#{{ exam.id }}</td>
+        <td>{{ exam.title }}</td>
+        <td>{{ exam.description }}</td>
+        <td>{{ exam.passScore }}%</td>
+        <td class="actions">
+          <!-- Edit Exam -->
+          <button class="action-btn edit" (click)="editExam(exam.id!)" title="Edit Exam">
+            <i class="fas fa-edit"></i>
+          </button>
+
+          <!-- View Evaluations -->
+          <button class="action-btn evaluations" (click)="viewEvaluations(exam.id!)" title="View Evaluations">
+            <i class="fas fa-chart-bar"></i>
+          </button>
+
+          <!-- Add Question -->
+          <button class="action-btn question" [routerLink]="['/admin/exams/question-form', exam.id]" title="Add Question">
+            <i class="fas fa-question-circle"></i>
+          </button>
+
+          <!-- View Certificates -->
+          <button class="action-btn certificate" [routerLink]="['/admin/exams/certificates']" [queryParams]="{examId: exam.id}" title="View Certificates">
+            <i class="fas fa-certificate"></i>
+          </button>
+
+          <!-- Delete Exam -->
+          <button class="action-btn delete" (click)="deleteExam(exam.id!)" title="Delete Exam">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
