@@ -97,7 +97,8 @@ export class AntiCheatService {
     }).subscribe();
   }
 
-  requestFullscreen() {
-    document.documentElement.requestFullscreen().catch(() => {});
-  }
+ requestFullscreen(element?: HTMLElement): void {
+  const target = element ?? document.documentElement;
+  target.requestFullscreen().catch(() => {});
+}
 }

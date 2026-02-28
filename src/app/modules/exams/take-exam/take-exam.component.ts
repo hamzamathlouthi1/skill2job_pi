@@ -21,7 +21,6 @@ export class TakeExamComponent implements OnInit, OnDestroy {
   timeLeft: number = 0;
   timerInterval: any;
 
-  // Anti-cheat state
   warningVisible = false;
   violationType = '';
   violationCount = 0;
@@ -58,13 +57,15 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.examService.getExamWithQuestions(examId).subscribe({
       next: (data: { exam: Exam; questions: Question[] }) => {
-        this.exam = data.exam;
-        this.questions = data.questions;
-        this.timeLeft = (this.exam?.duration || 30) * 60;
-        this.startTimer();
-        this.loading = false;
-        this.initAntiCheat();
-      },
+  this.exam = data.exam;
+  this.questions = data.questions;
+  console.log('EXAM DURATION:', this.exam?.duration);
+  console.log('TIME LEFT SET TO:', (this.exam?.duration || 30) * 60);
+  this.timeLeft = (this.exam?.duration || 30) * 60;
+  this.startTimer();
+  this.loading = false;
+  this.initAntiCheat();
+},
       error: (err: any) => {
         console.error('Error loading exam:', err);
         this.loading = false;
@@ -74,15 +75,12 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ─── Anti-Cheat ──────────────────────────────────────────────────────────
-
   initAntiCheat(): void {
     const user = this.authService.getCurrentUser() as any;
     const learnerId = user?.id ?? user?.userId ?? 1;
-    const attemptId = this.exam!.id; // use examId as attemptId if no separate attempt entity
+    const attemptId = this.exam!.id;
 
     this.antiCheat.start(attemptId, learnerId);
-    this.antiCheat.requestFullscreen();
 
     this.subs.push(
       this.antiCheat.violation$.subscribe((event: ViolationEvent) => {
@@ -90,7 +88,6 @@ export class TakeExamComponent implements OnInit, OnDestroy {
         this.violationCount = event.count;
         this.warningVisible = true;
       }),
-
       this.antiCheat.autoSubmit$.subscribe(() => {
         this.violationType = 'AUTO_SUBMIT';
         this.warningVisible = true;
@@ -113,7 +110,6 @@ export class TakeExamComponent implements OnInit, OnDestroy {
 
   onWarningDismissed(): void {
     this.warningVisible = false;
-    this.antiCheat.requestFullscreen();
   }
 
   getViolationMessage(): string {
@@ -128,8 +124,6 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     return messages[this.violationType] || 'Suspicious activity detected.';
   }
 
-  // ─── Timer ────────────────────────────────────────────────────────────────
-
   startTimer(): void {
     this.timerInterval = setInterval(() => {
       if (this.timeLeft > 0) {
@@ -139,8 +133,6 @@ export class TakeExamComponent implements OnInit, OnDestroy {
       }
     }, 1000);
   }
-
-  // ─── Question navigation ──────────────────────────────────────────────────
 
   get currentQuestion(): Question {
     return this.questions[this.currentQuestionIndex];
@@ -153,10 +145,7 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     if (existingAnswerIndex !== -1) {
       this.answers[existingAnswerIndex].selectedOption = option;
     } else {
-      this.answers.push({
-        questionId: this.currentQuestion.id,
-        selectedOption: option
-      });
+      this.answers.push({ questionId: this.currentQuestion.id, selectedOption: option });
     }
   }
 
@@ -166,15 +155,11 @@ export class TakeExamComponent implements OnInit, OnDestroy {
   }
 
   nextQuestion(): void {
-    if (this.currentQuestionIndex < this.questions.length - 1) {
-      this.currentQuestionIndex++;
-    }
+    if (this.currentQuestionIndex < this.questions.length - 1) this.currentQuestionIndex++;
   }
 
   previousQuestion(): void {
-    if (this.currentQuestionIndex > 0) {
-      this.currentQuestionIndex--;
-    }
+    if (this.currentQuestionIndex > 0) this.currentQuestionIndex--;
   }
 
   isLastQuestion(): boolean {
@@ -194,8 +179,6 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     const seconds = this.timeLeft % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
-
-  // ─── Submit ───────────────────────────────────────────────────────────────
 
   submitExam(): void {
     if (this.submitting) return;
@@ -227,22 +210,13 @@ export class TakeExamComponent implements OnInit, OnDestroy {
       answers: this.answers
     };
 
-    sessionStorage.setItem(
-      `exam_submission_${this.exam!.id}`,
-      JSON.stringify(submission)
-    );
+    sessionStorage.setItem(`exam_submission_${this.exam!.id}`, JSON.stringify(submission));
 
     this.examService.submitExam(submission).subscribe({
       next: (result: any) => {
-        console.log('Submit result from backend:', result);
-        sessionStorage.setItem(
-          `exam_submission_${submission.examId}`,
-          JSON.stringify(submission)
-        );
+        sessionStorage.setItem(`exam_submission_${submission.examId}`, JSON.stringify(submission));
         alert(`Exam submitted! Your score: ${result.score?.toFixed(1) ?? '0'}%`);
-        this.router.navigate(['/user/exams/result', this.exam!.id], {
-          state: { submission }
-        });
+        this.router.navigate(['/user/exams/result', this.exam!.id], { state: { submission } });
       },
       error: (err: any) => {
         console.error('Error submitting exam:', err);

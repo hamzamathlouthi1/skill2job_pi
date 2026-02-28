@@ -38,6 +38,8 @@ export interface Certificate {
   examId: number;
   downloadUrl?: string;
   exam?: Exam;
+  level?: 'BRONZE' | 'SILVER' | 'GOLD';
+  score?: number;
 }
 
 export interface Answer {
