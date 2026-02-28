@@ -41,4 +41,21 @@ public class Certificate {
                 ? evaluation.getExam().getId()
                 : null;
     }
+
+    // ← Derived level based on score — no DB column needed
+    @JsonProperty("level")
+    public String getLevel() {
+        if (evaluation == null) return "BRONZE";
+        Double score = evaluation.getScore();
+        if (score == null) return "BRONZE";
+        if (score >= 90) return "GOLD";
+        if (score >= 70) return "SILVER";
+        return "BRONZE";
+    }
+
+    // ← Expose score directly for convenience
+    @JsonProperty("score")
+    public Double getScore() {
+        return evaluation != null ? evaluation.getScore() : null;
+    }
 }
