@@ -1,11 +1,13 @@
 package tn.esprit.gestionuser.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.gestionuser.dto.SubmitExamRequest;
 import tn.esprit.gestionuser.dto.SubmitExamResponse;
 import tn.esprit.gestionuser.entities.*;
 import tn.esprit.gestionuser.repositories.UserAnswerRepository;
+import tn.esprit.gestionuser.repositories.ViolationRepository;
 import tn.esprit.gestionuser.services.*;
 
 import java.util.List;
@@ -31,6 +33,9 @@ public class ExamController {
     private EvaluationService evaluationService;
     @Autowired
     private UserAnswerRepository userAnswerRepository;
+    @Autowired
+    private ViolationRepository violationRepository;
+
 
 
 
@@ -251,5 +256,18 @@ public class ExamController {
     @GetMapping("/evaluations/{evaluationId}/answers")
     public List<UserAnswer> getAnswersByEvaluationId(@PathVariable Long evaluationId) {
         return userAnswerRepository.findByEvaluationId(evaluationId);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> logViolation(@RequestBody ExamViolation violation) {
+        violationRepository.save(violation);
+        return ResponseEntity.ok("logged");
+    }
+
+    @GetMapping("/attempt/{attemptId}")
+    public ResponseEntity<List<ExamViolation>> getViolations(@PathVariable Long attemptId) {
+        return ResponseEntity.ok(
+                violationRepository.findByExamAttemptId(attemptId)
+        );
     }
 }
