@@ -1,0 +1,57 @@
+<div class="details-container">
+  <div class="top-nav">
+    <button (click)="goBack()" class="btn-back">
+      <span class="icon">⬅</span> Back to Courses
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loader-container">
+    <div class="spinner"></div>
+    <p>Loading course details...</p>
+  </div>
+
+  <div *ngIf="error" class="error-card">{{ error }}</div>
+
+  <div *ngIf="!loading && course" class="content-fade-in">
+    <div class="header-section">
+      <div class="title-wrapper">
+        <span class="category-tag">{{ course.category?.name }}</span>
+        <h1>{{ course.title }}</h1>
+      </div>
+      <div class="course-meta">
+        <p class="description">{{ course.description }}</p>
+      </div>
+    </div>
+
+    <!-- ✅ Affichage de plusieurs PDFs -->
+    <ng-container *ngIf="pdfUrls.length > 0; else noPdf">
+      <div *ngFor="let pdf of pdfUrls; let i = index" class="pdf-viewer-container">
+        <div class="pdf-toolbar">
+          <div class="pdf-info">
+            <span>📄 Document {{ i + 1 }}</span>
+          </div>
+          <a [href]="getRawUrl(i)" target="_blank" class="btn-download">
+            <span class="icon">📥</span> Download
+          </a>
+        </div>
+        <div class="iframe-wrapper">
+          <iframe
+            [src]="pdf"
+            frameborder="0"
+            width="100%"
+            height="100%">
+          </iframe>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ✅ Message si aucun PDF -->
+    <ng-template #noPdf>
+      <div class="no-pdf-card">
+        <div class="alert-icon">⚠️</div>
+        <p>No PDF documentation available for this course.</p>
+      </div>
+    </ng-template>
+
+  </div>
+</div>

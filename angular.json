@@ -3,10 +3,11 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "skill2job": {
+    "backend_pi_final": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
+          "style": "css",
           "standalone": false
         },
         "@schematics/angular:directive": {
@@ -23,18 +24,22 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/skill2job",
+            "outputPath": "dist/backend_pi_final",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+               "src/favicon.ico",
+                "src/assets",
+                  {
+    "glob": "pdf.worker.mjs",
+    "input": "node_modules/pdfjs-dist/build/",
+    "output": "assets/"
+  }
             ],
             "styles": [
               "src/styles.css"
@@ -43,16 +48,16 @@
           },
           "configurations": {
             "production": {
-              "budgets": [
+"budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kB",
-                  "maximumError": "4kB"
+                  "maximumWarning": "20kB",
+                  "maximumError": "50kB"
                 }
               ],
               "outputHashing": "all"
@@ -69,10 +74,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "skill2job:build:production"
+              "buildTarget": "backend_pi_final:build:production"
             },
             "development": {
-              "buildTarget": "skill2job:build:development"
+              "buildTarget": "backend_pi_final:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -88,11 +93,10 @@
               "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/favicon.ico",
+              "src/assets"
             ],
             "styles": [
               "src/styles.css"
@@ -102,5 +106,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
