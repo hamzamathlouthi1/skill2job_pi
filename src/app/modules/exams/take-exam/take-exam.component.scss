@@ -260,7 +260,158 @@
   to { transform: rotate(360deg); }
 }
 
-/* Responsive */
+/* ─── Anti-Cheat Warning Modal ─────────────────────────────────────────────── */
+
+.warning-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+
+  .warning-box {
+    background: #1a1a1a;
+    border: 1px solid #333333;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    animation: slideUp 0.25s ease;
+
+    .warning-icon {
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      color: #e65100;
+      font-size: 1.4rem;
+      margin: 0 0 0.75rem;
+
+      &.danger {
+        color: #b71c1c;
+      }
+    }
+
+    .violation-message {
+      color: #888888;
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+    }
+
+    // Dot indicators — 3 dots matching the max violations
+    .violation-counter {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 0.4rem;
+
+      .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #333333;
+        border: 1px solid #444444;
+        transition: background 0.3s;
+
+        &.active {
+          background: #e65100;
+          border-color: #e65100;
+        }
+
+        &.danger {
+          background: #b71c1c;
+          border-color: #b71c1c;
+          box-shadow: 0 0 8px rgba(183, 28, 28, 0.6);
+        }
+      }
+    }
+
+    .counter-label {
+      font-size: 0.82rem;
+      color: #555555;
+      margin-bottom: 1.25rem;
+    }
+
+    .countdown {
+      font-size: 1rem;
+      color: #b71c1c;
+      font-weight: 600;
+      margin-bottom: 1rem;
+
+      strong {
+        font-size: 1.4rem;
+        display: inline-block;
+        animation: pulse 1s infinite;
+      }
+    }
+
+    .btn-understand {
+      padding: 0.65rem 1.75rem;
+      background: #b71c1c;
+      color: #ffffff;
+      border: none;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: #d32f2f;
+        box-shadow: 0 5px 15px rgba(183, 28, 28, 0.4);
+      }
+
+      &:disabled {
+        background: #333333;
+        color: #555555;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+/* ─── Violation Badge (in exam header) ─────────────────────────────────────── */
+
+.violation-badge {
+  display: inline-block;
+  margin: 6px 0 10px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(230, 81, 0, 0.15);
+  color: #e65100;
+  border: 1px solid #e65100;
+
+  &.danger {
+    background: rgba(183, 28, 28, 0.2);
+    color: #ef5350;
+    border-color: #b71c1c;
+    box-shadow: 0 0 10px rgba(183, 28, 28, 0.3);
+    animation: pulse 1s infinite;
+  }
+}
+
+/* ─── Animations ────────────────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────────── */
+
 @media (max-width: 768px) {
   .exam-platform {
     padding: 15px;
@@ -290,5 +441,9 @@
     .btn {
       width: 100%;
     }
+  }
+
+  .warning-overlay .warning-box {
+    padding: 1.75rem 1.25rem;
   }
 }
