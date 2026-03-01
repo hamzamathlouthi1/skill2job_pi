@@ -16,7 +16,7 @@
         <span class="tab-badge" *ngIf="pendingPaymentsCount > 0">{{ pendingPaymentsCount }}</span>
       </button>
       <button class="tab-button coupons-tab" [class.active]="activeView === 'coupons'" (click)="switchView('coupons')">
-        <span class="tab-label">🎟️ Coupons</span>
+        <span class="tab-label">Coupons</span>
         <span class="tab-badge tab-badge--green" *ngIf="activeCouponsCount > 0">{{ activeCouponsCount }}</span>
       </button>
     </div>
