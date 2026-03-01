@@ -136,6 +136,7 @@ public class TrainingCourseController {
                 return ResponseEntity.badRequest().build();
             }
 
+
             course.setTitle(title);
             course.setDescription(description);
             course.setPrice(price);

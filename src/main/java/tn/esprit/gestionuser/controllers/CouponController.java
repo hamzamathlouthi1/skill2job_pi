@@ -75,6 +75,7 @@ public class CouponController {
         return ResponseEntity.ok().build();
     }
 
+
     // ── VALIDATE (public / learner) — used by checkout ────────────
     @GetMapping("/validate")
     @PreAuthorize("hasAuthority('ROLE_LEARNER') or hasAuthority('ROLE_ADMIN')")
