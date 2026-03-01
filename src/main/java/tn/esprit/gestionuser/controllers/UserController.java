@@ -39,6 +39,7 @@ public class UserController {
         return ResponseEntity.ok("Bienvenue Learner !");
     }
 
+
     @GetMapping("/partner/dashboard")
     @PreAuthorize("hasAnyRole('ADMIN', 'PARTNER')")
     public ResponseEntity<String> partnerDashboard() {
