@@ -1,0 +1,51 @@
+<div class="dashboard">
+
+  <!-- HEADER -->
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <span class="subtitle">System Overview</span>
+  </div>
+
+
+  <!-- STATS CARDS -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-title">Total Sessions</div>
+      <div class="stat-value">{{ totalSessions }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-title">Total Equipments</div>
+      <div class="stat-value">{{ totalEquipments }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-title">Total Users</div>
+      <div class="stat-value">{{ totalUsers }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-title">Sessions This Month</div>
+      <div class="stat-value">{{ sessionsThisMonth }}</div>
+    </div>
+
+  </div>
+
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+
+    <div class="chart-card">
+      <h3>Sessions per Day (Last 7 Days)</h3>
+      <canvas id="sessionsChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>Equipment Usage</h3>
+      <canvas id="equipmentChart"></canvas>
+    </div>
+
+  </div>
+
+</div>

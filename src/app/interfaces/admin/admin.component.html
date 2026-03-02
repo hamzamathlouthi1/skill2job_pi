@@ -1,0 +1,21 @@
+<div class="admin-layout">
+
+  <!-- SIDEBAR - Fixed position -->
+  <app-sidebar class="sidebar"></app-sidebar>
+
+  <!-- RIGHT SIDE - With margin to account for fixed sidebar -->
+  <div class="main-content">
+
+    <!-- NAVBAR -->
+    <app-navbar></app-navbar>
+
+    <!-- PAGE CONTENT - Centered -->
+    <div class="content-area">
+      <div class="content-wrapper">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+
+  </div>
+
+</div>

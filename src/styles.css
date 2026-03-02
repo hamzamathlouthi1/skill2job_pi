@@ -1,1 +1,31 @@
-/* You can add global styles to this file, and also import other style files */
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+
+  background:
+  linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)),
+  url('/assets/bg-admin.jpg');
+
+
+  background-size: 700px;     
+  background-repeat: repeat;  
+  background-position: center;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* styles for notification snackbars */
+.snackbar-success {
+  background-color: #4caf50 !important;
+  color: white;
+}
+.snackbar-error {
+  background-color: #f44336 !important;
+  color: white;
+}
+.snackbar-info {
+  background-color: #2196f3 !important;
+  color: white;
+}

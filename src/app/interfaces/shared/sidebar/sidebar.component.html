@@ -1,0 +1,66 @@
+<div class="sidebar">
+
+  <div class="logo"></div>
+
+  <ul class="menu">
+
+    <li routerLink="/admin/dashboard" routerLinkActive="active">
+      Dashboard
+    </li>
+
+    <li routerLink="/users" routerLinkActive="active">
+      Users
+    </li>
+
+    <li routerLink="/training-courses" routerLinkActive="active">
+      Training Courses
+    </li>
+
+    <li routerLink="/exams" routerLinkActive="active">
+      Exams
+    </li>
+
+  <li class="menu-parent">
+
+      <div class="menu-title" (click)="toggleSessionsMenu()">
+          <span>Sessions</span>
+          <span class="arrow" [class.rotate]="isSessionsOpen">▸</span>
+      </div>
+
+  <ul class="submenu" [class.open]="isSessionsOpen">
+
+  <li routerLink="/admin/sessions" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+
+    Sessions List
+  </li>
+
+  <li routerLink="/admin/equipments" routerLinkActive="active">
+    Equipments
+  </li>
+   <!-- NEW ITEM -->
+    <li routerLink="/admin/blocs" routerLinkActive="active">
+        Blocs
+    </li>
+    <li routerLink="/sessions/rooms"
+        routerLinkActive="active">
+      Virtual Rooms
+    </li>
+
+</ul>
+
+
+        </li>
+
+
+
+    <li routerLink="/partners" routerLinkActive="active">
+      Partners
+    </li>
+
+    <li routerLink="/hr" routerLinkActive="active">
+      HR
+    </li>
+
+  </ul>
+
+</div>

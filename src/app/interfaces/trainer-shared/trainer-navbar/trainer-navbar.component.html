@@ -1,0 +1,45 @@
+<div class="navbar">
+  
+  <!-- LEFT TEXT -->
+  <div class="welcome">
+    Welcome back {{ currentUser?.username }}
+  </div>
+  
+  <!-- RIGHT SIDE -->
+  <div class="right">
+    
+    <!-- PROFILE MENU (clickable) -->
+    <div class="profile-menu" (click)="toggleProfileMenu()">
+      
+      <div class="profile-icon-wrapper">
+        
+        <!-- Profile circle with initials -->
+        <div class="profile-circle">
+          {{ getInitials(currentUser?.username || 'T') }}
+        </div>
+        
+        <!-- Profile text info (hidden on mobile if needed) -->
+        <div class="profile-text">
+          <span class="profile-name">
+            {{ currentUser?.username || 'Trainer' }}
+          </span>
+          
+          <span class="profile-email">
+            {{ currentUser?.email || 'trainer@skill2job.com' }}
+          </span>
+        </div>
+        
+      </div>
+      
+    </div>
+    
+    <!-- Optional dropdown menu when clicked -->
+    <div class="profile-dropdown" *ngIf="isProfileMenuOpen">
+      <a routerLink="/trainer/profile">Profile</a>
+      <a routerLink="/trainer/settings">Settings</a>
+      <a (click)="logout()" style="cursor: pointer;">Logout</a>
+    </div>
+    
+  </div>
+  
+</div>
