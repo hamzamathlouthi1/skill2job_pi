@@ -7,6 +7,13 @@ import { PaymentService } from './payment/services/payment.service';
 import { CouponService, Coupon } from './coupon/coupon.service';
 import { HttpClient } from '@angular/common/http';
 
+// ✅ Interface pour les trainers
+export interface TrainerUser {
+  id: number;
+  username: string;
+  email: string;
+}
+
 @Component({
   selector: 'app-training-courses',
   templateUrl: './training-courses.component.html',
@@ -19,12 +26,13 @@ export class TrainingCoursesComponent implements OnInit {
   pagedCourses: any[] = [];
 
   newCourse: any = {
-    title: '', 
+    title: '',
     description: '',
     category: { id: null, name: '' },
-    price: null, 
+    price: null,
     currency: 'USD',
-    pointsPrice: null
+    pointsPrice: null,
+    trainerId: null   // ✅ NOUVEAU
   };
 
   editingCourseId:  number | null = null;
@@ -32,7 +40,7 @@ export class TrainingCoursesComponent implements OnInit {
   courseFormMode:   'add' | 'edit' = 'add';
 
   selectedImage?: File | null = null;
-  selectedPdfs: File[] = [];  // ✅ CHANGÉ: Array au lieu d'un seul fichier
+  selectedPdfs: File[] = [];
   imagePreview: string | null = null;
 
   expandedCategories: Set<number> = new Set();
@@ -46,6 +54,9 @@ export class TrainingCoursesComponent implements OnInit {
     { code: 'EUR', symbol: '€',  name: 'Euro'   },
     { code: 'TND', symbol: 'DT', name: 'Dinar'  }
   ];
+
+  // ✅ NOUVEAU : liste des trainers pour le dropdown
+  trainers: TrainerUser[] = [];
 
   // ── Categories ───────────────────────────────────────────────────
   categories:        any[] = [];
@@ -80,18 +91,36 @@ export class TrainingCoursesComponent implements OnInit {
   pageSize    = 6;
 
   constructor(
-    private service:           TrainingCourseService,
-    private categoryService:   CategoryService,
+    private service:            TrainingCourseService,
+    private categoryService:    CategoryService,
     private currencyConversion: CurrencyConversionService,
-    private paymentService:    PaymentService,
-    private couponService:     CouponService,
-    private http:              HttpClient,
-    private router:            Router
+    private paymentService:     PaymentService,
+    private couponService:      CouponService,
+    private http:               HttpClient,
+    private router:             Router
   ) {}
 
   ngOnInit(): void {
     this.loadCourses();
     this.loadCategories();
+    this.loadTrainers(); // ✅ NOUVEAU
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // ✅ TRAINERS
+  // ════════════════════════════════════════════════════════════════
+
+  loadTrainers(): void {
+    this.http.get<TrainerUser[]>('http://localhost:8089/api/users/trainers').subscribe({
+      next:  data => this.trainers = data || [],
+      error: ()   => this.trainers = []
+    });
+  }
+
+  getTrainerName(trainerId: number | null): string {
+    if (!trainerId) return 'No trainer assigned';
+    const t = this.trainers.find(t => t.id === trainerId);
+    return t ? t.username : `Trainer #${trainerId}`;
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -183,7 +212,7 @@ export class TrainingCoursesComponent implements OnInit {
   }
 
   getCouponStatus(c: Coupon): 'active' | 'expired' | 'inactive' {
-    if (!c.active)             return 'inactive';
+    if (!c.active)               return 'inactive';
     if (this.isCouponExpired(c)) return 'expired';
     return 'active';
   }
@@ -226,7 +255,7 @@ export class TrainingCoursesComponent implements OnInit {
   }
 
   openRejectModal(paymentId: number): void {
-    this.showRejectModal        = paymentId;
+    this.showRejectModal         = paymentId;
     this.rejectReason[paymentId] = '';
   }
 
@@ -292,8 +321,8 @@ export class TrainingCoursesComponent implements OnInit {
   onCurrencyChange(event: Event): void {
     const newCurrency = (event.target as HTMLSelectElement).value;
     if (!this.newCourse.price || this.newCourse.price <= 0) {
-      this.newCourse.currency = newCurrency; 
-      this.lastCurrency = newCurrency; 
+      this.newCourse.currency = newCurrency;
+      this.lastCurrency = newCurrency;
       return;
     }
     this.newCourse.price    = this.currencyConversion.convert(this.newCourse.price, this.lastCurrency, newCurrency);
@@ -311,20 +340,20 @@ export class TrainingCoursesComponent implements OnInit {
   // COURSES CRUD
   // ════════════════════════════════════════════════════════════════
 
-  goToCourse(id: number): void { 
-    this.router.navigate(['/admin/training-courses', id]); 
+  goToCourse(id: number): void {
+    this.router.navigate(['/admin/training-courses', id]);
   }
 
   loadCourses(): void {
     this.service.getAll().subscribe(data => {
-      this.courses = data || []; 
-      this.currentPage = 1; 
+      this.courses = data || [];
+      this.currentPage = 1;
       this.updatePage();
     });
   }
 
-  get totalPages(): number { 
-    return Math.ceil(this.courses.length / this.pageSize); 
+  get totalPages(): number {
+    return Math.ceil(this.courses.length / this.pageSize);
   }
 
   updatePage(): void {
@@ -332,42 +361,38 @@ export class TrainingCoursesComponent implements OnInit {
     this.pagedCourses = this.courses.slice(start, start + this.pageSize);
   }
 
-  prevPage(): void { 
-    if (this.currentPage > 1) { 
-      this.currentPage--; 
-      this.updatePage(); 
-    } 
+  prevPage(): void {
+    if (this.currentPage > 1) { this.currentPage--; this.updatePage(); }
   }
-  
-  nextPage(): void { 
-    if (this.currentPage < this.totalPages) { 
-      this.currentPage++; 
-      this.updatePage(); 
-    } 
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) { this.currentPage++; this.updatePage(); }
   }
 
   openAddCourseForm(): void {
     this.courseFormMode  = 'add';
     this.showCourseForm  = true;
     this.editingCourseId = null;
-    this.newCourse = { 
-      title: '', 
-      description: '', 
-      category: { id: null, name: '' }, 
-      price: null, 
+    this.newCourse = {
+      title: '',
+      description: '',
+      category: { id: null, name: '' },
+      price: null,
       currency: 'USD',
-      pointsPrice: null 
+      pointsPrice: null,
+      trainerId: null  // ✅ NOUVEAU
     };
-    this.resetCurrencyState(); 
+    this.resetCurrencyState();
     this.clearFiles();
   }
 
   editCourse(course: any): void {
-    this.editingCourseId  = course.id;
-    this.newCourse        = { 
-      ...course, 
+    this.editingCourseId = course.id;
+    this.newCourse = {
+      ...course,
       category: course.category ? { id: course.category.id, name: course.category.name } : { id: null, name: '' },
-      pdfUrls: course.pdfUrls ? [...course.pdfUrls] : []  // ✅ Copier les PDFs existants
+      pdfUrls:   course.pdfUrls  ? [...course.pdfUrls] : [],
+      trainerId: course.trainerId ?? null  // ✅ NOUVEAU
     };
     this.originalPrice    = course.price;
     this.originalCurrency = course.currency;
@@ -375,28 +400,29 @@ export class TrainingCoursesComponent implements OnInit {
     this.courseFormMode   = 'edit';
     this.showCourseForm   = true;
     this.imagePreview     = course.imageUrl ?? null;
-    this.selectedPdfs     = [];  // ✅ Réinitialiser les nouveaux PDFs
+    this.selectedPdfs     = [];
   }
 
   cancelCourseEdit(): void {
-    this.editingCourseId = null; 
-    this.showCourseForm = false;
-    this.newCourse = { 
-      title: '', 
-      description: '', 
-      category: { id: null, name: '' }, 
-      price: null, 
+    this.editingCourseId = null;
+    this.showCourseForm  = false;
+    this.newCourse = {
+      title: '',
+      description: '',
+      category: { id: null, name: '' },
+      price: null,
       currency: 'USD',
-      pointsPrice: null 
+      pointsPrice: null,
+      trainerId: null  // ✅ NOUVEAU
     };
-    this.resetCurrencyState(); 
+    this.resetCurrencyState();
     this.clearFiles();
   }
 
-  resetCurrencyState(): void { 
-    this.originalPrice = null; 
-    this.originalCurrency = null; 
-    this.lastCurrency = 'USD'; 
+  resetCurrencyState(): void {
+    this.originalPrice    = null;
+    this.originalCurrency = null;
+    this.lastCurrency     = 'USD';
   }
 
   addCourse(): void {
@@ -410,42 +436,43 @@ export class TrainingCoursesComponent implements OnInit {
     fd.append('price',       this.newCourse.price.toString());
     fd.append('currency',    this.newCourse.currency);
     fd.append('categoryId',  this.newCourse.category.id.toString());
-    
-    // Points price
+
     if (this.newCourse.pointsPrice && this.newCourse.pointsPrice > 0) {
       fd.append('pointsPrice', this.newCourse.pointsPrice.toString());
     }
-    
-    // Image
+
+    // ✅ NOUVEAU : envoyer trainerId si sélectionné
+    if (this.newCourse.trainerId) {
+      fd.append('trainerId', this.newCourse.trainerId.toString());
+    }
+
     if (this.selectedImage) {
       fd.append('image', this.selectedImage);
     }
-    
-    // ✅ NOUVEAU: Ajouter tous les PDFs sélectionnés
+
     if (this.selectedPdfs.length > 0) {
       this.selectedPdfs.forEach((pdf) => {
         fd.append('pdfs', pdf, pdf.name);
       });
     }
-    
-    // En mode édition, garder les PDFs existants
+
     if (this.editingCourseId && this.newCourse.pdfUrls && this.newCourse.pdfUrls.length > 0) {
       fd.append('existingPdfs', JSON.stringify(this.newCourse.pdfUrls));
     }
 
-    const req = this.editingCourseId 
-      ? this.service.update(this.editingCourseId, fd) 
+    const req = this.editingCourseId
+      ? this.service.update(this.editingCourseId, fd)
       : this.service.create(fd);
-      
-    req.subscribe({ 
-      next: () => this.afterSaveCourse(), 
-      error: err => alert(err.message || 'Save failed') 
+
+    req.subscribe({
+      next:  () => this.afterSaveCourse(),
+      error: err => alert(err.message || 'Save failed')
     });
   }
 
-  afterSaveCourse(): void { 
-    this.loadCourses(); 
-    this.cancelCourseEdit(); 
+  afterSaveCourse(): void {
+    this.loadCourses();
+    this.cancelCourseEdit();
   }
 
   deleteCourse(id: number): void {
@@ -460,46 +487,39 @@ export class TrainingCoursesComponent implements OnInit {
   onImageSelected(ev: Event): void {
     const input = ev.target as HTMLInputElement;
     if (!input.files?.length) return;
-    
+
     this.selectedImage = input.files[0];
     const reader = new FileReader();
     reader.onload = () => (this.imagePreview = reader.result as string);
     reader.readAsDataURL(this.selectedImage);
   }
 
-  // ✅ NOUVEAU: Gérer plusieurs PDFs
   onPdfsSelected(ev: Event): void {
     const input = ev.target as HTMLInputElement;
     if (!input.files?.length) return;
-    
-    // Ajouter les nouveaux fichiers à la liste existante
+
     this.selectedPdfs = [...this.selectedPdfs, ...Array.from(input.files)];
-    
-    // Réinitialiser l'input pour permettre de re-sélectionner les mêmes fichiers
     input.value = '';
   }
 
-  // ✅ NOUVEAU: Supprimer un PDF de la liste des nouveaux
   removePdf(index: number): void {
     this.selectedPdfs.splice(index, 1);
   }
 
-  // ✅ NOUVEAU: Supprimer un PDF existant (déjà uploadé)
   removeExistingPdf(index: number): void {
     if (this.newCourse.pdfUrls && this.newCourse.pdfUrls.length > index) {
       this.newCourse.pdfUrls.splice(index, 1);
     }
   }
 
-  // ✅ NOUVEAU: Obtenir le nom du fichier depuis l'URL
   getFileNameFromUrl(url: string): string {
     return url.split('/').pop() || 'document.pdf';
   }
 
-  clearFiles(): void { 
-    this.selectedImage = null; 
-    this.selectedPdfs  = [];  // ✅ Vider le tableau
-    this.imagePreview  = null; 
+  clearFiles(): void {
+    this.selectedImage = null;
+    this.selectedPdfs  = [];
+    this.imagePreview  = null;
   }
 
   getCurrencySymbol(code: string): string {
@@ -510,14 +530,14 @@ export class TrainingCoursesComponent implements OnInit {
   // CATEGORIES CRUD
   // ════════════════════════════════════════════════════════════════
 
-  loadCategories(): void { 
-    this.categoryService.getAll().subscribe(d => this.categories = d || []); 
+  loadCategories(): void {
+    this.categoryService.getAll().subscribe(d => this.categories = d || []);
   }
 
   openAddCategoryForm(): void {
-    this.categoryFormMode = 'add'; 
-    this.showCategoryForm = true;
-    this.newCategory = { name: '', description: '' }; 
+    this.categoryFormMode  = 'add';
+    this.showCategoryForm  = true;
+    this.newCategory       = { name: '', description: '' };
     this.editingCategoryId = null;
   }
 
@@ -529,47 +549,47 @@ export class TrainingCoursesComponent implements OnInit {
     req.subscribe(() => this.afterSaveCategory());
   }
 
-  afterSaveCategory(): void { 
-    this.loadCategories(); 
-    this.cancelCategoryEdit(); 
+  afterSaveCategory(): void {
+    this.loadCategories();
+    this.cancelCategoryEdit();
   }
 
   editCategory(cat: any): void {
-    this.editingCategoryId = cat.id; 
-    this.newCategory = { ...cat };
-    this.categoryFormMode = 'edit'; 
-    this.showCategoryForm = true;
+    this.editingCategoryId = cat.id;
+    this.newCategory       = { ...cat };
+    this.categoryFormMode  = 'edit';
+    this.showCategoryForm  = true;
   }
 
   cancelCategoryEdit(): void {
-    this.editingCategoryId = null; 
-    this.showCategoryForm = false;
-    this.newCategory = { name: '', description: '' };
+    this.editingCategoryId = null;
+    this.showCategoryForm  = false;
+    this.newCategory       = { name: '', description: '' };
   }
 
   deleteCategory(id: number): void {
     if (!confirm('Delete category?')) return;
-    this.categoryService.delete(id).subscribe(() => { 
-      this.loadCategories(); 
-      this.loadCourses(); 
+    this.categoryService.delete(id).subscribe(() => {
+      this.loadCategories();
+      this.loadCourses();
     });
   }
 
   toggleCategory(id: number): void {
-    this.expandedCategories.has(id) 
-      ? this.expandedCategories.delete(id) 
+    this.expandedCategories.has(id)
+      ? this.expandedCategories.delete(id)
       : this.expandedCategories.add(id);
   }
 
-  isCategoryExpanded(id: number): boolean { 
-    return this.expandedCategories.has(id); 
+  isCategoryExpanded(id: number): boolean {
+    return this.expandedCategories.has(id);
   }
 
-  getCategoryCourses(id: number): any[] { 
-    return this.courses.filter(c => c.category?.id === id); 
+  getCategoryCourses(id: number): any[] {
+    return this.courses.filter(c => c.category?.id === id);
   }
-  
-  getCategoryCoursesCount(id: number): number { 
-    return this.getCategoryCourses(id).length; 
+
+  getCategoryCoursesCount(id: number): number {
+    return this.getCategoryCourses(id).length;
   }
 }

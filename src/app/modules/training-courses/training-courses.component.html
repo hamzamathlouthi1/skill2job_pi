@@ -56,6 +56,13 @@
             <span class="category-tag">{{ c.category?.name || 'Uncategorized' }}</span>
           </div>
           <p class="card-description">{{ c.description }}</p>
+
+          <!-- ✅ NOUVEAU : badge trainer -->
+          <div class="card-trainer" [class.card-trainer--none]="!c.trainerId">
+            <span class="card-trainer-icon">👤</span>
+            <span class="card-trainer-name">{{ getTrainerName(c.trainerId) }}</span>
+          </div>
+
           <div class="card-footer">
             <div class="price-info">
               <span class="price-amount">{{ getCurrencySymbol(c.currency) }}{{ c.price | number:'1.2-2' }}</span>
@@ -159,14 +166,30 @@
             </select>
           </div>
 
-          <!-- ✅ Multi-PDF Section -->
+          <!-- ✅ NOUVEAU : Assign Trainer -->
+          <div class="form-group">
+            <label class="form-label">
+              Assign Trainer
+              <span class="form-hint-inline">Optional</span>
+            </label>
+            <select class="form-select" [(ngModel)]="newCourse.trainerId">
+              <option [ngValue]="null">— No trainer assigned —</option>
+              <option *ngFor="let t of trainers" [ngValue]="t.id">
+                {{ t.username }} ({{ t.email }})
+              </option>
+            </select>
+            <p class="form-hint" *ngIf="trainers.length === 0" style="color:#c62828;">
+              ⚠️ No trainers found. Trainer accounts must be created first.
+            </p>
+          </div>
+
+          <!-- Multi-PDF Section -->
           <div class="form-group">
             <label class="form-label">
               PDF Materials (optional)
               <span class="form-hint-inline">Select multiple PDF files</span>
             </label>
 
-            <!-- Upload Button -->
             <div class="file-upload-wrapper">
               <input
                 id="pdf-input"

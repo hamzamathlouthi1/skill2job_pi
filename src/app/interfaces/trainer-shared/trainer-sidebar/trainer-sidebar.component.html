@@ -1,0 +1,48 @@
+<div class="sidebar">
+
+  <div class="logo"></div>
+
+  <ul class="menu">
+
+    <li routerLink="/trainer/dashboard" routerLinkActive="active">
+      Dashboard
+    </li>
+
+    <li routerLink="/trainer/my-courses" routerLinkActive="active">
+      My Courses
+    </li>
+
+    <li class="menu-parent">
+      <div class="menu-title" (click)="toggleSessionsMenu()">
+        <span>Sessions</span>
+        <span class="arrow" [class.rotate]="isSessionsOpen">▸</span>
+      </div>
+
+      <ul class="submenu" [class.open]="isSessionsOpen">
+        <li routerLink="/trainer/sessions" routerLinkActive="active" >
+          Sessions list
+        </li>
+        <li routerLink="/trainer/sessions/past" routerLinkActive="active">
+          Past Sessions
+        </li>
+        <li routerLink="/trainer/sessions/create" routerLinkActive="active">
+          Create Session
+        </li>
+        <li routerLink="/trainer/equipments" routerLinkActive="active">
+          Equipment Booking
+        </li>
+        <li routerLink="/trainer/virtual-rooms" routerLinkActive="active">
+          Virtual Rooms
+        </li>
+      </ul>
+    </li>
+
+    <li routerLink="/trainer/students" routerLinkActive="active">
+      My Students
+    </li>
+
+    
+
+  </ul>
+
+</div>

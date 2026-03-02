@@ -17,6 +17,10 @@ import { NavbarComponent } from './interfaces/shared/navbar/navbar.component';
 import { LoaderComponent } from './interfaces/shared/loader/loader.component';
 import { DashboardComponent } from './interfaces/shared/dashboard/dashboard.component';
 
+// ✅ Trainer shared components
+import { TrainerNavbarComponent } from './interfaces/trainer-shared/trainer-navbar/trainer-navbar.component';
+import { TrainerSidebarComponent } from './interfaces/trainer-shared/trainer-sidebar/trainer-sidebar.component';
+
 import { SigninComponent } from './interfaces/signin/signin.component';
 import { SignupComponent } from './interfaces/signup/signup.component';
 
@@ -24,9 +28,10 @@ import { TrainingCoursesComponent } from './modules/training-courses/training-co
 import { CourseDetailsComponent } from './modules/training-courses/admin/course-details/course-details.component';
 
 import { UserCoursesComponent } from './modules/training-courses/user/user-courses/user-courses.component';
-import { PaymentComponent } from './modules/training-courses/payment/payment.component'; // ✅ AJOUTÉ
+import { PaymentComponent } from './modules/training-courses/payment/payment.component';
 
 import { SafeUrlPipe } from './modules/training-courses/admin/course-details/safe-url.pipe';
+import { TrainerCoursesComponent } from './modules/training-courses/trainer/trainer-courses/trainer-courses.component';
 
 import { JwtInterceptor } from './modules/services/jwt.interceptor';
 import { AuthGuard } from './interfaces/guards/auth.guard';
@@ -47,6 +52,10 @@ import { EnrolledCourseComponent } from './modules/training-courses/user/enrolle
     LoaderComponent,
     DashboardComponent,
 
+    // ✅ Trainer components
+    TrainerNavbarComponent,
+    TrainerSidebarComponent,
+
     SigninComponent,
     SignupComponent,
 
@@ -54,11 +63,12 @@ import { EnrolledCourseComponent } from './modules/training-courses/user/enrolle
     CourseDetailsComponent,
 
     UserCoursesComponent,
-    PaymentComponent, 
+    PaymentComponent,
 
-    SafeUrlPipe, 
+    SafeUrlPipe,
     WalletDashboardComponent,
-     EnrolledCourseComponent
+    EnrolledCourseComponent,
+     TrainerCoursesComponent
   ],
   imports: [
     BrowserModule,
@@ -74,4 +84,3 @@ import { EnrolledCourseComponent } from './modules/training-courses/user/enrolle
   bootstrap: [AppComponent]
 })
 export class AppModule {}
-
