@@ -2,6 +2,9 @@
   padding: 24px;
   background: #f5f5f5;
   min-height: 100vh;
+  margin-left: 270px;
+  box-sizing: border-box;
+  width: calc(100% - 270px);
 
   .header {
     display: flex;
@@ -509,6 +512,83 @@
       }
     }
   }
+  // ─── Paste this into evaluation-table, certificate-list, exam-table, 
+//     question-form, and certificate-details SCSS files ─────────────────────
+
+// Prevents content from overflowing under the sidebar
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+// Wraps tables so they scroll horizontally instead of going under sidebar
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
+// General container reset
+.evaluation-container,
+.certificate-container,
+.exam-table-container,
+.question-form-container,
+.certificate-details-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 24px;
+  overflow-x: hidden;
+}
+
+// Tables never exceed their wrapper
+table {
+  width: 100%;
+  min-width: 600px; // allows horizontal scroll on small screens
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+// ─── Student name pill ────────────────────────────────────────────────────────
+.student-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: #1a1a1a;
+
+  &::before {
+    content: '👤';
+    font-size: 0.85rem;
+  }
+}
+
+// ─── Level badges ─────────────────────────────────────────────────────────────
+.level-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  &.gold   { background: rgba(255,193,7,0.15);  color: #b8860b; border: 1px solid rgba(255,193,7,0.4); }
+  &.silver { background: rgba(176,190,197,0.15); color: #607d8b; border: 1px solid rgba(176,190,197,0.4); }
+  &.bronze { background: rgba(188,120,48,0.15);  color: #8d5524; border: 1px solid rgba(188,120,48,0.4); }
+}
+
+// ─── Cert code (monospace, truncate long codes) ───────────────────────────────
+.cert-code {
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: #555;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 }
 
 // Animation for submit button when disabled

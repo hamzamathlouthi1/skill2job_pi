@@ -9,14 +9,23 @@ import { Exam } from '../../models/exams.model';
   styleUrls: ['./exam-table.component.scss']
 })
 export class ExamTableComponent implements OnInit {
+  Math = Math;
   exams: Exam[] = [];
+  filteredExams: Exam[] = [];
   loading = false;
   errorMessage = '';
+
+  // Search
+  searchQuery = '';
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 5;
 
   constructor(
     private examsService: ExamsService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadExams();
@@ -27,6 +36,7 @@ export class ExamTableComponent implements OnInit {
     this.examsService.getAllExams().subscribe({
       next: (data) => {
         this.exams = data;
+        this.filteredExams = data;
         this.loading = false;
       },
       error: (error) => {
@@ -37,26 +47,53 @@ export class ExamTableComponent implements OnInit {
     });
   }
 
-  addExam(): void {
-  console.log('========== ADD EXAM CLICKED ==========');
-  console.log('1. Before any action - Token:', localStorage.getItem('token'));
-  console.log('2. Before any action - User:', localStorage.getItem('user'));
-  
-  // Check if we're still authenticated
-  const token = localStorage.getItem('token');
-  if (!token) {
-    console.error('❌ Token missing BEFORE navigation!');
-    return;
+  // ─── Search ───────────────────────────────────────────────────────────────
+
+  onSearch(): void {
+    const q = this.searchQuery.trim().toLowerCase();
+    this.filteredExams = q
+      ? this.exams.filter(e =>
+          e.title.toLowerCase().includes(q) ||
+          e.description?.toLowerCase().includes(q)
+        )
+      : [...this.exams];
+    this.currentPage = 1;
   }
-  
-  console.log('3. Attempting to navigate to:', '/admin/exams/exam-form');
-  
-  // Try with a small delay to see if something clears it
-  setTimeout(() => {
-    console.log('4. After delay - Token still:', localStorage.getItem('token'));
-    this.router.navigate(['/admin/exams/exam-form']);
-  }, 100);
-}
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.filteredExams = [...this.exams];
+    this.currentPage = 1;
+  }
+
+  // ─── Pagination ───────────────────────────────────────────────────────────
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredExams.length / this.pageSize);
+  }
+
+  get pagedExams(): Exam[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredExams.slice(start, start + this.pageSize);
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  // ─── Actions ──────────────────────────────────────────────────────────────
+
+  addExam(): void {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    setTimeout(() => this.router.navigate(['/admin/exams/exam-form']), 100);
+  }
 
   editExam(id: number): void {
     this.router.navigate(['/admin/exams/exam-form', id]);
@@ -65,13 +102,8 @@ export class ExamTableComponent implements OnInit {
   deleteExam(id: number): void {
     if (confirm('Are you sure you want to delete this exam?')) {
       this.examsService.deleteExam(id).subscribe({
-        next: () => {
-          this.loadExams();
-        },
-        error: (error) => {
-          console.error('Error deleting exam:', error);
-          alert('Failed to delete exam');
-        }
+        next: () => this.loadExams(),
+        error: () => alert('Failed to delete exam')
       });
     }
   }

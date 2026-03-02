@@ -3,9 +3,6 @@
   <div class="result-card" [class.passed]="evaluation.passed" [class.failed]="!evaluation.passed">
     <!-- Header -->
     <div class="result-header">
-      <div class="result-icon">
-        {{ evaluation.passed ? '🎉' : '😢' }}
-      </div>
       <h1>{{ exam.title }}</h1>
       <p class="exam-description">{{ exam.description }}</p>
     </div>
@@ -26,7 +23,7 @@
     <!-- Result Message -->
     <div class="result-message">
       <div *ngIf="evaluation.passed" class="success-message">
-        <h2>Congratulations! 🎓</h2>
+        <h2>Congratulations!</h2>
         <p>You passed the exam!</p>
       </div>
       <div *ngIf="!evaluation.passed" class="fail-message">

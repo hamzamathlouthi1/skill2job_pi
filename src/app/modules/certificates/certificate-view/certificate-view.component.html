@@ -10,7 +10,7 @@
 
       <div class="awarded-to">
         <p>This is to certify that</p>
-        <h3>Student ID: {{ certificate.userId }}</h3>
+        <h3>Student: {{ currentUsername }}</h3>
         <p>has successfully completed the exam</p>
       </div>
 
@@ -36,7 +36,12 @@
       </div>
 
       <div class="signature">
-        <p>SKILL2JOB</p>
+        <ng-container *ngIf="signatureImage; else textSignature">
+          <img [src]="signatureImage" alt="Signature" class="signature-image" />
+        </ng-container>
+        <ng-template #textSignature>
+          <p>{{ signatureText }}</p>
+        </ng-template>
         <p class="year">{{ currentYear }}</p>
       </div>
     </div>

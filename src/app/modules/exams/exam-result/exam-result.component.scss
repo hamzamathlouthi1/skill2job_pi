@@ -1,24 +1,25 @@
 .result-platform {
   min-height: 100vh;
-  background: #000000;
-  padding: 40px 20px;
+  background: transparent;
+  padding: 100px 20px 40px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  color: #ffffff;
+  color: #111111;
 }
 
 .result-card {
   max-width: 600px;
   width: 100%;
-  background: #1a1a1a;
-  border: 1px solid #333333;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
   border-radius: 24px;
-  padding: 40px;
-  
+  padding: 32px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+
   &.passed {
     border-color: #b71c1c;
-    box-shadow: 0 0 30px rgba(183, 28, 28, 0.3);
+    box-shadow: 0 18px 40px rgba(183, 28, 28, 0.18);
   }
   
   &.failed {
@@ -30,14 +31,9 @@
   text-align: center;
   margin-bottom: 30px;
   
-  .result-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
-  }
-  
   h1 {
-    font-size: 2rem;
-    color: #ffffff;
+    font-size: 1.7rem;
+    color: #111111;
     margin: 0 0 10px 0;
   }
   
@@ -54,7 +50,7 @@
   gap: 40px;
   margin-bottom: 30px;
   padding: 20px;
-  background: #2d2d2d;
+  background: #f7f7f7;
   border-radius: 16px;
   
   .score-circle {
@@ -79,7 +75,7 @@
     
     .label {
       display: block;
-      color: #888888;
+      color: #666666;
       font-size: 0.9rem;
       margin-bottom: 5px;
     }
@@ -87,7 +83,7 @@
     .value {
       font-size: 2rem;
       font-weight: bold;
-      color: #ffffff;
+      color: #111111;
     }
   }
 }
@@ -103,19 +99,19 @@
     }
     
     p {
-      color: #888888;
+      color: #555555;
       margin: 0;
     }
   }
   
   .fail-message {
     h2 {
-      color: #888888;
+      color: #b71c1c;
       margin: 0 0 10px 0;
     }
     
     p {
-      color: #666666;
+      color: #555555;
       margin: 0;
     }
   }
@@ -143,7 +139,7 @@
 }
 
 .certificate-card {
-  background: #2d2d2d;
+  background: #fafafa;
   border: 1px solid #b71c1c;
   border-radius: 16px;
   padding: 20px;
@@ -164,14 +160,14 @@
     }
     
     .cert-code {
-      color: #888888;
+      color: #555555;
       font-size: 0.9rem;
       margin: 0 0 5px 0;
       font-family: monospace;
     }
     
     .cert-date {
-      color: #666666;
+      color: #777777;
       font-size: 0.8rem;
       margin: 0;
     }

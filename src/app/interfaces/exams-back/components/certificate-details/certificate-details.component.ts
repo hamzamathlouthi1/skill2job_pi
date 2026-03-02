@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExamsService } from '../../services/exams.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-certificate-details',
@@ -12,11 +13,15 @@ export class CertificateDetailsComponent implements OnInit {
   certificate: any = null;
   loading = false;
   errorMessage = '';
+  issuedToName = '';
+
+  private apiBase = 'http://localhost:8089';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private examsService: ExamsService
+    private examsService: ExamsService,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -38,13 +43,32 @@ export class CertificateDetailsComponent implements OnInit {
       next: (data) => {
         this.certificate = data;
         this.loading = false;
-        console.log('Certificate loaded:', data);
+        this.loadUserName();
       },
       error: (error) => {
         console.error('Error loading certificate:', error);
         this.errorMessage = 'Failed to load certificate details';
         this.loading = false;
       }
+    });
+  }
+
+  loadUserName(): void {
+    const userId = this.certificate?.evaluation?.userId ?? this.certificate?.userId;
+    if (!userId) {
+      this.issuedToName = 'Unknown user';
+      return;
+    }
+
+    const token = localStorage.getItem('token')
+      || localStorage.getItem('authToken')
+      || localStorage.getItem('access_token')
+      || '';
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    this.http.get<any>(`${this.apiBase}/api/admin/users/${userId}`, { headers }).subscribe({
+      next: (user) => this.issuedToName = user.username,
+      error: ()    => this.issuedToName = 'Unknown user'
     });
   }
 

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ExamService } from '../../services/exam.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';  
+import { SignatureService } from '../../services/signature.service';
 import { Certificate, Exam, Evaluation } from '../../models/exam';
 import { forkJoin } from 'rxjs';
 import jsPDF from 'jspdf';
@@ -24,8 +25,18 @@ export class CertificateListComponent implements OnInit {
   constructor(
     private examService: ExamService,
     private authService: AuthService,
+    private signatureService: SignatureService,
     private router: Router
   ) {}
+
+  get currentUsername(): string {
+    const user = this.authService.getCurrentUser() as any;
+    return user?.username || 'Learner';
+  }
+
+  get signatureImage(): string | null {
+    return this.signatureService.getSignatureImage();
+  }
 
   ngOnInit(): void {
     this.loadCertificates();
@@ -258,7 +269,8 @@ getCertificateScore(cert: Certificate): number {   // ← Certificate, not Evalu
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...levelColor);
-    doc.text(`Student ID: ${certificate.userId}`, pageWidth / 2, 228, { align: 'center' });
+    const username = this.currentUsername;
+    doc.text(`Student: ${username}`, pageWidth / 2, 228, { align: 'center' });
 
     doc.setFontSize(14);
     doc.setFont('helvetica', 'normal');
@@ -302,15 +314,22 @@ getCertificateScore(cert: Certificate): number {   // ← Certificate, not Evalu
     doc.setFont('helvetica', 'normal');
     doc.text(`Issue Date: ${this.formatDate(certificate.issueDate)}`, pageWidth / 2, 413, { align: 'center' });
 
-    // ── Signature / SKILL2JOB ──
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.5);
-    doc.line(pageWidth - 230, pageHeight - 115, pageWidth - 70, pageHeight - 115);
+    // ── Signature: drawn image if available, otherwise text ──
+    const sigImg = this.signatureImage;
+    if (sigImg) {
+      const imgWidth = 180;
+      const imgHeight = 60;
+      doc.addImage(sigImg, 'PNG', pageWidth - imgWidth - 60, pageHeight - imgHeight - 90, imgWidth, imgHeight);
+    } else {
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+      doc.line(pageWidth - 230, pageHeight - 115, pageWidth - 70, pageHeight - 115);
 
-    doc.setFontSize(14);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SKILL2JOB', pageWidth - 150, pageHeight - 95, { align: 'center' });
+      doc.setFontSize(14);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.text('SKILL2JOB', pageWidth - 150, pageHeight - 95, { align: 'center' });
+    }
 
     doc.setFontSize(10);
     doc.setTextColor(180, 180, 180);

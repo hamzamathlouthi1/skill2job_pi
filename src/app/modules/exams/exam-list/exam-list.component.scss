@@ -1,8 +1,9 @@
 .exam-platform {
   min-height: 100vh;
-  background: #f5f7fb; /* Light background instead of black */
   padding: 30px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Let global body background (with faint SKILL2JOB logos) show through */
+  background: transparent;
 }
 
 /* Welcome Header */

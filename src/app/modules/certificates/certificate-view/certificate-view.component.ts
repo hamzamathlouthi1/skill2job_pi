@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExamService } from '../../services/exam.service';
 import { AuthService } from '../../services/auth.service';
+import { SignatureService } from '../../services/signature.service';
 import { Certificate, Exam, Evaluation, Question, Answer } from '../../models/exam';
 import jsPDF from 'jspdf';
 
@@ -31,7 +32,8 @@ export class CertificateViewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private examService: ExamService,
-    private authService: AuthService
+    private authService: AuthService,
+    private signatureService: SignatureService
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +73,25 @@ export class CertificateViewComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  get currentUsername(): string {
+    const user = this.authService.getCurrentUser() as any;
+    if (user?.username) {
+      return user.username;
+    }
+    if (this.certificate?.userId != null) {
+      return `User #${this.certificate.userId}`;
+    }
+    return 'Learner';
+  }
+
+  get signatureText(): string {
+    return this.signatureService.getSignature();
+  }
+
+  get signatureImage(): string | null {
+    return this.signatureService.getSignatureImage();
   }
 
   private loadExamDetailsFromCertificate(cert: Certificate): void {
@@ -213,64 +234,86 @@ export class CertificateViewComponent implements OnInit {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
 
-    doc.setFillColor(10, 10, 10);
+    // White background
+    doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
-    doc.setDrawColor(183, 28, 28);
-    doc.setLineWidth(4);
-    doc.rect(30, 30, pageWidth - 60, pageHeight - 60);
 
-    doc.setTextColor(183, 28, 28);
-    doc.setFontSize(28);
+    // Red main border
+    doc.setDrawColor(194, 43, 51);
+    doc.setLineWidth(3);
+    doc.rect(40, 40, pageWidth - 80, pageHeight - 80);
+
+    const centerX = pageWidth / 2;
+
+    // Title
+    doc.setTextColor(194, 43, 51);
+    doc.setFontSize(26);
     doc.setFont('helvetica', 'bold');
-    doc.text('CERTIFICATE OF ACHIEVEMENT', pageWidth / 2, 90, { align: 'center' });
+    doc.text('CERTIFICATE OF ACHIEVEMENT', centerX, 100, { align: 'center' });
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.text(this.exam.title.toUpperCase(), pageWidth / 2, 140, { align: 'center' });
-
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(200, 200, 200);
-    doc.text('This is to certify that', pageWidth / 2, 190, { align: 'center' });
-
+    // Exam title
+    doc.setTextColor(17, 17, 17);
     doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(183, 28, 28);
-    doc.text(`Student ID: ${this.certificate.userId}`, pageWidth / 2, 220, { align: 'center' });
+    doc.text(this.exam.title.toUpperCase(), centerX, 140, { align: 'center' });
 
-    doc.setFontSize(14);
+    // Awarded text
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(200, 200, 200);
-    doc.text('has successfully completed the exam', pageWidth / 2, 250, { align: 'center' });
+    doc.setTextColor(102, 102, 102);
+    doc.text('This is to certify that', centerX, 180, { align: 'center' });
+
+    const username = this.currentUsername;
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(17, 17, 17);
+    doc.text(username, centerX, 210, { align: 'center' });
 
     doc.setFontSize(12);
-    doc.setTextColor(220, 220, 220);
-    doc.text(`Passing Score Required: ${this.exam.passScore}%`, pageWidth / 2, 290, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(102, 102, 102);
+    doc.text('has successfully completed the exam', centerX, 235, { align: 'center' });
 
-    doc.setDrawColor(183, 28, 28);
+    // Required score line
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Passing score required: ${this.exam.passScore}%`, centerX, 265, { align: 'center' });
+
+    // Certificate code box
+    doc.setDrawColor(194, 43, 51);
     doc.setLineWidth(1.5);
-    doc.rect(pageWidth / 2 - 180, 320, 360, 50);
-    doc.setFontSize(14);
-    doc.setTextColor(183, 28, 28);
+    const boxWidth = 360;
+    const boxX = centerX - boxWidth / 2;
+    const boxY = 300;
+    doc.roundedRect(boxX, boxY, boxWidth, 50, 6, 6);
+    doc.setFontSize(13);
+    doc.setTextColor(194, 43, 51);
     doc.setFont('helvetica', 'bold');
-    doc.text(this.certificate.certificateCode, pageWidth / 2, 350, { align: 'center' });
+    doc.text(this.certificate.certificateCode, centerX, boxY + 32, { align: 'center' });
 
-    doc.setFontSize(12);
-    doc.setTextColor(200, 200, 200);
+    // Issue date
+    doc.setFontSize(11);
+    doc.setTextColor(90, 90, 90);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Issue Date: ${this.formatDate(this.certificate.issueDate)}`, pageWidth / 2, 390, { align: 'center' });
+    doc.text(`Issue Date: ${this.formatDate(this.certificate.issueDate)}`, centerX, boxY + 80, { align: 'center' });
 
-    doc.setFontSize(14);
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SKILL2JOB', pageWidth - 150, pageHeight - 90, { align: 'center' });
-    doc.setFontSize(10);
-    doc.setTextColor(180, 180, 180);
+    const sigImg = this.signatureImage;
+    if (sigImg) {
+      const imgWidth = 180;
+      const imgHeight = 60;
+      doc.addImage(sigImg, 'PNG', pageWidth - imgWidth - 80, pageHeight - imgHeight - 80, imgWidth, imgHeight);
+    } else {
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(0.5);
+      doc.line(pageWidth - 260, pageHeight - 90, pageWidth - 80, pageHeight - 90);
+
+      doc.setFontSize(12);
+      doc.setTextColor(40, 40, 40);
+      doc.setFont('helvetica', 'bold');
+      doc.text(this.signatureText, pageWidth - 170, pageHeight - 72, { align: 'center' });
+    }
+    doc.setFontSize(9);
+    doc.setTextColor(140, 140, 140);
     doc.setFont('helvetica', 'normal');
-    doc.text(`${this.currentYear}`, pageWidth - 150, pageHeight - 70, { align: 'center' });
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.5);
-    doc.line(pageWidth - 230, pageHeight - 110, pageWidth - 70, pageHeight - 110);
+    doc.text(`${this.currentYear}`, pageWidth - 170, pageHeight - 52, { align: 'center' });
 
     doc.save(`certificate-${this.exam.title.replace(/\s+/g, '-')}.pdf`);
   }
