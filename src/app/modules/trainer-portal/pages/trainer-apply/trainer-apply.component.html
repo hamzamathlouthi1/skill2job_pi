@@ -1,0 +1,123 @@
+<div class="apply-page">
+
+  <!-- HERO (same style as Home) -->
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Apply as a Trainer</h1>
+      <p class="subtitle">
+        Submit your application. An automatic summary will be generated for the HR team.
+      </p>
+
+      <div class="cta-row">
+        <button class="btn primary" (click)="submit()" [disabled]="!canSubmit">
+          <span *ngIf="!loading">✅ Submit Application</span>
+          <span *ngIf="loading">⏳ Submitting...</span>
+        </button>
+
+        <a class="btn ghost" routerLink="/become-trainer/my-application">
+          📌 View My Application
+        </a>
+      </div>
+    </div>
+
+    <!-- STEPS CARD -->
+    <div class="steps-card">
+      <div class="steps-head">
+        <div class="title">Quick steps</div>
+        <div class="badge neutral">3 steps</div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <div>
+            <div class="s-title">CV Link</div>
+            <div class="s-desc">Public URL (Drive / PDF / Portfolio)</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="num">2</div>
+          <div>
+            <div class="s-title">Motivation</div>
+            <div class="s-desc">Your skills + why you want to teach</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="num">3</div>
+          <div>
+            <div class="s-title">Tracking</div>
+            <div class="s-desc">Follow the status in “My Application”</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM CARD -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Application Form</h2>
+      <p>Please provide a valid CV link and a short motivation.</p>
+    </div>
+
+    <div class="alert error" *ngIf="!isLoggedIn">
+      You are not logged in. Please sign in to apply.
+    </div>
+
+    <div class="alert success" *ngIf="successMsg">{{ successMsg }}</div>
+    <div class="alert error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+    <div class="form">
+      <!-- CV -->
+      <label class="label">
+        <span class="label-row">
+          <span>📄 CV Link (URL)</span>
+          <span class="hint" [class.bad]="cvUrl && !isCvValid" [class.good]="isCvValid">
+            {{ isCvValid ? 'Valid' : (cvUrl ? 'Invalid URL' : 'Required') }}
+          </span>
+        </span>
+
+        <input
+          class="input"
+          type="url"
+          placeholder="https://drive.google.com/... or https://my-portfolio.com"
+          [(ngModel)]="cvUrl"
+        />
+      </label>
+
+      <!-- Motivation -->
+      <label class="label">
+        <span class="label-row">
+          <span>📝 Motivation</span>
+          <span class="hint" [class.good]="isMotivationValid" [class.bad]="motivation && !isMotivationValid">
+            {{ (motivation?.length || 0) }}/50 min
+          </span>
+        </span>
+
+        <textarea
+          class="textarea"
+          rows="7"
+          placeholder="Describe your specialty, your experience, and why you want to teach..."
+          [(ngModel)]="motivation"
+        ></textarea>
+      </label>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <button class="btn solid" (click)="submit()" [disabled]="!canSubmit">
+          <span *ngIf="!loading">✅ Submit Application</span>
+          <span *ngIf="loading">⏳ Submitting...</span>
+        </button>
+
+        <a class="btn outline" routerLink="/become-trainer/my-application">
+          📌 View My Application
+        </a>
+      </div>
+
+      
+    </div>
+  </section>
+
+</div>

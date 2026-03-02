@@ -1,0 +1,15 @@
+<header class="nav">
+    <div class="brand" routerLink="/become-trainer">Skill2Job • Trainer</div>
+  
+    <nav class="links">
+      <a routerLink="/become-trainer" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/become-trainer/apply" routerLinkActive="active">Apply</a>
+      <a routerLink="/become-trainer/my-application" routerLinkActive="active">My Application</a>
+      <a routerLink="/become-trainer/my-profile" routerLinkActive="active">My Profile</a>
+      <a routerLink="/become-trainer/help" routerLinkActive="active">Help</a>
+    </nav>
+  </header>
+  
+  <main class="content">
+    <router-outlet></router-outlet>  <!-- ✅ IMPORTANT -->
+  </main>
