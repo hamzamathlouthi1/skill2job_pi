@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface TrainingCourseRepository extends JpaRepository<TrainingCourse, Long> {
     List<TrainingCourse> findByCategoryId(Long categoryId);
+    // cours par trainer
+    List<TrainingCourse> findByTrainerId(Long trainerId);
 }

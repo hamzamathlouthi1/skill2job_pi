@@ -30,7 +30,6 @@ public class UserService {
         return userRepository.findAll();
     }
 
-
     // ──────────────────────────────────────
     //  READ ONE
     // ──────────────────────────────────────

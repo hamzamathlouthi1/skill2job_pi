@@ -41,6 +41,9 @@ public class TrainingCourse {
     @Column(name = "points_price")
     private Integer pointsPrice;
 
+    // ✅ NOUVEAU : trainer assigné à ce cours
+    @Column(name = "trainer_id")
+    private Long trainerId;
 
     // ── Files ─────────────────────────────────────────────────────
     private String imageUrl;

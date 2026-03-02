@@ -42,15 +42,22 @@ public class TrainingCourseController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // ✅ NOUVEAU : cours d'un trainer spécifique
+    @GetMapping("/trainer/{trainerId}")
+    public ResponseEntity<List<TrainingCourse>> getCoursesByTrainer(@PathVariable Long trainerId) {
+        return ResponseEntity.ok(courseRepo.findByTrainerId(trainerId));
+    }
+
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<TrainingCourse> createCourse(
             @RequestParam String title,
             @RequestParam String description,
             @RequestParam Double price,
             @RequestParam(defaultValue = "USD") String currency,
-            @RequestParam(required = false) Integer pointsPrice, // ✅ NOUVEAU
+            @RequestParam(required = false) Integer pointsPrice,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) Long trainerId,        // ✅ NOUVEAU
             @RequestParam(required = false) MultipartFile image,
             @RequestParam(required = false) MultipartFile[] pdfs) {
         try {
@@ -82,8 +89,9 @@ public class TrainingCourseController {
             course.setDescription(description);
             course.setPrice(price);
             course.setCurrency(currency.toUpperCase());
-            course.setPointsPrice(pointsPrice); // ✅ NOUVEAU
+            course.setPointsPrice(pointsPrice);
             course.setCategory(category);
+            course.setTrainerId(trainerId);                        // ✅ NOUVEAU
             course.setCreatedAt(LocalDateTime.now());
             course.setUpdatedAt(LocalDateTime.now());
 
@@ -91,7 +99,6 @@ public class TrainingCourseController {
                 course.setImageUrl(saveFile(image));
             }
 
-            // ✅ Sauvegarder les PDFs
             List<String> pdfUrls = new ArrayList<>();
             if (pdfs != null && pdfs.length > 0) {
                 for (MultipartFile pdf : pdfs) {
@@ -100,7 +107,7 @@ public class TrainingCourseController {
                     }
                 }
             }
-            course.setPdfUrls(pdfUrls); // ✅ toujours setter, même si vide
+            course.setPdfUrls(pdfUrls);
 
             TrainingCourse savedCourse = courseRepo.save(course);
             return ResponseEntity.ok(savedCourse);
@@ -121,9 +128,10 @@ public class TrainingCourseController {
             @RequestParam String description,
             @RequestParam Double price,
             @RequestParam(defaultValue = "USD") String currency,
-            @RequestParam(required = false) Integer pointsPrice, // ✅ NOUVEAU
+            @RequestParam(required = false) Integer pointsPrice,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) Long trainerId,        // ✅ NOUVEAU
             @RequestParam(required = false) MultipartFile image,
             @RequestParam(required = false) MultipartFile[] pdfs,
             @RequestParam(required = false) String existingPdfs) {
@@ -136,14 +144,13 @@ public class TrainingCourseController {
                 return ResponseEntity.badRequest().build();
             }
 
-
             course.setTitle(title);
             course.setDescription(description);
             course.setPrice(price);
             course.setCurrency(currency != null && !currency.trim().isEmpty()
                     ? currency.toUpperCase() : "USD");
-            course.setPointsPrice(pointsPrice); // ✅ NOUVEAU
-
+            course.setPointsPrice(pointsPrice);
+            course.setTrainerId(trainerId);                        // ✅ NOUVEAU
 
             if (categoryId != null) {
                 Category category = categoryRepo.findById(categoryId)
@@ -163,10 +170,8 @@ public class TrainingCourseController {
                 course.setImageUrl(saveFile(image));
             }
 
-            // ✅ Reconstruire la liste complète des PDFs
             List<String> finalPdfUrls = new ArrayList<>();
 
-            // Garder les PDFs existants non supprimés
             if (existingPdfs != null && !existingPdfs.trim().isEmpty()) {
                 String[] existing = existingPdfs
                         .replace("[", "").replace("]", "")
@@ -178,7 +183,6 @@ public class TrainingCourseController {
                 }
             }
 
-            // Ajouter les nouveaux PDFs uploadés
             if (pdfs != null && pdfs.length > 0) {
                 for (MultipartFile pdf : pdfs) {
                     if (pdf != null && !pdf.isEmpty()) {
@@ -187,7 +191,6 @@ public class TrainingCourseController {
                 }
             }
 
-            // ✅ LIGNE QUI MANQUAIT
             course.setPdfUrls(finalPdfUrls);
             course.setUpdatedAt(LocalDateTime.now());
 
