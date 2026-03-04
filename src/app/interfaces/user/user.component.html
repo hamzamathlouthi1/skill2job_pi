@@ -8,6 +8,8 @@
     <nav class="nav-links">
       <a (click)="scrollTo('courses')">Courses</a>
       <a (click)="scrollTo('joboffers')">Job Offers</a>
+      <a routerLink="/user/sessions">My Sessions</a>
+
       
     </nav>
   </div>
@@ -89,6 +91,7 @@
   </div>
 
 </header>
+
 <!-- HERO -->
 <section class="hero">
 
@@ -147,6 +150,9 @@
 </section>
 
 
+<router-outlet> </router-outlet>
+
+
 
 
 <!-- CONTACT -->
@@ -163,5 +169,6 @@
   </div>
 
 </section>
+
 
 

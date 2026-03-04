@@ -24,6 +24,7 @@ export class UserComponent implements OnInit {
     }
 
   }
+  
 
   toggleProfileMenu() {
     this.isProfileMenuOpen = !this.isProfileMenuOpen;

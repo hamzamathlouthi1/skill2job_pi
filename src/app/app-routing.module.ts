@@ -20,6 +20,11 @@ import { SessionsTableComponent } from './modules/components/sessions/sessions/s
 import { PcSearchComponent } from './modules/components/sessions/equipment/pc-search/pc-search.component';
 import { TrainerSessionsTableComponent } from './modules/components/sessions/sessions/trainer-sessions-table/trainer-sessions-table.component';
 import { TrainerEquipmentTableComponent } from './modules/components/sessions/equipment/trainer-equipments-table/trainer-equipments-table.component';
+import { LearnerSessionTableComponent } from './modules/components/sessions/sessions/learner-sessions-table/learner-session-table.component';
+import { LiveMeetComponent } from './modules/components/sessions/live-meet/live-meet.component';
+import { TrainerRoomsComponent } from './modules/components/sessions/rooms/trainer-rooms/trainer-rooms.component';
+
+
 const routes: Routes = [
 
   // PUBLIC
@@ -57,11 +62,23 @@ const routes: Routes = [
 
   // OTHER INTERFACES (UNCHANGED)
   {
-    path: 'user',
-    component: UserComponent,
-    canActivate: [AuthGuard],
-    data: { role: 'ROLE_LEARNER' }
-  },
+  path: 'user',
+  component: UserComponent,
+  canActivate: [AuthGuard],
+  canActivateChild: [AuthGuard],
+  data: { role: 'ROLE_LEARNER' },
+  children: [
+    { path: 'sessions', component: LearnerSessionTableComponent },
+    { path: 'dashboard', component: DashboardComponent },
+  ]
+},
+
+
+{ 
+  path: 'live/:sessionId/:roomCode', 
+  component: LiveMeetComponent,
+  canActivate: [AuthGuard] // Protect it with auth guard
+},
 
   {
   path: 'trainer',
@@ -74,7 +91,8 @@ const routes: Routes = [
     { path: 'sessions', component: TrainerSessionsTableComponent },
     
 
-    {path: 'equipments', component: TrainerEquipmentTableComponent }
+    {path: 'equipments', component: TrainerEquipmentTableComponent },
+    {path: 'virtualrooms', component: TrainerRoomsComponent },
 
   ]
 },

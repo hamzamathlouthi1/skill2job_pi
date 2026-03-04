@@ -26,6 +26,9 @@ export class SessionsService {
   deleteSession(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/delete/${id}`);
   }
+  joinSession(sessionId: number): Observable<any> {
+  return this.http.post(`${this.baseUrl}/${sessionId}/join`, {});
+}
 
   // UPDATE
   updateSession(id: number, session: any): Observable<any> {
@@ -38,5 +41,9 @@ export class SessionsService {
   }
   getSessionsByTrainerId(trainerId: number): Observable<Session[]> {
   return this.http.get<Session[]>(`${this.baseUrl}/sessions/trainer/${trainerId}`);
+}
+
+leaveSession(sessionId: number) {
+  return this.http.post(`${this.baseUrl}/${sessionId}/leave`, {});
 }
 }

@@ -13,8 +13,10 @@ export interface Session {
   capacity: number;
   room?: {
     id: number;
+    roomCode?: string;   // IMPORTANT for online redirect
   };
   salle?: Salle;
-  user?: User;  // Changed from 'trainer' to 'user' to match backend
+  user?: User;
+  participants?: User[];   // 🔥 ADD THIS
   sessionEquipments?: SessionEquipment[];
 }

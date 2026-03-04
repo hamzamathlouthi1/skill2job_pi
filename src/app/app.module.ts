@@ -38,6 +38,11 @@ import { TrainerNavbarComponent } from './interfaces/trainer-shared/trainer-navb
 import { TrainerSidebarComponent } from './interfaces/trainer-shared/trainer-sidebar/trainer-sidebar.component';
 import { TrainerSessionsTableComponent } from './modules/components/sessions/sessions/trainer-sessions-table/trainer-sessions-table.component';
 import { TrainerEquipmentTableComponent } from './modules/components/sessions/equipment/trainer-equipments-table/trainer-equipments-table.component';
+import { LearnerSessionTableComponent } from './modules/components/sessions/sessions/learner-sessions-table/learner-session-table.component';
+import { LiveMeetComponent } from './modules/components/sessions/live-meet/live-meet.component';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { TrainerRoomsComponent } from './modules/components/sessions/rooms/trainer-rooms/trainer-rooms.component';
+
 
 @NgModule({
   declarations: [
@@ -62,7 +67,10 @@ import { TrainerEquipmentTableComponent } from './modules/components/sessions/eq
     TrainerSidebarComponent,
     TrainerNavbarComponent,
     TrainerSessionsTableComponent,
-    TrainerEquipmentTableComponent
+    TrainerEquipmentTableComponent,
+    LearnerSessionTableComponent,
+    LiveMeetComponent,
+    TrainerRoomsComponent
 
     
     
@@ -86,7 +94,7 @@ import { TrainerEquipmentTableComponent } from './modules/components/sessions/eq
     AuthGuard, // ✅ ajouté
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: JwtInterceptor,
+      useClass: AuthInterceptor,
       multi: true
     }, provideAnimationsAsync()
   ],
