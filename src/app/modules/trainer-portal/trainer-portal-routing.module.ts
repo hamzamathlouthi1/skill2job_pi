@@ -7,7 +7,7 @@ import { TrainerApplyComponent } from './pages/trainer-apply/trainer-apply.compo
 import { TrainerMyApplicationComponent } from './pages/trainer-my-application/trainer-my-application.component';
 import { TrainerMyProfileComponent } from './pages/trainer-my-profile/trainer-my-profile.component';
 import { TrainerHelpComponent } from './pages/trainer-help/trainer-help.component';
-
+import { TrainerMessagesComponent } from './trainer-messages.component';
 const routes: Routes = [
   {
     path: '',
@@ -18,6 +18,8 @@ const routes: Routes = [
       { path: 'my-application', component: TrainerMyApplicationComponent },
       { path: 'my-profile', component: TrainerMyProfileComponent },
       { path: 'help', component: TrainerHelpComponent },
+      { path: 'messages', component: TrainerMessagesComponent },
+
     ]
   }
 ];

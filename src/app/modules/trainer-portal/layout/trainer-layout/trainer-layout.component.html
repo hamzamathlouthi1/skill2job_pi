@@ -7,6 +7,10 @@
       <a routerLink="/become-trainer/my-application" routerLinkActive="active">My Application</a>
       <a routerLink="/become-trainer/my-profile" routerLinkActive="active">My Profile</a>
       <a routerLink="/become-trainer/help" routerLinkActive="active">Help</a>
+      <a routerLink="/become-trainer/messages" routerLinkActive="active">
+        💬 Messages
+        <span class="notif-dot" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </a>
     </nav>
   </header>
   

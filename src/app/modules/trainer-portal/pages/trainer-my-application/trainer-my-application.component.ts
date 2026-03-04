@@ -52,7 +52,7 @@ export class TrainerMyApplicationComponent implements OnInit, OnDestroy {
   startPolling(): void {
     this.pollInterval = setInterval(() => {
       this.checkStatusChange();
-    }, 30000); // toutes les 30 secondes
+    }, 10000); // toutes les 30 secondes
   }
 
   stopPolling(): void {
@@ -61,21 +61,25 @@ export class TrainerMyApplicationComponent implements OnInit, OnDestroy {
       this.pollInterval = null;
     }
   }
-
   checkStatusChange(): void {
     if (!this.userId) return;
-
+  
     this.appService.getByUserId(this.userId).subscribe({
       next: (data: any) => {
         const newStatus = (data?.status || '').toUpperCase();
-
-        // ✅ Si statut a changé depuis le dernier check
-        if (this.lastStatus && newStatus !== this.lastStatus) {
+  
+        // ✅ initialise lastStatus si vide (premier poll)
+        if (!this.lastStatus) {
+          this.lastStatus = newStatus;
+          return;
+        }
+  
+        if (newStatus !== this.lastStatus) {
           this.app = data;
           this.editCvUrl = data?.cvUrl || '';
           this.editMotivation = data?.motivation || '';
           this.editMode = false;
-
+  
           if (newStatus === 'ACCEPTED') {
             this.showNotification('🎉 Congratulations! Your application has been accepted!', 'success');
           } else if (newStatus === 'REJECTED') {
@@ -83,11 +87,11 @@ export class TrainerMyApplicationComponent implements OnInit, OnDestroy {
           } else {
             this.showNotification(`🔔 Your application status changed to ${newStatus}`, 'info');
           }
+  
+          this.lastStatus = newStatus;
         }
-
-        this.lastStatus = newStatus;
       },
-      error: () => {} // silencieux
+      error: () => {}
     });
   }
 
