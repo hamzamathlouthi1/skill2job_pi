@@ -1,34 +1,31 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class HrService {
 
-  private apiUrl = 'http://localhost:8087/api/applications';
+  private baseUrl = 'http://localhost:8087/api/applications';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  // GET all + optional filter by status
   getAllApplications(status?: string): Observable<any[]> {
-    const url = status ? `${this.apiUrl}?status=${status}` : this.apiUrl;
-    return this.http.get<any[]>(url);
+    let params = new HttpParams();
+    if (status) {
+      params = params.set('status', status);
+    }
+    return this.http.get<any[]>(this.baseUrl, { params });
   }
 
-  // ✅ AI Analyze => creates/updates TrainerDetails
   analyzeApplication(id: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/analyze`, {});
+    return this.http.post(`${this.baseUrl}/${id}/analyze`, {});
   }
 
-  // ✅ Admin decision => ACCEPT / REJECT
   decide(id: number, decision: 'ACCEPT' | 'REJECT'): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/decision?decision=${decision}`, {});
+    return this.http.put(`${this.baseUrl}/${id}/decide`, { decision });
   }
 
-  // DELETE
   deleteApplication(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 }

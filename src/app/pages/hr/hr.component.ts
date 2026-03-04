@@ -19,7 +19,10 @@ export class HrComponent implements OnInit, OnDestroy {
   newMessage = '';
   sendingMessage = false;
   private chatPollInterval: any = null;
-  adminId = 1; // ID admin fixe
+  adminId = 1;
+
+  // ✅ Unread badges
+  unreadCounts: { [appId: number]: number } = {};
 
   constructor(
     private hrService: HrService,
@@ -29,14 +32,32 @@ export class HrComponent implements OnInit, OnDestroy {
   ngOnInit(): void { this.loadApplications(); }
   ngOnDestroy(): void { this.stopChatPoll(); }
 
+  // ─── APPLICATIONS ─────────────────────────────────────
   loadApplications() {
     const status = this.selectedStatus?.trim();
     this.hrService.getAllApplications(status ? status : undefined).subscribe({
-      next: (data: any[]) => { this.applications = data; },
+      next: (data: any[]) => {
+        this.applications = data;
+        this.loadAllUnreadCounts(); // ✅ charge badges
+      },
       error: (err: any) => {
         console.error(err);
         alert('Error loading applications (check backend + CORS).');
       }
+    });
+  }
+
+  // ─── UNREAD BADGES ────────────────────────────────────
+  loadAllUnreadCounts(): void {
+    this.applications.forEach(app => {
+      this.messageService.getConversation(app.id).subscribe({
+        next: (msgs) => {
+          this.unreadCounts[app.id] = msgs.filter(
+            m => m.senderRole === 'TRAINER' && !m.read
+          ).length;
+        },
+        error: () => { this.unreadCounts[app.id] = 0; }
+      });
     });
   }
 
@@ -45,6 +66,7 @@ export class HrComponent implements OnInit, OnDestroy {
     this.chatApp = app;
     this.chatOpen = true;
     this.newMessage = '';
+    this.unreadCounts[app.id] = 0; // ✅ reset badge
     this.loadMessages();
     this.startChatPoll();
   }
@@ -91,11 +113,17 @@ export class HrComponent implements OnInit, OnDestroy {
 
   markRead(): void {
     if (!this.chatApp?.id) return;
-    this.messageService.markAsRead(this.chatApp.id, this.adminId).subscribe({ error: () => {} });
+    this.messageService.markAsRead(this.chatApp.id, this.adminId).subscribe({
+      next: () => { this.unreadCounts[this.chatApp.id] = 0; }, // ✅ reset badge
+      error: () => {}
+    });
   }
 
   startChatPoll(): void {
-    this.chatPollInterval = setInterval(() => this.loadMessages(), 10000);
+    this.chatPollInterval = setInterval(() => {
+      this.loadMessages();
+      this.loadAllUnreadCounts(); // ✅ refresh badges
+    }, 10000);
   }
 
   stopChatPoll(): void {
@@ -124,6 +152,7 @@ export class HrComponent implements OnInit, OnDestroy {
   // ─── CSV ──────────────────────────────────────────────
   exportCSV(): void {
     if (this.applications.length === 0) { alert('No applications to export.'); return; }
+
     const headers = ['ID', 'User ID', 'Status', 'CV URL', 'Motivation', 'Submitted At', 'Updated At'];
     const rows = this.applications.map(app => [
       app.id, app.userId, app.status, app.cvUrl || '',
@@ -131,6 +160,7 @@ export class HrComponent implements OnInit, OnDestroy {
       app.submittedAt ? new Date(app.submittedAt).toLocaleString() : '-',
       app.updatedAt   ? new Date(app.updatedAt).toLocaleString()   : '-'
     ]);
+
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url  = URL.createObjectURL(blob);
@@ -141,6 +171,7 @@ export class HrComponent implements OnInit, OnDestroy {
     URL.revokeObjectURL(url);
   }
 
+  // ─── HR ACTIONS ───────────────────────────────────────
   analyze(id: number) {
     this.hrService.analyzeApplication(id).subscribe({
       next: () => { alert('AI analysis done!'); this.loadApplications(); },

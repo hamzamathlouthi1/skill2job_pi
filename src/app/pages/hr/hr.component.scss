@@ -92,8 +92,8 @@
 .approve  { background: #22c55e; color: white; }
 .reject   { background: #ef4444; color: white; }
 .delete   { background: #374151; color: white; }
+.chat     { background: #6366f1; color: white; position: relative; display: inline-flex; align-items: center; gap: 6px; }
 
-// ✅ Export button
 .export {
   background: #111827;
   color: white;
@@ -131,7 +131,28 @@
   &.pending  { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; }
   &.accepted { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
   &.rejected { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-  .chat { background: #6366f1; color: white; }
+}
+
+// ─── CHAT BADGE ───────────────────────────────────────
+.chat-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.2); }
+}
 
 // ─── CHAT MODAL ───────────────────────────────────────
 .chat-backdrop {
@@ -322,5 +343,4 @@
 
   &:disabled { opacity: 0.5; cursor: not-allowed; }
   &:hover:not(:disabled) { background: #4f46e5; }
-}
 }

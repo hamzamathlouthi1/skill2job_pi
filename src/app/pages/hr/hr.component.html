@@ -45,7 +45,12 @@
       <td class="motivation">{{ app.motivation }}</td>
       <td>{{ app.updatedAt | date:'yyyy-MM-dd HH:mm' }}</td>
       <td class="actions">
-        <button class="btn chat"    (click)="openChat(app)">💬 Chat</button>
+        <button class="btn chat" (click)="openChat(app)">
+          💬 Chat
+          <span class="chat-badge" *ngIf="unreadCounts[app.id] > 0">
+            {{ unreadCounts[app.id] }}
+          </span>
+        </button>
         <button class="btn analyze" (click)="analyze(app.id)">🤖 Analyze</button>
         <button class="btn approve" (click)="approve(app.id)">✅ Approve</button>
         <button class="btn reject"  (click)="reject(app.id)">❌ Reject</button>
