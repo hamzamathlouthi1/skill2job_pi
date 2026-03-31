@@ -1,0 +1,134 @@
+<div class="sessions-container">
+  <!-- Animated Logo Section -->
+  <div class="logo-section">
+    <div class="logo-wrapper">
+      <img src="assets/logo.png" alt="Logo" class="animated-logo">
+      <div class="logo-glow"></div>
+   
+
+  <div class="header-section">
+    <h2 class="title">Available Sessions</h2>
+    <div class="title-underline"></div>
+    <div class="session-count">{{ sessions.length }} Sessions Available</div>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="cards-grid">
+    <div *ngFor="let session of sessions" class="session-card" [class.ended-card]="getSessionStatus(session) === 'ENDED'">
+      
+      <!-- Card Header -->
+      <div class="card-header">
+        <div class="session-type-icon">
+          <span class="type-icon">{{ session.type === 'ONLINE' ? '🌐' : '🏫' }}</span>
+        </div>
+        <h3 class="session-name">{{ session.name }}</h3>
+        <span class="status-chip" [ngClass]="{
+          'chip-upcoming': getSessionStatus(session) === 'UPCOMING',
+          'chip-ongoing': getSessionStatus(session) === 'ONGOING',
+          'chip-ended': getSessionStatus(session) === 'ENDED'
+        }">
+          <span class="status-dot"></span>
+          {{ getSessionStatus(session) }}
+        </span>
+      </div>
+
+      <!-- Card Body -->
+      <div class="card-body">
+        <!-- Trainer Info -->
+        <div class="info-row">
+          <span class="info-label">Trainer</span>
+          <div class="trainer-info">
+            <span class="trainer-avatar">👤</span>
+            <span class="trainer-name">{{ session.user?.username }}</span>
+            <span class="trainer-crown">👑</span>
+          </div>
+        </div>
+
+        <!-- Date & Time -->
+        <div class="info-row">
+          <span class="info-label">Start Time</span>
+          <div class="datetime">
+            <span class="date">📅 {{ session.startAt | date:'mediumDate' }}</span>
+            <span class="time">⏰ {{ session.startAt | date:'shortTime' }}</span>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">End Time</span>
+          <div class="datetime">
+            <span class="date">📅 {{ session.endAt | date:'mediumDate' }}</span>
+            <span class="time">⏰ {{ session.endAt | date:'shortTime' }}</span>
+          </div>
+        </div>
+
+        <!-- Capacity -->
+        <div class="info-row">
+          <span class="info-label">Capacity</span>
+          <div class="capacity-info">
+            <div class="capacity-bar">
+              <div class="capacity-fill" [style.width.%]="(session.participants?.length || 0) / session.capacity * 100"></div>
+            </div>
+            <span class="capacity-text">{{ session.participants?.length || 0 }}/{{ session.capacity }}</span>
+          </div>
+        </div>
+
+        <!-- Type Badge -->
+        <div class="type-container">
+          <span class="card-type-badge" [class.online]="session.type === 'ONLINE'" [class.onsite]="session.type === 'ONSITE'">
+            {{ session.type === 'ONLINE' ? 'Online Session' : 'Onsite Session' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="card-footer">
+        <!-- Join button -->
+        <button *ngIf="!isJoined(session) && !isFull(session) && getSessionStatus(session) !== 'ENDED'" 
+                (click)="joinSession(session)" 
+                class="card-btn join-card-btn">
+          <span class="btn-icon">➕</span>
+          Join Session
+        </button>
+
+        <!-- Enter Room (ONLINE + joined + ONGOING) -->
+        <button *ngIf="isJoined(session) && session.type === 'ONLINE' && getSessionStatus(session) === 'ONGOING'" 
+                (click)="enterRoom(session)" 
+                class="card-btn enter-card-btn">
+          <span class="btn-icon">🎥</span>
+          Enter Virtual Room
+        </button>
+
+        <!-- Joined badge (ONSITE joined, or ONLINE not ongoing) -->
+        <div *ngIf="isJoined(session) && !(session.type === 'ONLINE' && getSessionStatus(session) === 'ONGOING')" 
+             class="card-status joined-status">
+          <span class="status-icon">✅</span>
+          <span>You've Joined</span>
+        </div>
+
+        <!-- Full badge -->
+        <div *ngIf="isFull(session) && !isJoined(session)" 
+             class="card-status full-status">
+          <span class="status-icon">⚠️</span>
+          <span>Session Full</span>
+        </div>
+
+        <!-- Ended badge -->
+        <div *ngIf="getSessionStatus(session) === 'ENDED'" 
+             class="card-status ended-status">
+          <span class="status-icon">⌛</span>
+          <span>Session Ended</span>
+        </div>
+      </div>
+
+      <!-- Decorative Corner -->
+      <div class="card-corner"></div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="sessions.length === 0" class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>No Sessions Available</h3>
+    <p>Check back later for new sessions</p>
+  </div>
+</div>
