@@ -54,9 +54,11 @@ export class AuthGuard implements CanActivate {
     }
 
     const requiredRole = route.data['role'];
+    const requiredRoles = route.data['roles'];
     console.log('🎯 Required role:', requiredRole);
+    console.log('🎯 Required roles:', requiredRoles);
     
-    if (requiredRole) {
+    if (requiredRole || requiredRoles) {
       const user = this.authService.getCurrentUser();
       let userRole = null;
       
@@ -76,8 +78,17 @@ export class AuthGuard implements CanActivate {
       
       console.log('🎭 Extracted user role:', userRole);
       
-      if (userRole !== requiredRole) {
+      // Check single role
+      if (requiredRole && userRole !== requiredRole) {
         console.log('❌ ROLE MISMATCH → redirecting to signin');
+        console.log('=====================================');
+        this.router.navigate(['/signin']);
+        return false;
+      }
+      
+      // Check multiple roles
+      if (requiredRoles && Array.isArray(requiredRoles) && !requiredRoles.includes(userRole)) {
+        console.log('❌ ROLES MISMATCH → redirecting to signin');
         console.log('=====================================');
         this.router.navigate(['/signin']);
         return false;

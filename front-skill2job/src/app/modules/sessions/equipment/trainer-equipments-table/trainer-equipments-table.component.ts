@@ -53,7 +53,7 @@ showReservationsModal = false;
   editEquipment(e: Equipment) {
     // navigate to the edit form for the selected equipment
     if (e && e.id != null) {
-      this.router.navigate(['/admin/sessions/equipments/edit', e.id]);
+      this.router.navigate(['/trainer-sessions/equipments/edit', e.id]);
     }
   }
 openDetails(e: Equipment) {

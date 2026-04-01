@@ -46,6 +46,16 @@ showReservationsModal = false;
       }
     });
   }
+
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="%23e2e8f0"/><text x="50%" y="50%" font-size="14" fill="%23666" text-anchor="middle" dominant-baseline="middle">No Image</text></svg>';
+  }
+
+  getPhotoUrl(filename: string): string {
+    return this.equipmentService.getPhotoUrl(filename);
+  }
+
   deleteEquipment(id: number) {
     if (confirm('Delete this equipment?')) {
       this.equipmentService.deleteEquipment(id).subscribe(() => {
@@ -57,7 +67,7 @@ showReservationsModal = false;
   editEquipment(e: Equipment) {
     // navigate to the edit form for the selected equipment
     if (e && e.id != null) {
-      this.router.navigate(['/admin/sessions/equipments/edit', e.id]);
+      this.router.navigate(['/trainer-sessions/equipments/edit', e.id]);
     }
   }
 openDetails(e: Equipment) {

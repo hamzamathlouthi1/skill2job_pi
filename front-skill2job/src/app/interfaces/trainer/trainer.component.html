@@ -1,1 +1,76 @@
-<p>trainer works!</p>
+<div class="trainer-container">
+  <!-- Black Navbar -->
+  <nav class="trainer-navbar">
+    <div class="nav-content">
+      <div class="nav-left">
+        <h2 class="trainer-brand">👨‍🏫 TRAINER DASHBOARD</h2>
+      </div>
+      <div class="nav-right">
+        <button class="nav-btn" (click)="logout()">🚪 Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="trainer-content">
+    <div class="welcome-section">
+      <h1>Welcome, {{ username }}! 👋</h1>
+      <p>Manage your sessions and monitor your trainees</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-info">
+          <h3>Sessions</h3>
+          <p class="stat-value">--</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <h3>Trainees</h3>
+          <p class="stat-value">--</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+          <h3>Active Sessions</h3>
+          <p class="stat-value">--</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-info">
+          <h3>Rating</h3>
+          <p class="stat-value">--</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links-section">
+      <h2>Quick Actions</h2>
+      <div class="links-grid">
+        <a [routerLink]="['/trainer-sessions/trainer']" class="link-card">
+          <span class="link-icon">📅</span>
+          <span>My Sessions</span>
+        </a>
+        <a [routerLink]="['/trainer-sessions/equipments']" class="link-card">
+          <span class="link-icon">🖥️</span>
+          <span>Equipment</span>
+        </a>
+        <a [routerLink]="['/trainer-sessions/rooms']" class="link-card">
+          <span class="link-icon">🏛️</span>
+          <span>Rooms</span>
+        </a>
+        <a [routerLink]="['/trainer-sessions/virtual-rooms']" class="link-card">
+          <span class="link-icon">📈</span>
+          <span>Virtual Rooms</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

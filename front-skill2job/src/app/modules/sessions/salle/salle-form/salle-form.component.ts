@@ -90,13 +90,13 @@ export class SalleFormComponent implements OnInit {
     if (this.isEdit && this.salle.id) {
       this.salleService.update(this.salle.id, this.salle)
         .subscribe({
-          next: () => this.router.navigate(['/admin/sessions/rooms']),
+          next: () => this.router.navigate(['/trainer-sessions/rooms']),
           error: () => this.error = 'Failed to update salle'
         });
     } else {
       this.salleService.add(this.salle)
         .subscribe({
-          next: () => this.router.navigate(['/admin/sessions/rooms']),
+          next: () => this.router.navigate(['/trainer-sessions/rooms']),
           error: () => this.error = 'Failed to add salle'
         });
     }

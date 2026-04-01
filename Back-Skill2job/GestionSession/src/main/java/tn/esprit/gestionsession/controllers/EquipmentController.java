@@ -83,8 +83,9 @@ public class EquipmentController {
 
         Resource resource = new UrlResource(path.toUri());
 
-        if (!resource.exists()) {
-            throw new RuntimeException("File not found: " + filename);
+        if (!resource.exists() || !resource.isReadable()) {
+            // Avoid returning 400; return 404 so clients can fallback safely
+            return ResponseEntity.notFound().build();
         }
 
         // Detect file type automatically

@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { SessionsTableComponent } from './sessions/sessions-table/sessions-table.component';
+import { TrainerSessionsTableComponent } from './sessions/trainer-sessions-table/trainer-sessions-table.component';
+import { LearnerSessionTableComponent } from './sessions/learner-sessions-table/learner-session-table.component';
 import { BlocsComponent } from './blocs/blocs.component';
 import { EquipmentTableComponent } from './equipment/equipment-table/equipment-table.component';
 import { EquipmentFormComponent } from './equipment/equipment-form/equipment-form.component';
@@ -11,7 +13,9 @@ import { SalleFormComponent } from './salle/salle-form/salle-form.component';
 import { TrainerRoomsComponent } from './rooms/trainer-rooms/trainer-rooms.component';
 
 const routes: Routes = [
-  { path: '', component: SessionsTableComponent },               // /admin/sessions
+  { path: '', component: SessionsTableComponent },               // default sessions page (admin/trainer)
+  { path: 'trainer', component: TrainerSessionsTableComponent }, // trainer-specific view
+  { path: 'learner', component: LearnerSessionTableComponent },  // learner-specific view
   { path: 'equipments/add', component: EquipmentFormComponent },       // /admin/sessions/equipments/add
   { path: 'equipments/edit/:id', component: EquipmentFormComponent }, // /admin/sessions/equipments/edit/:id
   { path: 'equipments', component: EquipmentTableComponent },    // /admin/sessions/equipments

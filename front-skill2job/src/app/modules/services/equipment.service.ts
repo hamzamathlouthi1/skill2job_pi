@@ -20,6 +20,10 @@ export class EquipmentService {
     return this.http.post(`${this.baseUrl}/add-with-photo`, formData);
   }
 
+  add(equipment: Equipment): Observable<Equipment> {
+    return this.http.post<Equipment>(`${this.baseUrl}/add`, equipment);
+  }
+
   deleteEquipment(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/delete/${id}`);
   }
@@ -38,6 +42,10 @@ export class EquipmentService {
 
   getAvailableEquipments(start: string, end: string): Observable<Equipment[]> {
     return this.http.get<Equipment[]>(`${this.baseUrl}/available?startAt=${start}&endAt=${end}`);
+  }
+
+  getPhotoUrl(filename: string): string {
+    return `${this.baseUrl}/photo/${filename}`;
   }
 
   getReservations(equipmentId: number): Observable<EquipmentReservation[]> {

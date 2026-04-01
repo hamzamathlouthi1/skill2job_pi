@@ -86,6 +86,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SERVER_PORT=8085
+    volumes:
+      - ./uploads:/app/uploads
     depends_on:
       mysql:
         condition: service_healthy

@@ -4,9 +4,13 @@
 
     <h2>Sessions</h2>
 
-    <button class="add-btn" (click)="openAddModal()">
+    <button *ngIf="userRole !== 'ROLE_LEARNER'" class="add-btn" (click)="openAddModal()">
       + Add Session
     </button>
+
+    <p *ngIf="userRole === 'ROLE_LEARNER'" class="info-text">
+      You are in learner mode. Session creation and modifications are disabled.
+    </p>
 
   </div>
 
@@ -46,7 +50,7 @@
           {{ s.startAt | date:'medium' }}
         </p>
 
-        <div class="card-actions">
+        <div class="card-actions" *ngIf="userRole !== 'ROLE_LEARNER'">
           <button
             class="small-btn edit-btn"
             (click)="editSession(s); $event.stopPropagation()"
