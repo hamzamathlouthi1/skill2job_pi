@@ -6,14 +6,14 @@
 
   <div style="display:flex; gap:10px">
 
-    <button class="add-btn" routerLink="/admin/sessions/equipments/add">
+    <button class="add-btn" routerLink="/trainer-sessions/equipments/add">
       + Add Equipment
     </button>
 
     <button
       class="add-btn"
       style="background:#c22b33"
-      routerLink="/admin/sessions/pcsearch"
+      routerLink="/trainer-sessions/pcsearch"
     >
       💻 Out of Laptops ?
     </button>
@@ -36,7 +36,8 @@
 
         <img
           *ngIf="e.photo"
-          [src]="'http://localhost:8090/api/equipments/photo/' + e.photo"
+          [src]="getPhotoUrl(e.photo)"
+          (error)="onImageError($event)"
           class="equipment-img"
         />
 
@@ -66,7 +67,7 @@
 
       <p>No equipment found</p>
 
-      <button class="add-btn" routerLink="/admin/sessions/equipments/add">
+      <button class="add-btn" routerLink="/trainer-sessions/equipments/add">
         Add your first equipment
       </button>
 
@@ -101,7 +102,8 @@
     <!-- IMAGE -->
     <img
       *ngIf="selectedEquipment.photo"
-      [src]="'http://localhost:8090/api/equipments/photo/' + selectedEquipment.photo"
+      [src]="getPhotoUrl(selectedEquipment.photo)"
+      (error)="onImageError($event)"
       class="modal-image"
     />
 
@@ -123,7 +125,7 @@
 
       <button
         class="edit-btn"
-        [routerLink]="['/admin/sessions/equipments/edit', selectedEquipment.id]"
+        [routerLink]="['/trainer-sessions/equipments/edit', selectedEquipment.id]"
         (click)="closeDetails()"
       >
         Edit

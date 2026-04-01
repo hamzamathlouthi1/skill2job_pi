@@ -39,8 +39,7 @@ export class EquipmentFormComponent implements OnInit {
         this.quantity = res.quantity;
 
         if (res.photo) {
-          this.preview =
-            'http://localhost:8081/api/equipments/photo/' + res.photo;
+          this.preview = this.equipmentService.getPhotoUrl(res.photo);
         }
       });
     }
@@ -56,7 +55,45 @@ export class EquipmentFormComponent implements OnInit {
     reader.readAsDataURL(this.selectedFile);
   }
 
- submit() {
+  private validateForm(): boolean {
+    if (!this.name || this.name.trim().length === 0) {
+      alert('Name is required');
+      return false;
+    }
+
+    if (this.quantity <= 0) {
+      alert('Quantity must be greater than 0');
+      return false;
+    }
+
+    return true;
+  }
+
+  submit() {
+    if (!this.validateForm()) {
+      return;
+    }
+
+    // Case: no photo selected -> use simple add endpoint instead of add-with-photo
+    if (!this.selectedFile) {
+      const equipment = {
+        name: this.name,
+        quantity: this.quantity,
+        photo: null
+      };
+
+      this.equipmentService.add(equipment as any).subscribe({
+        next: () => {
+          console.log('Equipment created without photo');
+          this.router.navigate(['/trainer-sessions/equipments']);
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Failed to create equipment');
+        }
+      });
+      return;
+    }
 
   const formData = new FormData();
   formData.append('name', this.name);
@@ -76,7 +113,7 @@ export class EquipmentFormComponent implements OnInit {
         console.log("Equipment created");
 
         // ✅ correct redirect
-        this.router.navigate(['/admin/sessions/equipments']);
+        this.router.navigate(['/trainer-sessions/equipments']);
 
       },
 
@@ -96,7 +133,7 @@ export class EquipmentFormComponent implements OnInit {
         console.log("Equipment updated");
 
         // ✅ correct redirect
-        this.router.navigate(['/admin/sessions/equipments']);
+        this.router.navigate(['/trainer-sessions/equipments']);
 
       },
 

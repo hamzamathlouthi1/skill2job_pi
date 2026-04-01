@@ -17,6 +17,7 @@ import { CertificateListComponent } from './interfaces/exams-back/components/cer
 import { CertificateDetailsComponent } from './interfaces/exams-back/components/certificate-details/certificate-details.component';
 import { CertificateGenerateComponent } from './interfaces/exams-back/components/certificate-generate/certificate-generate.component';
 import { QuestionTableComponent } from './interfaces/exams-back/components/question-table/question-table.component';
+import { LiveMeetComponent } from './modules/sessions/live-meet/live-meet.component';
 
 const routes: Routes = [
 
@@ -48,7 +49,9 @@ const routes: Routes = [
     { 
       path: 'sessions', 
       loadChildren: () => import('./modules/sessions/sessions.module')
-        .then(m => m.SessionsModule) 
+        .then(m => m.SessionsModule),
+      canActivate: [AuthGuard],
+      data: { roles: ['ROLE_ADMIN', 'ROLE_TRAINER'] }
     },
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' } 
   ]
@@ -73,10 +76,24 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     data: { role: 'ROLE_TRAINER' }
   },
+
+  // Trainer/Admin shared sessions routes
+  {
+    path: 'trainer-sessions',
+    loadChildren: () => import('./modules/sessions/sessions.module')
+      .then(m => m.SessionsModule),
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_ADMIN', 'ROLE_TRAINER'] }
+  },
   
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'live/:sessionId/:roomCode',
+    component: LiveMeetComponent,
     canActivate: [AuthGuard]
   },
 

@@ -101,7 +101,7 @@
 </main>
 
 <!-- HERO SECTION - Only show when NOT on exams or sessions page -->
-<section *ngIf="router.url !== '/user/exams' && router.url !== '/user/sessions'" class="hero">
+<section *ngIf="!router.url.startsWith('/user/exams') && !router.url.startsWith('/user/sessions')" class="hero">
   <div class="hero-text">
     <h1>
       Welcome Home User!
@@ -117,7 +117,7 @@
 </section>
 
 <!-- COURSES SECTION - Only show when NOT on exams or sessions page -->
-<section *ngIf="router.url !== '/user/exams' && router.url !== '/user/sessions'" id="courses" class="section grey">
+<section *ngIf="!router.url.startsWith('/user/exams') && !router.url.startsWith('/user/sessions')" id="courses" class="section grey">
   <h2 class="section-title">My Courses</h2>
   <div class="grid">
     <div class="course-card">
@@ -139,7 +139,7 @@
 </section>
 
 <!-- CONTACT SECTION - Only show when NOT on exams or sessions page -->
-<section *ngIf="router.url !== '/user/exams' && router.url !== '/user/sessions'" id="contact" class="section">
+<section *ngIf="!router.url.startsWith('/user/exams') && !router.url.startsWith('/user/sessions')" id="contact" class="section">
   <h2 class="section-title">Contact Us</h2>
   <div class="contact">
     <p><strong>Address:</strong> ESPRIT, Ariana, Tunisia</p>

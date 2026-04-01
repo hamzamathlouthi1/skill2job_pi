@@ -4,7 +4,7 @@
   <div class="equipment-header">
     <h2>Rooms</h2>
 
-    <button class="add-btn" routerLink="/admin/sessions/rooms/add">
+    <button class="add-btn" routerLink="/trainer-sessions/rooms/add">
       + Add Salle
     </button>
   </div>
@@ -90,7 +90,7 @@
 
       <button
         class="edit-btn"
-        [routerLink]="['/admin/sessions/rooms/edit', selectedSalle.id]"
+        [routerLink]="['/trainer-sessions/rooms/edit', selectedSalle.id]"
         (click)="closeDetails()"
       >
         Edit

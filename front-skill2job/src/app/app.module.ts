@@ -23,6 +23,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; // �
 import { JwtInterceptor } from './modules/services/jwt.interceptor';
 import { AuthGuard } from './interfaces/guards/auth.guard'; // ✅ ajouté
 import { SignupComponent } from './interfaces/signup/signup.component'; // ✅ ajout
+import { LiveMeetComponent } from './modules/sessions/live-meet/live-meet.component';
 
 import { ExamsComponent } from './interfaces/exams-back/exams.component';
 import { ExamFormComponent } from './interfaces/exams-back/components/exam-form/exam-form.component';
@@ -59,7 +60,8 @@ import { QuestionTableComponent } from './interfaces/exams-back/components/quest
     CertificateListComponent,
     CertificateDetailsComponent,
     CertificateGenerateComponent,
-    QuestionTableComponent
+    QuestionTableComponent,
+    LiveMeetComponent
   ],
   imports: [
     BrowserModule,

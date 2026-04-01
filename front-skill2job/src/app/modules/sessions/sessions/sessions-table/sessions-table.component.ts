@@ -6,6 +6,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { Router, ActivatedRoute } from '@angular/router';
 import { SessionsService } from '../../../services/sessions.service';
 import { NotificationService } from '../../../services/notification.service';
 import { SalleService } from '../../../services/salle.service';
@@ -73,6 +74,8 @@ export class SessionsTableComponent implements OnInit {
   };
 
   constructor(
+    private router: Router,
+    private route: ActivatedRoute,
     private sessionsService: SessionsService,
     private notify: NotificationService,
     private salleService: SalleService,
@@ -80,11 +83,28 @@ export class SessionsTableComponent implements OnInit {
     private authService: AuthService
   ) {}
 
+  userRole: string | null = null;
+
   ngOnInit(): void {
+    this.loadCurrentUser();
+    this.userRole = this.authService.getUserRoleString();
+
+    if (this.userRole === 'ROLE_LEARNER') {
+      // learner users should use the dedicated learner session view
+      this.router.navigate(['learner'], { relativeTo: this.route });
+      return;
+    }
+
+    if (this.userRole === 'ROLE_TRAINER') {
+      // trainers have a dedicated trainer dashboard
+      this.router.navigate(['trainer'], { relativeTo: this.route });
+      return;
+    }
+
+    // admin and other roles continue in this component
     this.loadSessions();
     this.loadSalles();
     this.loadEquipments();
-    this.loadCurrentUser();
     this.availableEquipments = [...this.equipments];
   }
 
@@ -107,15 +127,27 @@ export class SessionsTableComponent implements OnInit {
       this.notify.error('Please log in to manage sessions');
       return false;
     }
-    
+
+    this.userRole = this.authService.getUserRoleString();
+
+    if (this.userRole === 'ROLE_LEARNER') {
+      this.notify.error('Learners are not allowed to modify sessions');
+      return false;
+    }
+
+    if (this.userRole !== 'ROLE_ADMIN' && this.userRole !== 'ROLE_TRAINER') {
+      this.notify.error('Insufficient permissions to perform this action');
+      return false;
+    }
+
     // Reload user ID to ensure it's current
     this.currentUserId = this.authService.getCurrentUserId();
-    
+
     if (!this.currentUserId) {
       this.notify.error('User ID not found. Please try logging in again.');
       return false;
     }
-    
+
     return true;
   }
 
