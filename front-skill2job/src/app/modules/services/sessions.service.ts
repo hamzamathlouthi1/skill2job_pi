@@ -10,7 +10,7 @@ export class SessionsService {
   // NOTE: keep this pointing to the sessions microservice
   private baseUrl = 'http://localhost:8090/api/sessions';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllSessions(): Observable<Session[]> {
     return this.http.get<Session[]>(`${this.baseUrl}/all`);

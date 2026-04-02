@@ -13,7 +13,7 @@ import { SalleFormComponent } from './salle/salle-form/salle-form.component';
 import { TrainerRoomsComponent } from './rooms/trainer-rooms/trainer-rooms.component';
 
 const routes: Routes = [
-  { path: '', component: SessionsTableComponent },               // default sessions page (admin/trainer)
+  { path: '', component: SessionsTableComponent },               // default admin sessions page
   { path: 'trainer', component: TrainerSessionsTableComponent }, // trainer-specific view
   { path: 'learner', component: LearnerSessionTableComponent },  // learner-specific view
   { path: 'equipments/add', component: EquipmentFormComponent },       // /admin/sessions/equipments/add

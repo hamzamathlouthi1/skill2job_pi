@@ -64,6 +64,25 @@ align-items: center;
   padding-bottom: 5px;
 }
 
+.trainer-btn {
+  background: linear-gradient(135deg, #28a745, #1e3c72);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-size: 14px;
+  margin-left: 20px;
+}
+
+.trainer-btn:hover {
+  background: linear-gradient(135deg, #1e3c72, #0f1f3d);
+  transform: translateY(-2px);
+}
+
 .nav-links a:hover {
   color: #c22b33;
 }

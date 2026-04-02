@@ -1,0 +1,94 @@
+<div class="page-header">
+  <h2>Trainer Details</h2>
+  <p class="subtitle">View detailed trainer information and credentials</p>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar-right">
+    <div class="info" *ngIf="details.length > 0">
+      {{ details.length }} trainer(s)
+    </div>
+    <button class="btn refresh" (click)="loadDetails()">🔄 Refresh</button>
+  </div>
+</div>
+
+<div class="loading" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading trainer details...</p>
+</div>
+
+<div class="error" *ngIf="error">
+  <p>{{ error }}</p>
+  <button class="btn retry" (click)="loadDetails()">Retry</button>
+</div>
+
+<div class="details-table" *ngIf="!loading && !error">
+  <table class="data-table" *ngIf="details.length > 0">
+    <thead>
+      <tr>
+        <th>Trainer</th>
+        <th>Application ID</th>
+        <th>Specialization</th>
+        <th>Experience</th>
+        <th>Qualifications</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let detail of details">
+        <td>
+          <div class="trainer-info">
+            <div class="trainer-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div>
+              <div class="trainer-name">{{ detail.firstName }} {{ detail.lastName }}</div>
+              <div class="trainer-email">{{ detail.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="application-id">#{{ detail.applicationId }}</span>
+        </td>
+        <td>
+          <span class="specialization">{{ detail.specialization || 'N/A' }}</span>
+        </td>
+        <td>
+          <span class="experience">{{ detail.experienceYears || 0 }} years</span>
+        </td>
+        <td>
+          <div class="qualifications">
+            <span class="qualification-tag" *ngFor="let qual of detail.qualifications || []">
+              {{ qual }}
+            </span>
+            <span class="no-qualifications" *ngIf="!detail.qualifications || detail.qualifications.length === 0">
+              No qualifications
+            </span>
+          </div>
+        </td>
+        <td>
+          <span class="status-badge" [class]="detail.status?.toLowerCase()">
+            {{ detail.status || 'Unknown' }}
+          </span>
+        </td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-primary" (click)="viewDetail(detail)" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteDetail(detail.id)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <div class="empty-state" *ngIf="details.length === 0">
+    <i class="fas fa-id-card"></i>
+    <h3>No Trainer Details</h3>
+    <p>No trainer details found in the system.</p>
+  </div>
+</div>

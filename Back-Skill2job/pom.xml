@@ -18,6 +18,7 @@
         <module>api_gateway_pi</module>
         <module>GestionExams</module>
         <module>GestionSession</module>
+        <module>Recruitment</module>
     </modules>
 
     <properties>

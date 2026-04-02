@@ -1,0 +1,130 @@
+<div class="page-header">
+  <h2>Trainer Applications (HR)</h2>
+  <p class="subtitle">Manage and review trainer applications</p>
+</div>
+
+<div class="toolbar">
+  <div class="filter">
+    <label><b>Status:</b></label>
+    <select [(ngModel)]="selectedStatus" (change)="loadApplications()">
+      <option value="">ALL</option>
+      <option value="PENDING">PENDING</option>
+      <option value="ACCEPTED">ACCEPTED</option>
+      <option value="REJECTED">REJECTED</option>
+    </select>
+  </div>
+  <div class="toolbar-right">
+    <div class="export-info" *ngIf="applications.length > 0">
+      {{ applications.length }} result(s) {{ selectedStatus ? '· ' + selectedStatus : '· ALL' }}
+    </div>
+    <button class="btn refresh" (click)="loadApplications()">🔄 Refresh</button>
+    <button class="btn export" (click)="exportCSV()" *ngIf="applications.length > 0">📥 Export CSV</button>
+  </div>
+</div>
+
+<div class="loading" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading applications...</p>
+</div>
+
+<div class="error" *ngIf="error">
+  <p>{{ error }}</p>
+  <button class="btn retry" (click)="loadApplications()">Retry</button>
+</div>
+
+<div class="applications-table" *ngIf="!loading && !error">
+  <table class="data-table" *ngIf="applications.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Status</th>
+        <th>Motivation</th>
+        <th>Submitted</th>
+        <th>Actions</th>
+        <th>Chat</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let app of applications">
+        <td>{{ app.id }}</td>
+        <td>{{ app.userId }}</td>
+        <td>
+          <span class="status-badge" [class]="app.status?.toLowerCase()">
+            {{ app.status }}
+          </span>
+        </td>
+        <td>
+          <div class="motivation">
+            {{ app.motivation | slice:0:80 }}{{ app.motivation?.length > 80 ? '...' : '' }}
+          </div>
+        </td>
+        <td>{{ app.submittedAt | date:'short' }}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn btn-sm btn-info" (click)="analyze(app.id)" title="AI Analyze">
+              <i class="fas fa-brain"></i>
+            </button>
+            <button class="btn btn-sm btn-success" (click)="approve(app.id)" title="Approve">
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="reject(app.id)" title="Reject">
+              <i class="fas fa-times"></i>
+            </button>
+            <button class="btn btn-sm btn-warning" (click)="deleteApplication(app.id)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-primary chat-btn" (click)="openChat(app)">
+            <i class="fas fa-comments"></i>
+            <span class="badge" *ngIf="unreadCounts[app.id] > 0">{{ unreadCounts[app.id] }}</span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <div class="empty-state" *ngIf="applications.length === 0">
+    <i class="fas fa-file-alt"></i>
+    <h3>No Applications Found</h3>
+    <p>No trainer applications found{{ selectedStatus ? ' with status: ' + selectedStatus : '' }}.</p>
+  </div>
+</div>
+
+<!-- Chat Modal -->
+<div class="chat-modal" *ngIf="chatOpen" [class.open]="chatOpen">
+  <div class="chat-container">
+    <div class="chat-header">
+      <h3>Chat with {{ chatApp?.userId }} - Application #{{ chatApp?.id }}</h3>
+      <button class="close-btn" (click)="closeChat()">&times;</button>
+    </div>
+    
+    <div class="chat-messages">
+      <div class="message" 
+           *ngFor="let msg of messages" 
+           [ngClass]="isAdmin(msg) ? 'msg-right' : 'msg-left'">
+        <div class="msg-bubble" [ngClass]="isAdmin(msg) ? 'bubble-admin' : 'bubble-trainer'">
+          <div class="msg-role">{{ isAdmin(msg) ? '🛡️ Admin' : '👤 Trainer' }}</div>
+          <div class="msg-content">{{ msg.content }}</div>
+          <div class="msg-time">{{ msg.createdAt | date:'HH:mm · MMM d' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-row">
+      <textarea class="chat-input"
+                [(ngModel)]="newMessage"
+                (keydown)="handleKey($event)"
+                placeholder="Type a message... (Enter to send)"
+                rows="2">
+      </textarea>
+      <button class="chat-send"
+              (click)="sendMessage()"
+              [disabled]="!newMessage?.trim() || sendingMessage">
+        {{ sendingMessage ? '⏳' : '📨' }}
+      </button>
+    </div>
+  </div>
+</div>

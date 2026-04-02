@@ -123,31 +123,41 @@ export class SessionsTableComponent implements OnInit {
 
   // Check if user can create/edit sessions
   canModifySession(): boolean {
+    console.log('🔍 canModifySession called');
+    
     if (!this.authService.isLoggedIn()) {
+      console.log('❌ User not logged in');
       this.notify.error('Please log in to manage sessions');
       return false;
     }
 
     this.userRole = this.authService.getUserRoleString();
+    console.log('🔍 User role:', this.userRole);
 
     if (this.userRole === 'ROLE_LEARNER') {
+      console.log('❌ Learner role not allowed');
       this.notify.error('Learners are not allowed to modify sessions');
       return false;
     }
 
     if (this.userRole !== 'ROLE_ADMIN' && this.userRole !== 'ROLE_TRAINER') {
+      console.log('❌ Insufficient permissions for role:', this.userRole);
       this.notify.error('Insufficient permissions to perform this action');
       return false;
     }
 
     // Reload user ID to ensure it's current
+    console.log('🔍 Calling getCurrentUserId...');
     this.currentUserId = this.authService.getCurrentUserId();
+    console.log('🔍 Result from getCurrentUserId:', this.currentUserId);
 
     if (!this.currentUserId) {
+      console.log('❌ User ID is null/undefined');
       this.notify.error('User ID not found. Please try logging in again.');
       return false;
     }
 
+    console.log('✅ canModifySession returning true with user ID:', this.currentUserId);
     return true;
   }
 
