@@ -74,8 +74,23 @@
       Partners
     </li>
 
-    <li routerLink="/admin/hr" routerLinkActive="active">
-      HR
+    <li class="menu-parent">
+      <div class="menu-title" (click)="toggleHrMenu()">
+        <span><i class="fas fa-users"></i> HR</span>
+        <span class="arrow" [class.rotate]="isHrOpen">▸</span>
+      </div>
+
+      <ul class="submenu" [class.open]="isHrOpen">
+        <li routerLink="/hr/applications" routerLinkActive="active">
+          <i class="fas fa-file-alt"></i> Applications
+        </li>
+        <li routerLink="/hr/trainer-profiles" routerLinkActive="active">
+          <i class="fas fa-user-tie"></i> Trainer Profiles
+        </li>
+        <li routerLink="/hr/trainer-details" routerLinkActive="active">
+          <i class="fas fa-id-card"></i> Trainer Details
+        </li>
+      </ul>
     </li>
 
   </ul>

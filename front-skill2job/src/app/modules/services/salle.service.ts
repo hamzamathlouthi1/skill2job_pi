@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 export class SalleService {
   private api = 'http://localhost:8090/api/salles';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(): Observable<Salle[]> {
     return this.http.get<Salle[]>(`${this.api}/all`);

@@ -10,7 +10,7 @@ export class SidebarComponent {
 
   isSessionsOpen = false;
   isExamsOpen = false; 
-
+  isHrOpen = false;
 
   constructor(private router: Router) {
     this.router.events.subscribe(() => {
@@ -20,6 +20,9 @@ export class SidebarComponent {
        if (this.router.url.includes('/admin/exams')) {
         this.isExamsOpen = true;
       }
+      if (this.router.url.includes('/hr')) {
+        this.isHrOpen = true;
+      }
     });
   }
 
@@ -28,5 +31,8 @@ export class SidebarComponent {
   }
     toggleExamsMenu() {
     this.isExamsOpen = !this.isExamsOpen;
+  }
+    toggleHrMenu() {
+    this.isHrOpen = !this.isHrOpen;
   }
 }

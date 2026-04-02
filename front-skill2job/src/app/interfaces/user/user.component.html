@@ -5,11 +5,12 @@
 
   <div class="nav-center">
     <nav class="nav-links">
-      <a (click)="scrollTo('courses')">Courses</a>
+      <a routerLink="/user/courses" routerLinkActive="active">Courses</a>
       <a (click)="scrollTo('joboffers')">Job Offers</a>
       <a routerLink="/user/exams" routerLinkActive="active">Exams</a>
       <a routerLink="/user/sessions" routerLinkActive="active">Sessions</a>
       <a routerLink="/user/certificates" routerLinkActive="active">Certificates</a>
+      <button class="trainer-btn" routerLink="/trainer-portal">Become Trainer</button>
     </nav>
   </div>
 
