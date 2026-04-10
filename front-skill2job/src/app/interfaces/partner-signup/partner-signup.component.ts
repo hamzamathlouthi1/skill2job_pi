@@ -28,7 +28,7 @@ export class PartnerSignupComponent {
     description: ''
   };
 
-  private API = '/api'; // ✅ Using proxy to API Gateway
+  private API = 'http://localhost:8089';
 
   constructor(
     private http: HttpClient,
@@ -65,7 +65,7 @@ export class PartnerSignupComponent {
     // 1️⃣ REGISTER
     // =========================
     this.http.post(
-      `${this.API}/auth/register`,
+      `${this.API}/api/auth/register`,
       {
         username: this.form.username,
         email: this.form.email,
@@ -80,7 +80,7 @@ export class PartnerSignupComponent {
         // 2️⃣ LOGIN
         // =========================
         this.http.post<any>(
-          `${this.API}/auth/login`,
+          `${this.API}/api/auth/login`,
           {
             username: this.form.username,
             password: this.form.password
@@ -97,7 +97,7 @@ export class PartnerSignupComponent {
             // 3️⃣ CREATE PARTNER PROFILE
             // =========================
             this.http.post(
-              `${this.API}/partners/me`,
+              `${this.API}/api/partners/me`,
               {
                 companyName: this.form.companyName,
                 industry: this.form.industry,

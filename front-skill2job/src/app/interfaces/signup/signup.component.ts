@@ -21,6 +21,9 @@ export class SignupComponent {
     private authService: AuthService,
     private router: Router
   ) {}
+  goToLanding() {
+    this.router.navigate(['/']); // ou '/landing' si nécessaire
+  }
 
   signup(): void {
     // Reset messages

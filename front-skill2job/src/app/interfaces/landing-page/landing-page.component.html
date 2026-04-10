@@ -1,5 +1,6 @@
 <!-- NAVBAR -->
 <!-- NAVBAR -->
+<!-- NAVBAR -->
 <header class="navbar">
 
   <div class="nav-left">
@@ -13,11 +14,15 @@
       <a (click)="scrollTo('team')">Team</a>
       <a (click)="scrollTo('faq')">FAQ</a>
       <a (click)="scrollTo('contact')">Contact</a>
+
+      <!-- ✅ Partner Desktop Link -->
+      <a routerLink="/partner-signup" class="partner-link">
+        Become a Partner
+      </a>
     </nav>
   </div>
 
   <div class="nav-right">
-    <!-- Hamburger Menu Icon Only -->
     <div class="hamburger-menu" (click)="toggleMobileMenu()">
       <div class="hamburger-icon" [class.open]="isMobileMenuOpen">
         <span></span>
@@ -33,15 +38,23 @@
   <!-- Mobile Menu -->
   <div class="mobile-menu" *ngIf="isMobileMenuOpen">
     <div class="mobile-menu-content">
+
       <div class="mobile-menu-item signup" (click)="handleSignup()">
-  Sign Up
-</div>
-      
+        Sign Up
+      </div>
+
+      <!-- ✅ Partner Mobile Link -->
+      <div class="mobile-menu-item partner" (click)="goToPartnerSignup()">
+        Become a Partner
+      </div>
+
       <div class="mobile-menu-divider"></div>
+
       <div class="mobile-menu-text">
-  Already have an account?
-  <a routerLink="/signin">Log in</a>
-</div>
+        Already have an account?
+        <a routerLink="/signin">Log in</a>
+      </div>
+
     </div>
   </div>
 

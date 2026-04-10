@@ -1,10 +1,9 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: skill2job_db
     ports:
       - "3306:3306"
     volumes:
@@ -12,36 +11,33 @@ services:
     networks:
       - skill2job-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 15
 
   eureka-server:
-    image: back-skill2job-eureka-server
     build:
-      context: ./Eureka_project
-      dockerfile: Dockerfile
-    container_name: eureka-server
+      context: .
+      dockerfile: ./Eureka_project/Dockerfile
     ports:
       - "8761:8761"
     networks:
       - skill2job-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:8761/actuator/health || exit 1"]
       interval: 15s
       timeout: 5s
-      retries: 5
+      retries: 20
 
   api-gateway:
-    image: back-skill2job-api-gateway  # ✅ Keep consistent
     build:
-      context: ./api_gateway_pi  # Make sure this folder exists
-      dockerfile: Dockerfile
-    container_name: api-gateway
+      context: .
+      dockerfile: ./api_gateway_pi/Dockerfile
     ports:
       - "8090:8090"
     environment:
+      - SERVER_PORT=8090
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
@@ -50,42 +46,38 @@ services:
     networks:
       - skill2job-network
 
-  exams-service:
-    image: back-skill2job-exams-service  # ✅ Standardized
+  partner-service:
     build:
-      context: ./GestionExams
-      dockerfile: Dockerfile
-    container_name: exams-service
+      context: .
+      dockerfile: ./GestionPartner/Dockerfile
     ports:
-      - "8082:8082"
+      - "8089:8089"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SERVER_PORT=8089
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/Skill2Job?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
-      - SERVER_PORT=8082
-    depends_on:
-      mysql:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
-    networks:
-      - skill2job-network
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - APP_UPLOAD_DIR=/app/uploads
+      - APP_UPLOAD_BASE_URL=http://localhost:8089
 
-  session-service:
-    image: back-skill2job-session-service  # ✅ Standardized
-    build:
-      context: ./GestionSession
-      dockerfile: Dockerfile
-    container_name: session-service
-    ports:
-      - "8085:8085"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/session_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
-      - SERVER_PORT=8085
+      # EMAIL GMAIL SMTP
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=ahmed.khemir513@gmail.com
+      - SPRING_MAIL_PASSWORD=mvgyesaddpwqjayv
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED=true
+      - SPRING_MAIL_FROM=ahmed.khemir513@gmail.com
+      - APP_EMAIL_ENABLED=true
+      - APP_FRONTEND_URL=http://localhost:4200
+
+      # Async
+      - SPRING_TASK_EXECUTION_POOL_CORE_SIZE=2
+      - SPRING_TASK_EXECUTION_POOL_MAX_SIZE=5
+
     volumes:
       - ./uploads:/app/uploads
     depends_on:
@@ -96,20 +88,40 @@ services:
     networks:
       - skill2job-network
 
-  formation-service:
-    image: back-skill2job-formation-service  # ✅ Standardized
+  exams-service:
     build:
-      context: ./GestionFormation
-      dockerfile: Dockerfile
-    container_name: formation-service
+      context: .
+      dockerfile: ./GestionExams/Dockerfile
     ports:
-      - "8083:8083"
+      - "8082:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/formation_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SERVER_PORT=8082
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
-      - SERVER_PORT=8083
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - skill2job-network
+
+  session-service:
+    build:
+      context: .
+      dockerfile: ./GestionSession/Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      - SERVER_PORT=8085
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/session_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     volumes:
       - ./uploads:/app/uploads
     depends_on:
@@ -121,64 +133,23 @@ services:
       - skill2job-network
 
   recruitment-service:
-    image: back-skill2job-recruitment-service  # ✅ Standardized (was correct)
     build:
-      context: ./Recruitment
-      dockerfile: Dockerfile
-    container_name: recruitment-service
+      context: .
+      dockerfile: ./Recruitment/Dockerfile
     ports:
       - "8087:8087"
     environment:
+      - SERVER_PORT=8087
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/recruitment_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
-      - SERVER_PORT=8087
-      # Add these if needed
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
     depends_on:
       mysql:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
-    networks:
-      - skill2job-network
-
-  partner-service:
-    image: back-skill2job-partner-service
-    build:
-      context: ./GestionPartner
-      dockerfile: Dockerfile
-    container_name: partner-service
-    ports:
-      - "8089:8089"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/Skill2Job?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
-      - SERVER_PORT=8089
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
-    depends_on:
-      mysql:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
-    networks:
-      - skill2job-network
-
-  frontend:
-    image: back-skill2job-frontend
-    build:
-      context: ../front-skill2job
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - api-gateway
     networks:
       - skill2job-network
 

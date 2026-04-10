@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../modules/services/auth.service'; // ✅ import AuthService
+import { AuthService, JwtResponse } from '../../modules/services/auth.service';
 
 @Component({
   selector: 'app-user',
@@ -10,15 +10,19 @@ import { AuthService } from '../../modules/services/auth.service'; // ✅ import
 export class UserComponent implements OnInit {
 
   isProfileMenuOpen = false;
-  currentUser: any = null; // ✅ null par défaut, chargé depuis le token
+  currentUser: JwtResponse | null = null;
 
   constructor(
-    public router: Router,
-    private authService: AuthService // ✅ injection
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.loadUserData();
+    this.currentUser = this.authService.getCurrentUser();
+    if (!this.currentUser) {
+      this.router.navigate(['/signin']);
+      return;
+    }
   }
 
   toggleProfileMenu(): void {
@@ -29,34 +33,22 @@ export class UserComponent implements OnInit {
     this.isProfileMenuOpen = false;
   }
 
+  // ✅ fermer dropdown si click dehors
+  @HostListener('document:click')
+  onDocClick(): void {
+    this.closeProfileMenu();
+  }
+
   logout(): void {
-    this.authService.logout(); // ✅ appel au service pour effacer le token
+    this.authService.logout();
     this.closeProfileMenu();
-    this.router.navigate(['/login']);
-  }
-
-  scrollTo(section: string): void {
-    this.closeProfileMenu();
-    document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  loadUserData(): void {
-    // ✅ Charger les infos depuis le token stocké
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.currentUser = user;
-    } else {
-      // Si pas connecté → rediriger vers login
-      this.router.navigate(['/login']);
-    }
+    this.router.navigate(['/signin']);
   }
 
   getInitials(name: string): string {
     if (!name) return 'GU';
-    const words = name.split(' ');
-    if (words.length >= 2) {
-      return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
-    }
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return name.substring(0, 2).toUpperCase();
   }
 }

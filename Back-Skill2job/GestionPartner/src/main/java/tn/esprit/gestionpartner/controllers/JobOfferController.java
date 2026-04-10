@@ -28,12 +28,15 @@ public class JobOfferController {
     }
 
     @PutMapping("/{offerId}")
-    public ResponseEntity<JobOfferResponse> update(@PathVariable Long offerId,
-                                                   @Valid @RequestBody JobOfferUpdateRequest request) {
+    public ResponseEntity<JobOfferResponse> update(
+            @PathVariable("offerId") Long offerId,
+            @Valid @RequestBody JobOfferUpdateRequest request
+    ) {
         return ResponseEntity.ok(service.update(offerId, request));
     }
+
     @GetMapping("/{offerId}")
-    public ResponseEntity<JobOfferResponse> getById(@PathVariable Long offerId) {
+    public ResponseEntity<JobOfferResponse> getById(@PathVariable("offerId") Long offerId) {
         return ResponseEntity.ok(service.getById(offerId));
     }
 
@@ -43,23 +46,26 @@ public class JobOfferController {
     }
 
     @GetMapping("/partner/{partnerId}")
-    public ResponseEntity<List<JobOfferResponse>> listByPartner(@PathVariable Long partnerId) {
+    public ResponseEntity<List<JobOfferResponse>> listByPartner(@PathVariable("partnerId") Long partnerId) {
         return ResponseEntity.ok(service.listByPartner(partnerId));
     }
 
     @DeleteMapping("/{offerId}")
-    public ResponseEntity<Void> delete(@PathVariable Long offerId) {
+    public ResponseEntity<Void> delete(@PathVariable("offerId") Long offerId) {
         service.delete(offerId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{offerId}/status")
-    public ResponseEntity<JobOfferResponse> updateStatus(@PathVariable Long offerId,
-                                                         @RequestParam OfferStatus status) {
+    public ResponseEntity<JobOfferResponse> updateStatus(
+            @PathVariable("offerId") Long offerId,
+            @RequestParam("status") OfferStatus status
+    ) {
         return ResponseEntity.ok(service.updateStatus(offerId, status));
     }
-    @GetMapping("/offers/{id}/title")
-    public ResponseEntity<String> getOfferTitle(@PathVariable Long id) {
+
+    @GetMapping("/{id}/title")
+    public ResponseEntity<String> getOfferTitle(@PathVariable("id") Long id) {
         return ResponseEntity.ok(service.getOfferTitle(id));
     }
 }

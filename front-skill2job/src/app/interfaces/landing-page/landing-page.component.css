@@ -806,3 +806,12 @@
   background: #f0f0f0;
   letter-spacing: 1px;
 }
+.partner-link {
+  color: #ff4d4f;
+  font-weight: 600;
+}
+
+.mobile-menu-item.partner {
+  color: #ff4d4f;
+  font-weight: 600;
+}

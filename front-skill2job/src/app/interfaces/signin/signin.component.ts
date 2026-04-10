@@ -18,7 +18,9 @@ export class SigninComponent {
     private authService: AuthService,
     private router: Router
   ) {}
-
+  goToLanding() {
+    this.router.navigate(['/']); // ou '/landing' si nécessaire
+  }
  login(): void {
   if (!this.username || !this.password) {
     this.error = 'Veuillez remplir tous les champs.';

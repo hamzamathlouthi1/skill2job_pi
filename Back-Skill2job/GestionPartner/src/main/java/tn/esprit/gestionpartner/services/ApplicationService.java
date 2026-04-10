@@ -1,5 +1,7 @@
 package tn.esprit.gestionpartner.services;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -24,9 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-
 @Service
 public class ApplicationService {
 
@@ -34,6 +33,7 @@ public class ApplicationService {
     private final JobOfferRepository jobOfferRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
@@ -50,11 +50,13 @@ public class ApplicationService {
     public ApplicationService(ApplicationRepository applicationRepository,
                               JobOfferRepository jobOfferRepository,
                               UserRepository userRepository,
-                              NotificationService notificationService) {
+                              NotificationService notificationService,
+                              EmailService emailService) {
         this.applicationRepository = applicationRepository;
         this.jobOfferRepository = jobOfferRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.emailService = emailService;
     }
 
     // =====================================
@@ -75,7 +77,6 @@ public class ApplicationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Motivation PDF is required.");
         }
 
-        // ✅ validate pdf (content-type OR filename)
         if (!isPdf(cv)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CV must be a PDF.");
         }
@@ -83,45 +84,50 @@ public class ApplicationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Motivation must be a PDF.");
         }
 
-        JobOffer offer = jobOfferRepository.findById(jobOfferId)
+        JobOffer offer = jobOfferRepository.findByIdWithPartner(jobOfferId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
 
-        // ✅ offer closed
         if (offer.getStatus() == OfferStatus.CLOSED) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This offer is closed.");
         }
 
-        // ✅ deadline
         if (offer.getDeadline() != null && offer.getDeadline().isBefore(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline expired.");
         }
 
-        // ✅ prevent duplicate
         if (applicationRepository.existsByStudentIdAndJobOfferId(student.getId(), offer.getId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "You already applied to this offer.");
         }
 
-        // ✅ 1) Extract text from PDFs BEFORE saving URLs (score uses real text)
+        if (offer.getPartner() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Offer has no partner.");
+        }
+
+        Partner partner = offer.getPartner();
+
+        if (partner.getEmployer() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Partner has no employer.");
+        }
+
+        User partnerEmployer = partner.getEmployer();
+
+        // 1) Extract text from PDFs BEFORE saving URLs
         String cvText = extractPdfText(cv);
         String motivationText = extractPdfText(motivationPdf);
 
-        // ✅ 2) save files
+        // 2) save files
         String cvUrl = saveFile(cv, "cv", student.getId(), offer.getId());
         String motivationUrl = saveFile(motivationPdf, "motivation", student.getId(), offer.getId());
 
         Application app = new Application();
         app.setStudent(student);
         app.setJobOffer(offer);
-
-        // ✅ keep your existing fields
         app.setCvUrl(cvUrl);
         app.setMotivation(motivationUrl);
 
-        // ✅ advanced score using extracted text
         int score = calculateAdvancedScore(student, offer, cvText, motivationText);
         app.setScore(score);
 
-        // ✅ AUTO SHORTLISTING (config)
         ApplicationStatus initialStatus = ApplicationStatus.SENT;
         boolean autoFlag = false;
 
@@ -135,9 +141,17 @@ public class ApplicationService {
 
         applicationRepository.save(app);
 
-        // ✅ Notify partner employer
-        User partnerEmployer = offer.getPartner().getEmployer();
+        // =========================
+        // EMAIL
+        // IMPORTANT:
+        // EmailService is now safe only if it extracts fields before async.
+        // We keep this call, assuming you replaced EmailService with the fixed version.
+        // =========================
+        emailService.sendNewApplicationEmail(app);
 
+        // =========================
+        // NOTIFICATION PARTNER
+        // =========================
         String msgPartner = "New application received for the offer: " + offer.getTitle()
                 + " (score " + score + "/100)"
                 + (initialStatus == ApplicationStatus.SHORTLISTED ? " ✅ Auto-Shortlisted" : "");
@@ -149,7 +163,9 @@ public class ApplicationService {
                 "/partner/offers/" + offer.getId() + "/applications"
         );
 
-        // ✅ Notify learner
+        // =========================
+        // NOTIFICATION LEARNER
+        // =========================
         String msgLearner = "Your application has been sent for: " + offer.getTitle()
                 + (initialStatus == ApplicationStatus.SHORTLISTED ? " ✅ Shortlisted" : "");
 
@@ -210,9 +226,12 @@ public class ApplicationService {
         app.setStatus(request.getStatus());
 
         if (request.getStatus() == ApplicationStatus.SHORTLISTED) {
-            app.setAutoShortlisted(false); // ✅ manuel
+            app.setAutoShortlisted(false);
         }
+
         applicationRepository.save(app);
+
+        emailService.sendStatusChangedEmail(app);
 
         notificationService.push(
                 app.getStudent(),
@@ -221,12 +240,17 @@ public class ApplicationService {
                 "/user/applications"
         );
 
-        notificationService.push(
-                app.getJobOffer().getPartner().getEmployer(),
-                NotificationType.STATUS_UPDATED,
-                "You have updated the status of " + app.getStudent().getUsername() + " -> " + request.getStatus(),
-                "/partner/offers/" + app.getJobOffer().getId() + "/applications"
-        );
+        if (app.getJobOffer() != null
+                && app.getJobOffer().getPartner() != null
+                && app.getJobOffer().getPartner().getEmployer() != null) {
+
+            notificationService.push(
+                    app.getJobOffer().getPartner().getEmployer(),
+                    NotificationType.STATUS_UPDATED,
+                    "You have updated the status of " + app.getStudent().getUsername() + " -> " + request.getStatus(),
+                    "/partner/offers/" + app.getJobOffer().getId() + "/applications"
+            );
+        }
 
         return "Status updated: " + request.getStatus();
     }
@@ -253,9 +277,11 @@ public class ApplicationService {
         app.setInterviewAt(request.getInterviewAt());
         app.setInterviewMeetLink(request.getMeetLink().trim());
         app.setInterviewNote(request.getNote() != null ? request.getNote().trim() : null);
-
         app.setStatus(ApplicationStatus.INTERVIEW);
+
         applicationRepository.save(app);
+
+        emailService.sendInterviewScheduledEmail(app);
 
         notificationService.push(
                 app.getStudent(),
@@ -264,12 +290,17 @@ public class ApplicationService {
                 "/user/applications"
         );
 
-        notificationService.push(
-                app.getJobOffer().getPartner().getEmployer(),
-                NotificationType.INTERVIEW_SCHEDULED,
-                "Scheduled interview with: " + app.getStudent().getUsername(),
-                "/partner/offers/" + app.getJobOffer().getId() + "/applications"
-        );
+        if (app.getJobOffer() != null
+                && app.getJobOffer().getPartner() != null
+                && app.getJobOffer().getPartner().getEmployer() != null) {
+
+            notificationService.push(
+                    app.getJobOffer().getPartner().getEmployer(),
+                    NotificationType.INTERVIEW_SCHEDULED,
+                    "Scheduled interview with: " + app.getStudent().getUsername(),
+                    "/partner/offers/" + app.getJobOffer().getId() + "/applications"
+            );
+        }
 
         return "✅ Interview scheduled successfully.";
     }
@@ -366,60 +397,42 @@ public class ApplicationService {
     }
 
     // =====================================
-    // ✅ PDF TEXT EXTRACTION (PDFBox)
+    // PDF TEXT EXTRACTION (PDFBox)
     // =====================================
     private String extractPdfText(MultipartFile pdf) {
         try (PDDocument doc = PDDocument.load(pdf.getBytes())) {
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(doc);
             if (text == null) return "";
-            // normalize
             return text.replaceAll("\\s+", " ").trim();
         } catch (Exception e) {
-            // if extraction fails, do not block apply (but score will be lower)
             return "";
         }
     }
 
     // =====================================
-// ✅ ADVANCED SCORE (0–100) - FIXED
-// =====================================
+    // ADVANCED SCORE (0–100)
+    // =====================================
     private int calculateAdvancedScore(User student, JobOffer offer, String cvText, String motivationText) {
 
         int score = 0;
 
-        // Normalize
         String cv = normalize(cvText);
         String mot = normalize(motivationText);
 
-        // -----------------------------
-        // A) File presence bonus (0–10)  ✅ small, not 30
-        // -----------------------------
         boolean hasCv = cv != null && !cv.isBlank();
         boolean hasMot = mot != null && !mot.isBlank();
 
         if (hasCv) score += 5;
         if (hasMot) score += 5;
 
-        // If both are basically empty => stop here (only tiny bonus)
         if (cv.length() < 120 && mot.length() < 120) {
-            return clamp(score); // max 10
+            return clamp(score);
         }
 
-        // -----------------------------
-        // B) Text quality (0–25)
-        // -----------------------------
-        score += computeTextQualityScore(cv, mot); // max 25
+        score += computeTextQualityScore(cv, mot);
+        score += computeRequirementsMatchScore(offer.getRequirements(), cv, mot);
 
-        // -----------------------------
-        // C) Requirements matching (0–55)
-        // If requirements empty -> use quality only (no match score)
-        // -----------------------------
-        score += computeRequirementsMatchScore(offer.getRequirements(), cv, mot); // max 55
-
-        // -----------------------------
-        // D) Bonus timing (0–10)
-        // -----------------------------
         if (offer.getDeadline() != null) score += 5;
         if (offer.getMode() != null && offer.getMode().name().equalsIgnoreCase("REMOTE")) score += 5;
 
@@ -429,13 +442,10 @@ public class ApplicationService {
     private int computeTextQualityScore(String cv, String mot) {
         int s = 0;
 
-        // CV quality (0–10)
-        // give points only if enough text exists
         if (cv.length() >= 200) s += 4;
         if (cv.length() >= 600) s += 3;
         if (cv.length() >= 1200) s += 3;
 
-        // Motivation quality (0–15) - more important
         if (mot.length() >= 200) s += 5;
         if (mot.length() >= 700) s += 5;
         if (mot.length() >= 1200) s += 5;
@@ -445,7 +455,6 @@ public class ApplicationService {
 
     private int computeRequirementsMatchScore(String requirements, String cvText, String motivationText) {
 
-        // ✅ if requirements empty, do not punish candidate
         if (requirements == null || requirements.isBlank()) return 0;
 
         String req = normalize(requirements);
@@ -454,10 +463,7 @@ public class ApplicationService {
 
         List<String> keywords = extractKeywords(req);
 
-        // ✅ anti-abuse: if no extracted keywords, no match points
         if (keywords.isEmpty()) return 0;
-
-        // ✅ anti-abuse: if text too short, no big match
         if (cv.length() < 80 && mot.length() < 120) return 0;
 
         int hitCv = 0;
@@ -471,11 +477,8 @@ public class ApplicationService {
 
         double ratioCv = (double) hitCv / (double) keywords.size();
         double ratioMot = (double) hitMot / (double) keywords.size();
-
-        // motivation is more important than cv
         double combined = (ratioCv * 0.4) + (ratioMot * 0.6);
 
-        // ✅ optional: require at least one hit to get points
         if (hitCv + hitMot == 0) return 0;
 
         return (int) Math.round(combined * 55.0);
@@ -491,7 +494,6 @@ public class ApplicationService {
 
         return java.util.Arrays.stream(parts)
                 .map(String::trim)
-                // ✅ keep meaningful tokens only
                 .filter(s -> s.length() >= 3)
                 .map(this::normalize)
                 .distinct()

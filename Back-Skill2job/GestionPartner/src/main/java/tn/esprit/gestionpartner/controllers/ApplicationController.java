@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.gestionpartner.dto.ApplicationResponse;
-import tn.esprit.gestionpartner.dto.ScheduleInterviewRequest;   // ✅ NEW
+import tn.esprit.gestionpartner.dto.ScheduleInterviewRequest;
 import tn.esprit.gestionpartner.dto.UpdateApplicationStatusRequest;
 import tn.esprit.gestionpartner.services.ApplicationService;
 
@@ -27,7 +27,6 @@ public class ApplicationController {
     // STUDENT (LEARNER)
     // =========================
 
-    // ✅ APPLY WITH FILES (Multipart)
     @PostMapping(value = "/applications", consumes = {"multipart/form-data"})
     @PreAuthorize("hasRole('LEARNER')")
     public ResponseEntity<String> apply(
@@ -46,7 +45,7 @@ public class ApplicationController {
 
     @GetMapping("/applications/has-applied/{offerId}")
     @PreAuthorize("hasRole('LEARNER')")
-    public ResponseEntity<?> hasApplied(@PathVariable Long offerId) {
+    public ResponseEntity<?> hasApplied(@PathVariable("offerId") Long offerId) {
         return ResponseEntity.ok(applicationService.hasApplied(offerId));
     }
 
@@ -56,22 +55,27 @@ public class ApplicationController {
 
     @GetMapping("/partner/offers/{offerId}/applications")
     @PreAuthorize("hasAnyRole('PARTNER','ADMIN')")
-    public ResponseEntity<List<ApplicationResponse>> applicationsForOffer(@PathVariable Long offerId) {
+    public ResponseEntity<List<ApplicationResponse>> applicationsForOffer(
+            @PathVariable("offerId") Long offerId
+    ) {
         return ResponseEntity.ok(applicationService.applicationsForOffer(offerId));
     }
 
     @PutMapping("/partner/applications/{id}/status")
     @PreAuthorize("hasAnyRole('PARTNER','ADMIN')")
-    public ResponseEntity<String> updateStatus(@PathVariable Long id,
-                                               @Valid @RequestBody UpdateApplicationStatusRequest request) {
+    public ResponseEntity<String> updateStatus(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody UpdateApplicationStatusRequest request
+    ) {
         return ResponseEntity.ok(applicationService.updateStatus(id, request));
     }
 
-    // ✅ NEW: SCHEDULE INTERVIEW (Partner enters date + Google Meet link)
     @PutMapping("/partner/applications/{id}/interview")
     @PreAuthorize("hasAnyRole('PARTNER','ADMIN')")
-    public ResponseEntity<String> scheduleInterview(@PathVariable Long id,
-                                                    @Valid @RequestBody ScheduleInterviewRequest request) {
+    public ResponseEntity<String> scheduleInterview(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ScheduleInterviewRequest request
+    ) {
         return ResponseEntity.ok(applicationService.scheduleInterview(id, request));
     }
 }

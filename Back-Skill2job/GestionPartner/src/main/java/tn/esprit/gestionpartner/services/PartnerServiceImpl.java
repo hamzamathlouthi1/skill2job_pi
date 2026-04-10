@@ -10,6 +10,7 @@ import tn.esprit.gestionpartner.entities.*;
 import tn.esprit.gestionpartner.repositories.PartnerRepository;
 import tn.esprit.gestionpartner.repositories.RoleRepository;
 import tn.esprit.gestionpartner.repositories.UserRepository;
+import tn.esprit.gestionpartner.services.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,14 +22,18 @@ public class PartnerServiceImpl implements PartnerService {
     private final PartnerRepository partnerRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;  // ← AJOUTER
 
     public PartnerServiceImpl(PartnerRepository partnerRepository,
                               UserRepository userRepository,
-                              RoleRepository roleRepository) {
+                              RoleRepository roleRepository,
+                              EmailService emailService) {     // ← AJOUTER
         this.partnerRepository = partnerRepository;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.userRepository    = userRepository;
+        this.roleRepository    = roleRepository;
+        this.emailService      = emailService;                // ← AJOUTER
     }
+
 
     @Override
     public PartnerResponse createMyPartner(String username, PartnerCreateRequest request) {
@@ -108,16 +113,19 @@ public class PartnerServiceImpl implements PartnerService {
         partner.setStatus(status);
 
         if (status == PartnerStatus.APPROVED) {
-
             User employer = partner.getEmployer();
-
             Role partnerRole = roleRepository.findByName(ERole.ROLE_PARTNER)
                     .orElseThrow(() -> new IllegalStateException("ROLE_PARTNER not found in DB"));
-
-            employer.getRoles().clear();          // ✅ supprime tous les rôles
-            employer.getRoles().add(partnerRole); // ✅ met فقط PARTNER
-
+            employer.getRoles().clear();
+            employer.getRoles().add(partnerRole);
             userRepository.save(employer);
+
+            // ✅ EMAIL : compte partenaire approuvé
+            emailService.sendPartnerApprovedEmail(partner);   // ← AJOUTER ICI
+        }
+
+        if (status == PartnerStatus.SUSPENDED) {
+            emailService.sendPartnerRejectedEmail(partner);
         }
 
         Partner saved = partnerRepository.save(partner);

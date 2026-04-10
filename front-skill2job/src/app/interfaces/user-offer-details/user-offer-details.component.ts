@@ -140,9 +140,14 @@ export class UserOfferDetailsComponent implements OnInit {
         this.showApply = false;
       },
       error: (err) => {
-        this.submitting = false;
-        this.applyMessage = err?.error || "Erreur lors de l'envoi.";
-      }
+  this.submitting = false;
+  console.error('Apply error:', err);
+  this.applyMessage =
+    err?.error?.message ||
+    err?.error ||
+    err?.message ||
+    "Erreur lors de l'envoi.";
+}
     });
   }
 }

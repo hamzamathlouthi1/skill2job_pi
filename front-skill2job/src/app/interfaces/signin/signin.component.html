@@ -12,7 +12,7 @@
 
     <h2 class="auth-title">Welcome Back</h2>
     <p class="auth-subtitle">Sign in to continue learning</p>
-
+   
     <div class="form-group">
       <label>Username</label>
       <input
@@ -49,6 +49,13 @@
       Don't have an account?
       <a routerLink="/signup">Sign Up</a>
     </div>
+     <div class="back-container">
+  <button type="button"
+          class="btn-back"
+          (click)="goToLanding()">
+    ← Back to Home
+  </button>
+    
 
   </div>
 

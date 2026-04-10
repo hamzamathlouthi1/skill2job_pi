@@ -10,6 +10,7 @@ import tn.esprit.gestionpartner.entities.OfferStatus;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface JobOfferRepository extends JpaRepository<JobOffer, Long> {
     List<JobOffer> findByPartnerId(Long partnerId);
@@ -28,4 +29,8 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, Long> {
     long countByPartnerIdAndStatus(Long partnerId, OfferStatus status);
 
     long countByPartnerIdAndDeadlineBetween(Long partnerId, LocalDate start, LocalDate end);
+
+    @Query("SELECT o FROM JobOffer o JOIN FETCH o.partner p JOIN FETCH p.employer WHERE o.id = :id")
+    Optional<JobOffer> findByIdWithPartner(@Param("id") Long id);
+
 }

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NotificationResponse, NotificationService } from '../../modules/services/notification.service';
+import { NotificationResponse, NotificationService } from '../../modules/services/notif.service';
 
 @Component({
   selector: 'app-notifications-bell',

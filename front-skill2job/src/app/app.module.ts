@@ -51,6 +51,22 @@ import { EnrolledCourseComponent } from './modules/training-courses/user/enrolle
 import { TrainerPortalModule } from './interfaces/trainer-portal/trainer-portal.module';
 import { HrDashboardComponent } from './modules/hr-dashboard/hr-dashboard.component';
 
+// ── Partnership Module Imports ────────────────────────────────────────────────────
+import { PartnerComponent } from './interfaces/partner/partner.component'; // ✅ ajout
+import { PartnerSignupComponent } from './interfaces/partner-signup/partner-signup.component'; // ✅ ajout
+import { AdminPartnersComponent } from './interfaces/admin-partners/admin-partners.component'; // ✅ ajout
+import { OffersComponent } from './interfaces/offers/offers.component'; // ✅ ajout
+import { PartnerHomeComponent } from './interfaces/partner-home/partner-home.component'; // ✅ ajout
+import { PartnerProfileComponent } from './interfaces/partner-profile/partner-profile.component'; // ✅ ajout 
+import { PartnerDetailsComponent  } from './interfaces/partner-details/partner-details.component'; // ✅ ajout 
+import { MyApplicationsComponent } from './interfaces/my_applications/my-applications.component'; // ✅ ajout
+import { UserOffersComponent } from './interfaces/user-offers/user-offers.component'; // ✅ ajout
+import { UserOfferDetailsComponent } from './interfaces/user-offer-details/user-offer-details.component'; // ✅ ajout 
+import { PartnerOfferApplicationsComponent } from './interfaces/partner-offer-applications/partner-offer-applications.component'; // ✅ ajout
+import { PartnerDashboardComponent } from './interfaces/partner-dashboard/partner-dashboard.component'; // ✅ ajout
+import { NotificationsBellComponent } from './interfaces/notifications-bell/notifications-bell.component'; // ✅ ajout
+import { PartnerCalendarComponent } from './interfaces/partner-calendar/partner-calendar.component';
+import { UserLayoutComponent } from './interfaces/user-layout/user-layout.component'; // ✅ ajout
 @NgModule({
   declarations: [
     AppComponent,
@@ -87,7 +103,23 @@ import { HrDashboardComponent } from './modules/hr-dashboard/hr-dashboard.compon
     HrComponent,
     HrApplicationsComponent,
     TrainerProfilesComponent,
-    TrainerDetailsComponent
+    TrainerDetailsComponent,
+     PartnerComponent,
+    PartnerSignupComponent,
+    AdminPartnersComponent,
+    OffersComponent,
+    PartnerHomeComponent,
+    PartnerProfileComponent,
+    PartnerDetailsComponent,
+    MyApplicationsComponent,
+    UserOffersComponent,
+    UserOfferDetailsComponent,
+    PartnerOfferApplicationsComponent,
+    PartnerDashboardComponent,
+    NotificationsBellComponent,
+    PartnerCalendarComponent,
+    UserLayoutComponent
+
   ],
   imports: [
     BrowserModule,

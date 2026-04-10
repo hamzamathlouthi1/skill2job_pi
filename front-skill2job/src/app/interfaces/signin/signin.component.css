@@ -138,3 +138,20 @@
     &:hover { text-decoration: underline; }
   }
 }
+.back-container {
+  margin-bottom: 15px;
+}
+
+.btn-back {
+  background: transparent;
+  border: none;
+  color: #ff0800;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+}
+
+.btn-back:hover {
+  text-decoration: underline;
+}

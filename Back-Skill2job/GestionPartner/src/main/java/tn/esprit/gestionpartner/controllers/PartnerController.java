@@ -7,7 +7,8 @@ import tn.esprit.gestionpartner.dto.PartnerCreateRequest;
 import tn.esprit.gestionpartner.dto.PartnerResponse;
 import tn.esprit.gestionpartner.dto.PartnerUpdateRequest;
 import tn.esprit.gestionpartner.entities.PartnerStatus;
-import tn.esprit.gestionpartner.services.*;
+import tn.esprit.gestionpartner.services.PartnerPdfExportService;
+import tn.esprit.gestionpartner.services.PartnerService;
 
 import java.util.List;
 
@@ -18,15 +19,13 @@ public class PartnerController {
 
     private final PartnerPdfExportService partnerPdfExportService;
     private final PartnerService partnerService;
+
     public PartnerController(PartnerService partnerService,
                              PartnerPdfExportService partnerPdfExportService) {
         this.partnerService = partnerService;
         this.partnerPdfExportService = partnerPdfExportService;
     }
 
-    // =========================
-    // EMPLOYER (Connected user): Create Partner Profile
-    // =========================
     @PostMapping("/me")
     public ResponseEntity<PartnerResponse> createMyPartner(
             Authentication auth,
@@ -35,17 +34,11 @@ public class PartnerController {
         return ResponseEntity.ok(partnerService.createMyPartner(auth.getName(), request));
     }
 
-    // =========================
-    // EMPLOYER (Connected user): Get My Partner Profile
-    // =========================
     @GetMapping("/me")
     public ResponseEntity<PartnerResponse> getMyPartner(Authentication auth) {
         return ResponseEntity.ok(partnerService.getMyPartner(auth.getName()));
     }
 
-    // =========================
-    // EMPLOYER (Connected user): Update My Partner Profile
-    // =========================
     @PutMapping("/me")
     public ResponseEntity<PartnerResponse> updateMyPartner(
             Authentication auth,
@@ -54,47 +47,32 @@ public class PartnerController {
         return ResponseEntity.ok(partnerService.updateMyPartner(auth.getName(), request));
     }
 
-    // =========================
-    // EMPLOYER (Connected user): Delete My Partner Profile
-    // =========================
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMyPartner(Authentication auth) {
         partnerService.deleteMyPartner(auth.getName());
         return ResponseEntity.noContent().build();
     }
 
-    // =========================
-    // ADMIN: Update Partner Status
-    // =========================
     @PutMapping("/{partnerId}/status")
     public ResponseEntity<PartnerResponse> updateStatus(
-            @PathVariable Long partnerId,
-            @RequestParam PartnerStatus status
+            @PathVariable("partnerId") Long partnerId,
+            @RequestParam("status") PartnerStatus status
     ) {
         return ResponseEntity.ok(partnerService.updateStatus(partnerId, status));
     }
 
-    // =========================
-    // ADMIN: Get All Partners
-    // =========================
     @GetMapping("/all")
     public ResponseEntity<List<PartnerResponse>> getAllPartners() {
         return ResponseEntity.ok(partnerService.getAllPartners());
     }
 
-    // =========================
-    // ADMIN: Get Partner By Id
-    // =========================
     @GetMapping("/{partnerId}")
-    public ResponseEntity<PartnerResponse> getPartnerById(@PathVariable Long partnerId) {
+    public ResponseEntity<PartnerResponse> getPartnerById(@PathVariable("partnerId") Long partnerId) {
         return ResponseEntity.ok(partnerService.getPartnerById(partnerId));
     }
 
-    // =========================
-    // ADMIN: Delete Partner By Id
-    // =========================
     @DeleteMapping("/{partnerId}")
-    public ResponseEntity<Void> adminDeletePartner(@PathVariable Long partnerId) {
+    public ResponseEntity<Void> adminDeletePartner(@PathVariable("partnerId") Long partnerId) {
         partnerService.adminDeletePartner(partnerId);
         return ResponseEntity.noContent().build();
     }

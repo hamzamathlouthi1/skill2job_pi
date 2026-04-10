@@ -39,12 +39,28 @@ import { TrainerProfilesComponent } from './modules/hr/trainer-profiles/trainer-
 import { TrainerDetailsComponent } from './modules/hr/trainer-details/trainer-details.component';
 import { LearnerSessionTableComponent } from './modules/sessions/sessions/learner-sessions-table/learner-session-table.component';
 
+// ── Partnership Module Imports ────────────────────────────────────────────────────
+import { PartnerComponent } from './interfaces/partner/partner.component';
+import { PartnerSignupComponent } from './interfaces/partner-signup/partner-signup.component';
+import { AdminPartnersComponent } from './interfaces/admin-partners/admin-partners.component';
+import { OffersComponent } from './interfaces/offers/offers.component';
+import { PartnerHomeComponent } from './interfaces/partner-home/partner-home.component';
+import { PartnerProfileComponent } from './interfaces/partner-profile/partner-profile.component';
+import { PartnerDetailsComponent } from './interfaces/partner-details/partner-details.component';
+import { MyApplicationsComponent } from './interfaces/my_applications/my-applications.component';
+import { UserOffersComponent } from './interfaces/user-offers/user-offers.component';
+import { UserOfferDetailsComponent } from './interfaces/user-offer-details/user-offer-details.component';
+import { PartnerOfferApplicationsComponent } from './interfaces/partner-offer-applications/partner-offer-applications.component';
+import { PartnerDashboardComponent } from './interfaces/partner-dashboard/partner-dashboard.component';
+import { UserLayoutComponent } from './interfaces/user-layout/user-layout.component'; // ✅ Layout parent
+import { PartnerCalendarComponent } from './interfaces/partner-calendar/partner-calendar.component';
+
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'signin', component: SigninComponent },
   { path: 'signup', component: SignupComponent },
 
-  // ── ADMIN: exams, sessions, training course management (catalog + details) ──
+  // ── ADMIN ──────────────────────────────────────────────────────────────────────
   {
     path: 'admin',
     component: AdminComponent,
@@ -65,6 +81,8 @@ const routes: Routes = [
       { path: 'exams/evaluation-table', component: EvaluationTableComponent },
       { path: 'exams/evaluation-table/:examId', component: EvaluationTableComponent },
       { path: 'exams', component: ExamsComponent },
+      { path: 'partners', component: AdminPartnersComponent },
+      { path: 'partners/:id', component: PartnerDetailsComponent },
       {
         path: 'sessions',
         loadChildren: () => import('./modules/sessions/sessions.module').then(m => m.SessionsModule),
@@ -78,14 +96,17 @@ const routes: Routes = [
     ]
   },
 
-  // ── LEARNER: catalog, enrollment, payments, wallet + existing lazy modules ──
+  // ── LEARNER ────────────────────────────────────────────────────────────────────
+  // ✅ UserLayoutComponent = shell (navbar + router-outlet)
+  // ✅ UserComponent       = page home (hero + courses + contact), child à path ''
   {
     path: 'user',
-    component: UserComponent,
+    component: UserLayoutComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_LEARNER', 'ROLE_ADMIN', 'ROLE_TRAINER'] },
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'courses' },
+      { path: '', component: UserComponent },              // ✅ HOME (hero + sections)
+
       {
         path: 'courses/:id',
         component: EnrolledCourseComponent,
@@ -111,19 +132,33 @@ const routes: Routes = [
         data: { roles: ['ROLE_LEARNER', 'ROLE_ADMIN', 'ROLE_TRAINER'] }
       },
       {
+        path: 'offers',
+        component: UserOffersComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_LEARNER'] }
+      },
+      {
+        path: 'offers/:id',
+        component: UserOfferDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_LEARNER'] }
+      },
+      {
+        path: 'applications',
+        component: MyApplicationsComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_LEARNER'] }
+      },
+      {
         path: 'exams',
         loadChildren: () => import('./modules/exams/exams.module').then(m => m.ExamsModule)
       },
-
-      // ✅ FIX: SessionsModule is now registered under /user/sessions
-      // so the redirect to /user/sessions/learner resolves correctly
       {
         path: 'sessions',
         loadChildren: () => import('./modules/sessions/sessions.module').then(m => m.SessionsModule),
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_LEARNER', 'ROLE_ADMIN', 'ROLE_TRAINER'] }
       },
-
       {
         path: 'certificates',
         loadChildren: () => import('./modules/certificates/certificates.module').then(m => m.CertificatesModule)
@@ -131,7 +166,27 @@ const routes: Routes = [
     ]
   },
 
-  // ── TRAINER: dashboard shell + "My courses" only (separate from admin catalog management) ──
+  // ── PARTNER ────────────────────────────────────────────────────────────────────
+  {
+    path: 'partner-signup',
+    component: PartnerSignupComponent
+  },
+  {
+    path: 'partner',
+    component: PartnerComponent,
+    canActivate: [AuthGuard],
+    data: { role: 'ROLE_PARTNER' },
+    children: [
+      { path: '', pathMatch: 'full', component: PartnerHomeComponent },
+      { path: 'profile', component: PartnerProfileComponent },
+      { path: 'offers', component: OffersComponent },
+      { path: 'offers/:id/applications', component: PartnerOfferApplicationsComponent },
+      { path: 'dashboard', component: PartnerDashboardComponent },
+      { path: 'calendar', component: PartnerCalendarComponent }
+    ]
+  },
+
+  // ── TRAINER ────────────────────────────────────────────────────────────────────
   {
     path: 'trainer',
     component: TrainerComponent,
@@ -155,7 +210,7 @@ const routes: Routes = [
     data: { roles: ['ROLE_ADMIN', 'ROLE_TRAINER'] }
   },
 
-  // ── RECRUITMENT: Trainer Portal & HR Dashboard ─────────────────────────────────
+  // ── HR / RECRUITMENT ──────────────────────────────────────────────────────────
   {
     path: 'hr/applications',
     component: HrApplicationsComponent,
@@ -184,7 +239,6 @@ const routes: Routes = [
     path: 'hr-dashboard',
     component: HrDashboardComponent,
     canActivate: [AuthGuard]
-    // Temporarily removed role check for testing
   },
 
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },

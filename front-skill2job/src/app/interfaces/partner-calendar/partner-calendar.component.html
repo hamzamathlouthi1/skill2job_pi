@@ -1,0 +1,199 @@
+<div class="cal-page">
+
+  <!-- ── HEADER ────────────────────────────────────────────────── -->
+  <div class="cal-head">
+    <div>
+      <h2>Interview Calendar</h2>
+      <p>All scheduled interviews for your candidates.</p>
+    </div>
+
+    <div class="head-actions">
+      <div class="view-toggle">
+        <button [class.active]="viewMode === 'month'" (click)="viewMode = 'month'">
+          📅 Month
+        </button>
+        <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">
+          📋 List
+        </button>
+      </div>
+
+      <button class="btn-outline" (click)="loadInterviews()" [disabled]="loading">
+        {{ loading ? 'Loading...' : '⟳ Refresh' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SUMMARY CARDS ──────────────────────────────────────────── -->
+  <div class="summary-row" *ngIf="!loading">
+    <div class="sum-card">
+      <div class="sum-val">{{ allInterviews.length }}</div>
+      <div class="sum-lbl">Total interviews</div>
+    </div>
+    <div class="sum-card accent">
+      <div class="sum-val">{{ totalThisMonth() }}</div>
+      <div class="sum-lbl">This month</div>
+    </div>
+    <div class="sum-card success">
+      <div class="sum-val">{{ todayInterviews.length }}</div>
+      <div class="sum-lbl">Today</div>
+    </div>
+    <div class="sum-card info">
+      <div class="sum-val">{{ upcomingList.length }}</div>
+      <div class="sum-lbl">Upcoming</div>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert-err">⚠️ {{ error }}</div>
+
+  <div *ngIf="loading" class="loader-wrap">
+    <div class="spinner"></div>
+    <span>Loading interviews...</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       VIEW: MONTH CALENDAR
+  ══════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="!loading && viewMode === 'month'">
+
+    <!-- Navigation mois -->
+    <div class="month-nav">
+      <button class="nav-btn" (click)="prevMonth()">‹</button>
+      <span class="month-label">{{ monthLabel }}</span>
+      <button class="nav-btn" (click)="nextMonth()">›</button>
+      <button class="today-btn" (click)="goToToday()">Today</button>
+    </div>
+
+    <!-- Grille -->
+    <div class="cal-grid">
+
+      <!-- Jours de la semaine -->
+      <div class="day-header" *ngFor="let d of DAYS">{{ d }}</div>
+
+      <!-- Cellules -->
+      <ng-container *ngFor="let week of weeks; trackBy: trackByDate">
+        <div
+          *ngFor="let day of week"
+          class="day-cell"
+          [class.other-month]="!day.isCurrentMonth"
+          [class.today]="day.isToday"
+          [class.has-events]="day.interviews.length > 0 && day.isCurrentMonth"
+          (click)="openDay(day)"
+        >
+          <span class="day-num">{{ formatDayNum(day.date) }}</span>
+
+          <!-- Badges entretiens -->
+          <ng-container *ngIf="day.isCurrentMonth">
+            <div
+              class="evt-pill"
+              *ngFor="let app of day.interviews.slice(0, 2); trackBy: trackById"
+              [title]="app.studentUsername + ' — ' + app.offerTitle"
+            >
+              {{ formatTime(app.interviewAt) }} · {{ app.studentUsername }}
+            </div>
+            <div class="evt-more" *ngIf="day.interviews.length > 2">
+              +{{ day.interviews.length - 2 }} more
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
+    </div>
+
+  </ng-container>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       VIEW: LIST
+  ══════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="!loading && viewMode === 'list'">
+
+    <div class="list-wrap">
+
+      <div *ngIf="upcomingList.length === 0" class="empty-state">
+        <div class="empty-icon">📅</div>
+        <p>No upcoming interviews scheduled.</p>
+      </div>
+
+      <div
+        class="list-card"
+        *ngFor="let app of upcomingList; trackBy: trackById"
+      >
+        <div class="list-date-col">
+          <div class="ldc-day">{{ app.interviewAt | date:'d' }}</div>
+          <div class="ldc-month">{{ app.interviewAt | date:'MMM' }}</div>
+          <div class="ldc-time">{{ formatTime(app.interviewAt) }}</div>
+        </div>
+
+        <div class="list-info">
+          <div class="li-offer">{{ app.offerTitle }}</div>
+          <div class="li-candidate">
+            <span class="avatar">{{ app.studentUsername.charAt(0).toUpperCase() }}</span>
+            {{ app.studentUsername }}
+            <span class="li-email">· {{ app.studentEmail }}</span>
+          </div>
+          <div class="li-note" *ngIf="app.interviewNote">
+            💬 {{ app.interviewNote }}
+          </div>
+        </div>
+
+        <div class="list-actions">
+          <div class="full-date">{{ formatDate(app.interviewAt) }}</div>
+          <button
+            class="btn-meet"
+            *ngIf="app.meetLink"
+            (click)="openMeetLink(app.meetLink)"
+          >
+            🎥 Join Meeting
+          </button>
+          <span class="no-link" *ngIf="!app.meetLink">No meet link</span>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODAL: Détail du jour
+══════════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" *ngIf="detailOpen" (click)="closeDetail()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h3>
+        Interviews — {{ selectedDay?.date | date:'fullDate' }}
+      </h3>
+      <button class="modal-close" (click)="closeDetail()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div
+        class="modal-card"
+        *ngFor="let app of selectedDay?.interviews; trackBy: trackById"
+      >
+        <div class="mc-time">🕐 {{ formatTime(app.interviewAt) }}</div>
+        <div class="mc-offer">📌 {{ app.offerTitle }}</div>
+        <div class="mc-candidate">
+          <span class="avatar sm">{{ app.studentUsername.charAt(0).toUpperCase() }}</span>
+          <div>
+            <div class="mc-name">{{ app.studentUsername }}</div>
+            <div class="mc-email">{{ app.studentEmail }}</div>
+          </div>
+        </div>
+        <div class="mc-note" *ngIf="app.interviewNote">
+          💬 {{ app.interviewNote }}
+        </div>
+        <button
+          class="btn-meet full"
+          *ngIf="app.meetLink"
+          (click)="openMeetLink(app.meetLink)"
+        >
+          🎥 Join Google Meet
+        </button>
+        <div class="no-meet" *ngIf="!app.meetLink">No meet link provided</div>
+      </div>
+    </div>
+
+  </div>
+</div>

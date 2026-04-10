@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router'; // ✅ ajout
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-landing-page',
@@ -11,7 +11,7 @@ export class LandingPageComponent {
   isMobileMenuOpen = false;
   selectedMember: { name: string; email: string } | null = null;
 
-  constructor(private router: Router) {} // ✅ ajout
+  constructor(private router: Router) {}
 
   showEmail(name: string, email: string) {
     this.selectedMember = { name, email };
@@ -31,12 +31,18 @@ export class LandingPageComponent {
 
   handleSignup() {
     this.closeMobileMenu();
-    this.router.navigate(['/signup']); // ✅ correction
+    this.router.navigate(['/signup']);
   }
 
   handleLogin() {
     this.closeMobileMenu();
-    this.router.navigate(['/signin']); // ✅ correction
+    this.router.navigate(['/signin']);
+  }
+
+  // ✅ Partner navigation
+  goToPartnerSignup() {
+    this.closeMobileMenu();
+    this.router.navigate(['/partner-signup']);
   }
 
   scrollTo(id: string) {
