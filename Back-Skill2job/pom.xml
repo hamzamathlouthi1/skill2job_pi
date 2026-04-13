@@ -20,6 +20,8 @@
         <module>GestionSession</module>
         <module>Recruitment</module>
         <module>GestionPartner</module>
+        <module>GestionFormation</module>
+
     </modules>
 
     <properties>

@@ -75,6 +75,7 @@ export class ApplicationService {
   // APPLY WITH FILES (Multipart)
   // ===============================
   applyWithFiles(formData: FormData): Observable<string> {
+    console.log((`${this.baseUrl}/applications`));
     return this.http.post(`${this.baseUrl}/applications`, formData, {
       headers: this.authHeaders(),
       responseType: 'text'
