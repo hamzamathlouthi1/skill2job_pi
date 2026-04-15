@@ -55,21 +55,18 @@ import { EnrolledCourseComponent } from './modules/training-courses/user/enrolle
     // ✅ Trainer components
     TrainerNavbarComponent,
     TrainerSidebarComponent,
-
     SigninComponent,
     SignupComponent,
-
     TrainingCoursesComponent,
     CourseDetailsComponent,
-
     UserCoursesComponent,
     PaymentComponent,
-
     SafeUrlPipe,
     WalletDashboardComponent,
     EnrolledCourseComponent,
      TrainerCoursesComponent
   ],
+
   imports: [
     BrowserModule,
     CommonModule,
