@@ -41,18 +41,14 @@ import { EnrolledCourseComponent } from './modules/training-courses/user/enrolle
 @NgModule({
   declarations: [
     AppComponent,
-
     AdminComponent,
     UserComponent,
     TrainerComponent,
     LandingPageComponent,
-
     SidebarComponent,
     NavbarComponent,
     LoaderComponent,
     DashboardComponent,
-
-    // ✅ Trainer components
     TrainerNavbarComponent,
     TrainerSidebarComponent,
     SigninComponent,
