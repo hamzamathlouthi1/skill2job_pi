@@ -56,7 +56,7 @@ public class WalletController {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // CHECK IF CAN SPIN TODAY  ✅ NEW
+    // CHECK IF CAN SPIN TODAY
     // ══════════════════════════════════════════════════════════════
     @GetMapping("/can-spin")
     @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
@@ -67,7 +67,7 @@ public class WalletController {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // SPIN THE WHEEL  ✅ NEW
+    // SPIN THE WHEEL
     // ══════════════════════════════════════════════════════════════
     @PostMapping("/spin")
     @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
@@ -89,7 +89,9 @@ public class WalletController {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // GET SPIN HISTORY  ✅ NEW
+    // GET SPIN HISTORY
+
+
     // ══════════════════════════════════════════════════════════════
     @GetMapping("/spin-history")
     @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")

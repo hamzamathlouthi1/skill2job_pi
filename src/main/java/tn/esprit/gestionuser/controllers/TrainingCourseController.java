@@ -57,7 +57,7 @@ public class TrainingCourseController {
             @RequestParam(required = false) Integer pointsPrice,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String categoryName,
-            @RequestParam(required = false) Long trainerId,        // ✅ NOUVEAU
+            @RequestParam(required = false) Long trainerId,
             @RequestParam(required = false) MultipartFile image,
             @RequestParam(required = false) MultipartFile[] pdfs) {
         try {
@@ -91,7 +91,7 @@ public class TrainingCourseController {
             course.setCurrency(currency.toUpperCase());
             course.setPointsPrice(pointsPrice);
             course.setCategory(category);
-            course.setTrainerId(trainerId);                        // ✅ NOUVEAU
+            course.setTrainerId(trainerId);
             course.setCreatedAt(LocalDateTime.now());
             course.setUpdatedAt(LocalDateTime.now());
 
@@ -131,7 +131,7 @@ public class TrainingCourseController {
             @RequestParam(required = false) Integer pointsPrice,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String categoryName,
-            @RequestParam(required = false) Long trainerId,        // ✅ NOUVEAU
+            @RequestParam(required = false) Long trainerId,
             @RequestParam(required = false) MultipartFile image,
             @RequestParam(required = false) MultipartFile[] pdfs,
             @RequestParam(required = false) String existingPdfs) {
@@ -150,7 +150,7 @@ public class TrainingCourseController {
             course.setCurrency(currency != null && !currency.trim().isEmpty()
                     ? currency.toUpperCase() : "USD");
             course.setPointsPrice(pointsPrice);
-            course.setTrainerId(trainerId);                        // ✅ NOUVEAU
+            course.setTrainerId(trainerId);
 
             if (categoryId != null) {
                 Category category = categoryRepo.findById(categoryId)

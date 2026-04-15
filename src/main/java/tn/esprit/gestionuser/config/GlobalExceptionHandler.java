@@ -11,7 +11,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)  // ✅ 400 au lieu de 500
-                .body(ex.getMessage());           // ✅ "Ce nom d'utilisateur est déjà pris."
+                .status(HttpStatus.BAD_REQUEST)  // 400 au lieu de 500
+                .body(ex.getMessage());           // "Ce nom d'utilisateur est déjà pris."
     }
 }

@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
-    // ✅ NOUVEAU : récupérer tous les users avec le rôle TRAINER
+    // récupérer tous les users avec le rôle trainer
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_TRAINER'")
     List<User> findAllTrainers();
 }

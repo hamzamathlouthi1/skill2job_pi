@@ -7,6 +7,6 @@ import java.util.Set;
 public class UpdateUserRequest {
     private String username;
     private String email;
-    private String password;        // optionnel
-    private Set<String> roles;      // optionnel
+    private String password;
+    private Set<String> roles;
 }

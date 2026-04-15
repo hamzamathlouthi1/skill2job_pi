@@ -44,10 +44,10 @@ public class PaymentController {
         dto.setCreatedAt(p.getCreatedAt());
         dto.setApprovedAt(p.getApprovedAt());
         dto.setRejectedAt(p.getRejectedAt());
-        // ✅ Coupon fields (replacing discount)
+        // Coupon fields (replacing discount)
         dto.setCouponCode(p.getCouponCode());
         dto.setDiscountPercentage(p.getDiscountPercentage());
-        // ✅ Username
+        // Username
         userRepository.findById(p.getUserId())
                 .ifPresent(user -> dto.setUsername(user.getUsername()));
         return dto;
