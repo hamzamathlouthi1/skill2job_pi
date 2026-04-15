@@ -59,6 +59,16 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
+  logoutadmin(): void {
+  // Clear token from localStorage/sessionStorage
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('currentUser');
+  sessionStorage.clear();
+  
+  // Optional: Call backend logout endpoint
+  // this.http.post('/api/logout', {}).subscribe(...);
+}
+
   getCurrentUser(): JwtResponse | null {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;

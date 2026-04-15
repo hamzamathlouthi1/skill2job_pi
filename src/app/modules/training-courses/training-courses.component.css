@@ -1849,7 +1849,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: #4a90e2;
+  background: #bd3535;
   color: white;
   border: none;
   border-radius: 6px;
@@ -1860,7 +1860,7 @@
 }
 
 .file-upload-button:hover {
-  background: #357abd;
+  background: #bd3535;
   transform: translateY(-1px);
 }
 

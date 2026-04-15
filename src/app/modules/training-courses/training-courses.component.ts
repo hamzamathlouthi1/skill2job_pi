@@ -6,6 +6,7 @@ import { CurrencyConversionService } from './servicesCurrency/currency-conversio
 import { PaymentService } from './payment/services/payment.service';
 import { CouponService, Coupon } from './coupon/coupon.service';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from './../services/auth.service';
 
 // ✅ Interface pour les trainers
 export interface TrainerUser {
