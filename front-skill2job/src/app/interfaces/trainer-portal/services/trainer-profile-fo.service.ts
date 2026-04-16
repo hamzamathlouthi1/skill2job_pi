@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TrainerProfileFoService {
-  private baseUrl     = 'http://localhost:8087/api/trainer-profiles';
-  private detailsUrl  = 'http://localhost:8087/api/admin/trainer-details';
+  private baseUrl     = 'http://localhost:8090/api/trainer-profiles';
+  private detailsUrl  = 'http://localhost:8090/api/admin/trainer-details';
 
   constructor(private http: HttpClient) {}
 

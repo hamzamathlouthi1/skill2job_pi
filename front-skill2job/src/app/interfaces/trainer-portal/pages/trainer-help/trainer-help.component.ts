@@ -34,7 +34,7 @@ export class TrainerHelpComponent implements OnInit {
   appStatus: AppStatus = 'UNKNOWN';
   statusLoading = false;
 
-  private appApiBase = '/api/trainer-applications';
+  private appApiBase = 'http://localhost:8090/api/trainer-applications';
   private appByUserRoute = (userId: number) => `${this.appApiBase}/by-user/${userId}`;
 
   // ---- FAQ ----
@@ -256,30 +256,30 @@ export class TrainerHelpComponent implements OnInit {
   get recommendations(): { title: string; desc: string; link?: string; icon: string }[] {
     if (this.appStatus === 'NOT_SUBMITTED') {
       return [
-        { icon: '📝', title: 'Submit your application', desc: 'Start your trainer journey by applying now.', link: '/become-trainer/apply' },
-        { icon: '📌', title: 'Track your progress', desc: 'After submission, follow the status in My Application.', link: '/become-trainer/my-application' }
+        { icon: '📝', title: 'Submit your application', desc: 'Start your trainer journey by applying now.', link: '/trainer-portal/apply' },
+        { icon: '📌', title: 'Track your progress', desc: 'After submission, follow the status in My Application.', link: '/trainer-portal/my-application' }
       ];
     }
     if (this.appStatus === 'PENDING') {
       return [
         { icon: '⏳', title: 'Wait for HR review', desc: 'Your application is being reviewed. You will be notified once a decision is made.' },
-        { icon: '✏️', title: 'Update while pending', desc: 'You can update CV link and motivation while status is Pending.', link: '/become-trainer/my-application' }
+        { icon: '✏️', title: 'Update while pending', desc: 'You can update CV link and motivation while status is Pending.', link: '/trainer-portal/my-application' }
       ];
     }
     if (this.appStatus === 'REJECTED') {
       return [
-        { icon: '🔁', title: 'Review rejection feedback', desc: 'Open My Application and read the reason/message from HR.', link: '/become-trainer/my-application' },
-        { icon: '🛠️', title: 'Improve your application', desc: 'Enhance your CV link and motivation, then reapply if allowed.', link: '/become-trainer/apply' }
+        { icon: '🔁', title: 'Review rejection feedback', desc: 'Open My Application and read the reason/message from HR.', link: '/trainer-portal/my-application' },
+        { icon: '🛠️', title: 'Improve your application', desc: 'Enhance your CV link and motivation, then reapply if allowed.', link: '/trainer-portal/apply' }
       ];
     }
     if (this.appStatus === 'ACCEPTED') {
       return [
-        { icon: '👤', title: 'Open My Profile', desc: 'Your trainer profile is available. Check your AI score and detected skills.', link: '/become-trainer/my-profile' },
-        { icon: '🤖', title: 'Refresh AI insights', desc: 'If AI fields look empty, use Refresh AI in My Profile to sync changes.', link: '/become-trainer/my-profile' }
+        { icon: '👤', title: 'Open My Profile', desc: 'Your trainer profile is available. Check your AI score and detected skills.', link: '/trainer-portal/my-profile' },
+        { icon: '🤖', title: 'Refresh AI insights', desc: 'If AI fields look empty, use Refresh AI in My Profile to sync changes.', link: '/trainer-portal/my-profile' }
       ];
     }
     return [
-      { icon: '🔍', title: 'Check My Application', desc: 'We could not detect your status. Open My Application to confirm.', link: '/become-trainer/my-application' }
+      { icon: '🔍', title: 'Check My Application', desc: 'We could not detect your status. Open My Application to confirm.', link: '/trainer-portal/my-application' }
     ];
   }
 

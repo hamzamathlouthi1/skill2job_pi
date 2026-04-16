@@ -33,7 +33,7 @@ public interface SessionsRepository extends JpaRepository<Sessions, Long> {
     );
 
     // ✅ KEEP - used for JPQL duplicate check (join)
-    @Query("SELECT COUNT(u) > 0 FROM Sessions s JOIN s.participants u WHERE s.id = :sessionId AND u.id = :userId")
+    @Query("SELECT COUNT(u) > 0 FROM Sessions s JOIN s.participantIds u WHERE s.id = :sessionId AND u = :userId")
     boolean isUserAlreadyJoined(@Param("sessionId") Long sessionId, @Param("userId") Long userId);
 
     // ✅ Native INSERT - bypasses Hibernate collection
@@ -50,7 +50,7 @@ public interface SessionsRepository extends JpaRepository<Sessions, Long> {
     @Query(value = "SELECT COUNT(*) FROM session_participants WHERE session_id = :sessionId AND user_id = :userId", nativeQuery = true)
     int countParticipant(@Param("sessionId") Long sessionId, @Param("userId") Long userId);
 
-    @Query("SELECT s FROM Sessions s LEFT JOIN FETCH s.room LEFT JOIN FETCH s.salle LEFT JOIN FETCH s.participants WHERE s.id = :id")
+    @Query("SELECT s FROM Sessions s LEFT JOIN FETCH s.room LEFT JOIN FETCH s.salle LEFT JOIN FETCH s.participantIds WHERE s.id = :id")
     Sessions findByIdWithRoom(@Param("id") Long id);
 
 }

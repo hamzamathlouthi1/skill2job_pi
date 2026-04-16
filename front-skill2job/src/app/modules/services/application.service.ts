@@ -59,7 +59,7 @@ export interface ApplicationResponse {
 
 @Injectable({ providedIn: 'root' })
 export class ApplicationService {
-  private baseUrl = 'http://localhost:8089/api';
+  private baseUrl = 'http://localhost:8090/api';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

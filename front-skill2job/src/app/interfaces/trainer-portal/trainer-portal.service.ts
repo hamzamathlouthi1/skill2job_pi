@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class TrainerPortalService {
-  private baseUrl = '/api'; // Using relative path for proxy
+  private baseUrl = 'http://localhost:8090/api';
 
   constructor(private http: HttpClient) {}
 

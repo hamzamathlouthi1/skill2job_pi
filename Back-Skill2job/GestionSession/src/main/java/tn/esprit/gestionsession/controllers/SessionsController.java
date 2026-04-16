@@ -5,9 +5,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.gestionsession.clients.UserClient;
+import tn.esprit.gestionsession.dto.UserDTO;
 import tn.esprit.gestionsession.entities.Sessions;
-import tn.esprit.gestionsession.entities.User;
-import tn.esprit.gestionsession.repositories.UserRepository;
 import tn.esprit.gestionsession.services.interfaces.SessionsInterface;
 
 import java.util.List;
@@ -17,13 +17,13 @@ import java.util.List;
 public class SessionsController {
 
     private final SessionsInterface sessionsService;
-    private final UserRepository userRepository;
+    private final UserClient userClient;
 
     @Autowired
     public SessionsController(SessionsInterface sessionsService,
-                              UserRepository userRepository) {
+                              UserClient userClient) {
         this.sessionsService = sessionsService;
-        this.userRepository = userRepository;
+        this.userClient = userClient;
     }
 
     @GetMapping("/test")
@@ -63,8 +63,10 @@ public class SessionsController {
 
         System.out.println("🔴 username from token: " + username);
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserDTO user = userClient.getUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
 
         System.out.println("🔴 resolved user id: " + user.getId());
 
@@ -79,8 +81,10 @@ public class SessionsController {
 
         String username = authentication.getName();
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserDTO user = userClient.getUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
 
         return sessionsService.leaveSession(id, user.getId());
     }

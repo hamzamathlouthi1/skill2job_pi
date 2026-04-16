@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import tn.esprit.gestionsession.clients.UserClient;
+import tn.esprit.gestionsession.dto.UserDTO;
 import tn.esprit.gestionsession.entities.*;
 import tn.esprit.gestionsession.repositories.*;
 import tn.esprit.gestionsession.services.interfaces.SessionsInterface;
@@ -19,7 +21,7 @@ public class SessionsServiceImpl implements SessionsInterface {
     private final SessionsRepository sessionsRepository;
     private final EquipmentRepository equipmentRepository;
     private final SessionEquipmentRepository sessionEquipmentRepository;
-    private final UserRepository userRepository;
+    private final UserClient userClient;
     private final SimpMessagingTemplate messagingTemplate;
     private final RoomRepository roomRepository;
 
@@ -28,14 +30,14 @@ public class SessionsServiceImpl implements SessionsInterface {
             SessionsRepository sessionsRepository,
             EquipmentRepository equipmentRepository,
             SessionEquipmentRepository sessionEquipmentRepository,
-            UserRepository userRepository,
+            UserClient userClient,
             SimpMessagingTemplate messagingTemplate,
             RoomRepository roomRepository
     ) {
         this.sessionsRepository = sessionsRepository;
         this.equipmentRepository = equipmentRepository;
         this.sessionEquipmentRepository = sessionEquipmentRepository;
-        this.userRepository = userRepository;
+        this.userClient = userClient;
         this.messagingTemplate = messagingTemplate;
         this.roomRepository = roomRepository;
 
@@ -174,8 +176,8 @@ public class SessionsServiceImpl implements SessionsInterface {
                     "/topic/room/" + session.getRoom().getRoomCode(),
                     java.util.Map.of(
                             "type", "LEAVE",
-                            "username", userRepository.findById(userId)
-                                    .map(User::getUsername)
+                            "username", java.util.Optional.ofNullable(userClient.getUserById(userId))
+                                    .map(UserDTO::getUsername)
                                     .orElse("unknown")
                     )
             );

@@ -68,7 +68,7 @@ export interface PartnerDashboardResponse {
 
 @Injectable({ providedIn: 'root' })
 export class PartnerDashboardService {
-  private baseUrl = '/api/partner'; // ✅ Using proxy to API Gateway
+  private baseUrl = 'http://localhost:8090/api/partner';
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 

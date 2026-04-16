@@ -3,13 +3,14 @@ package tn.esprit.gestionpartner.services;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.gestionpartner.clients.UserClient;
 import tn.esprit.gestionpartner.dto.PartnerCreateRequest;
 import tn.esprit.gestionpartner.dto.PartnerResponse;
 import tn.esprit.gestionpartner.dto.PartnerUpdateRequest;
+import tn.esprit.gestionpartner.dto.UpdateUserRequest;
+import tn.esprit.gestionpartner.dto.UserDTO;
 import tn.esprit.gestionpartner.entities.*;
 import tn.esprit.gestionpartner.repositories.PartnerRepository;
-import tn.esprit.gestionpartner.repositories.RoleRepository;
-import tn.esprit.gestionpartner.repositories.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,29 +20,28 @@ import java.util.stream.Collectors;
 public class PartnerServiceImpl implements PartnerService {
 
     private final PartnerRepository partnerRepository;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final UserClient userClient;
 
     public PartnerServiceImpl(PartnerRepository partnerRepository,
-                              UserRepository userRepository,
-                              RoleRepository roleRepository) {
+                              UserClient userClient) {
         this.partnerRepository = partnerRepository;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.userClient = userClient;
     }
 
     @Override
     public PartnerResponse createMyPartner(String username, PartnerCreateRequest request) {
 
-        User employer = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur introuvable : " + username));
+        UserDTO employer = userClient.getUserByUsername(username);
+        if (employer == null) {
+            throw new EntityNotFoundException("Utilisateur introuvable : " + username);
+        }
 
-        if (partnerRepository.existsByEmployer_Id(employer.getId())) {
+        if (partnerRepository.existsByEmployerId(employer.getId())) {
             throw new IllegalStateException("Partner profile already exists for this employer.");
         }
 
         Partner partner = new Partner();
-        partner.setEmployer(employer);
+        partner.setEmployerId(employer.getId());
         partner.setCompanyName(request.getCompanyName());
         partner.setIndustry(request.getIndustry());
         partner.setCompanyEmail(request.getCompanyEmail());
@@ -58,10 +58,12 @@ public class PartnerServiceImpl implements PartnerService {
     @Override
     @Transactional(readOnly = true)
     public PartnerResponse getMyPartner(String username) {
-        User employer = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur introuvable : " + username));
+        UserDTO employer = userClient.getUserByUsername(username);
+        if (employer == null) {
+            throw new EntityNotFoundException("Utilisateur introuvable : " + username);
+        }
 
-        Partner partner = partnerRepository.findByEmployer_Id(employer.getId())
+        Partner partner = partnerRepository.findByEmployerId(employer.getId())
                 .orElseThrow(() -> new IllegalStateException("Partner profile not found."));
 
         return toResponse(partner);
@@ -69,10 +71,12 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     public PartnerResponse updateMyPartner(String username, PartnerUpdateRequest request) {
-        User employer = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur introuvable : " + username));
+        UserDTO employer = userClient.getUserByUsername(username);
+        if (employer == null) {
+            throw new EntityNotFoundException("Utilisateur introuvable : " + username);
+        }
 
-        Partner partner = partnerRepository.findByEmployer_Id(employer.getId())
+        Partner partner = partnerRepository.findByEmployerId(employer.getId())
                 .orElseThrow(() -> new IllegalStateException("Partner profile not found."));
 
         partner.setCompanyName(request.getCompanyName());
@@ -89,10 +93,12 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     public void deleteMyPartner(String username) {
-        User employer = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur introuvable : " + username));
+        UserDTO employer = userClient.getUserByUsername(username);
+        if (employer == null) {
+            throw new EntityNotFoundException("Utilisateur introuvable : " + username);
+        }
 
-        Partner partner = partnerRepository.findByEmployer_Id(employer.getId())
+        Partner partner = partnerRepository.findByEmployerId(employer.getId())
                 .orElseThrow(() -> new IllegalStateException("Partner profile not found."));
 
         partnerRepository.delete(partner);
@@ -108,16 +114,9 @@ public class PartnerServiceImpl implements PartnerService {
         partner.setStatus(status);
 
         if (status == PartnerStatus.APPROVED) {
-
-            User employer = partner.getEmployer();
-
-            Role partnerRole = roleRepository.findByName(ERole.ROLE_PARTNER)
-                    .orElseThrow(() -> new IllegalStateException("ROLE_PARTNER not found in DB"));
-
-            employer.getRoles().clear();          // ✅ supprime tous les rôles
-            employer.getRoles().add(partnerRole); // ✅ met فقط PARTNER
-
-            userRepository.save(employer);
+             UpdateUserRequest updateRequest = new UpdateUserRequest();
+             updateRequest.setRoles(java.util.Set.of("partner")); // Resolves to ROLE_PARTNER in GestionUser
+             userClient.updateUser(partner.getEmployerId(), updateRequest);
         }
 
         Partner saved = partnerRepository.save(partner);
@@ -134,21 +133,19 @@ public class PartnerServiceImpl implements PartnerService {
 
     @Override
     public void adminDeletePartner(Long partnerId) {
-
+ 
         Partner partner = partnerRepository.findById(partnerId)
                 .orElseThrow(() -> new IllegalStateException("Partner not found."));
-
-        // ✅ récupérer l’employer AVANT suppression
-        User employer = partner.getEmployer();
-
+ 
+        Long employerId = partner.getEmployerId();
+ 
         // ✅ 1) supprimer le partner (pour éviter contrainte FK)
         partnerRepository.delete(partner);
         partnerRepository.flush(); // ✅ important
-
-        // ✅ 2) supprimer le user qui a créé ce partner
-        if (employer != null) {
-            userRepository.deleteById(employer.getId());
-            userRepository.flush();
+ 
+        // ✅ 2) supprimer le user via Feign
+        if (employerId != null) {
+            userClient.deleteUser(employerId);
         }
     }
 
@@ -163,7 +160,7 @@ public class PartnerServiceImpl implements PartnerService {
     private PartnerResponse toResponse(Partner p) {
         PartnerResponse res = new PartnerResponse();
         res.setId(p.getId());
-        res.setEmployerId(p.getEmployer() != null ? p.getEmployer().getId() : null);
+        res.setEmployerId(p.getEmployerId());
         res.setCompanyName(p.getCompanyName());
         res.setIndustry(p.getIndustry());
         res.setCompanyEmail(p.getCompanyEmail());

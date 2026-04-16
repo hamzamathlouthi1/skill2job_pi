@@ -30,21 +30,20 @@ import { EnrolledCourseComponent } from './modules/training-courses/user/enrolle
 import { TrainerHomeComponent } from './interfaces/trainer/trainer-home/trainer-home.component';
 import { TrainerCoursesComponent } from './modules/training-courses/trainer/trainer-courses/trainer-courses.component';
 
-// ── Recruitment Module Imports ────────────────────────────────────────────────────
+// Recruitment Module Imports
 import { TrainerPortalRoutingModule } from './interfaces/trainer-portal/trainer-portal-routing.module';
-import { HrDashboardComponent } from './modules/hr-dashboard/hr-dashboard.component';
+
+// HR Imports
 import { HrComponent } from './modules/hr/hr.component';
-import { HrApplicationsComponent } from './modules/hr/hr-applications/hr-applications.component';
 import { TrainerProfilesComponent } from './modules/hr/trainer-profiles/trainer-profiles.component';
 import { TrainerDetailsComponent } from './modules/hr/trainer-details/trainer-details.component';
-import { LearnerSessionTableComponent } from './modules/sessions/sessions/learner-sessions-table/learner-session-table.component';
 
 const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'signin', component: SigninComponent },
   { path: 'signup', component: SignupComponent },
 
-  // ── ADMIN: exams, sessions, training course management (catalog + details) ──
+  // ADMIN: exams, sessions, training course management (catalog + details)
   {
     path: 'admin',
     component: AdminComponent,
@@ -74,11 +73,15 @@ const routes: Routes = [
       { path: 'training-courses/:id', component: CourseDetailsComponent, canActivate: [AuthGuard], data: { role: 'ROLE_ADMIN' } },
       { path: 'training-courses', component: TrainingCoursesComponent, canActivate: [AuthGuard], data: { role: 'ROLE_ADMIN' } },
       { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard], data: { role: 'ROLE_ADMIN' } },
+      // HR Routes
+      { path: 'hr/applications', component: HrComponent, canActivate: [AuthGuard], data: { role: 'ROLE_ADMIN' } },
+      { path: 'hr/trainer-profiles', component: TrainerProfilesComponent, canActivate: [AuthGuard], data: { role: 'ROLE_ADMIN' } },
+      { path: 'hr/trainer-details', component: TrainerDetailsComponent, canActivate: [AuthGuard], data: { role: 'ROLE_ADMIN' } },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
     ]
   },
 
-  // ── LEARNER: catalog, enrollment, payments, wallet + existing lazy modules ──
+  // LEARNER: catalog, enrollment, payments, wallet + existing lazy modules
   {
     path: 'user',
     component: UserComponent,
@@ -114,16 +117,12 @@ const routes: Routes = [
         path: 'exams',
         loadChildren: () => import('./modules/exams/exams.module').then(m => m.ExamsModule)
       },
-
-      // ✅ FIX: SessionsModule is now registered under /user/sessions
-      // so the redirect to /user/sessions/learner resolves correctly
       {
         path: 'sessions',
         loadChildren: () => import('./modules/sessions/sessions.module').then(m => m.SessionsModule),
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_LEARNER', 'ROLE_ADMIN', 'ROLE_TRAINER'] }
       },
-
       {
         path: 'certificates',
         loadChildren: () => import('./modules/certificates/certificates.module').then(m => m.CertificatesModule)
@@ -131,7 +130,7 @@ const routes: Routes = [
     ]
   },
 
-  // ── TRAINER: dashboard shell + "My courses" only (separate from admin catalog management) ──
+  // TRAINER: dashboard shell + "My courses" only (separate from admin catalog management)
   {
     path: 'trainer',
     component: TrainerComponent,
@@ -155,40 +154,19 @@ const routes: Routes = [
     data: { roles: ['ROLE_ADMIN', 'ROLE_TRAINER'] }
   },
 
-  // ── RECRUITMENT: Trainer Portal & HR Dashboard ─────────────────────────────────
-  {
-    path: 'hr/applications',
-    component: HrApplicationsComponent,
-    canActivate: [AuthGuard],
-    data: { role: 'ROLE_ADMIN' }
-  },
-  {
-    path: 'hr/trainer-profiles',
-    component: TrainerProfilesComponent,
-    canActivate: [AuthGuard],
-    data: { role: 'ROLE_ADMIN' }
-  },
-  {
-    path: 'hr/trainer-details',
-    component: TrainerDetailsComponent,
-    canActivate: [AuthGuard],
-    data: { role: 'ROLE_ADMIN' }
-  },
-  {
-    path: 'hr',
-    component: HrComponent,
-    canActivate: [AuthGuard],
-    data: { role: 'ROLE_ADMIN' }
-  },
   {
     path: 'hr-dashboard',
-    component: HrDashboardComponent,
-    canActivate: [AuthGuard]
-    // Temporarily removed role check for testing
+    loadChildren: () => import('./modules/hr-dashboard/hr-dashboard.module').then(m => m.HrDashboardModule),
+    canActivate: [AuthGuard],
+    data: { role: 'ROLE_ADMIN' }
   },
 
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'trainer-portal', loadChildren: () => import('./interfaces/trainer-portal/trainer-portal.module').then(m => m.TrainerPortalModule) },
+  { 
+    path: 'trainer-portal', 
+    loadChildren: () => import('./interfaces/trainer-portal/trainer-portal.module').then(m => m.TrainerPortalModule),
+    canActivate: [AuthGuard]
+  },
   { path: 'live/:sessionId/:roomCode', component: LiveMeetComponent, canActivate: [AuthGuard] },
 
   { path: '**', redirectTo: 'signin' }

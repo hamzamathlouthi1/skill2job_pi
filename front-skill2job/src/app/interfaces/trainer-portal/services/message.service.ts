@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class MessageService {
-  private baseUrl = 'http://localhost:8087/api';
+  private baseUrl = 'http://localhost:8090/api';
 
   constructor(private http: HttpClient) {}
 
@@ -19,7 +19,7 @@ export class MessageService {
   }
 
   getConversation(applicationId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/messages/application/${applicationId}`);
+    return this.http.get(`${this.baseUrl}/messages/conversation/${applicationId}`);
   }
 
   send(message: any): Observable<any> {
@@ -28,6 +28,6 @@ export class MessageService {
 
   // Add missing countUnread method
   countUnread(userId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/messages/unread/count?userId=${userId}`);
+    return this.http.get(`${this.baseUrl}/messages/unread/${userId}/count`);
   }
 }

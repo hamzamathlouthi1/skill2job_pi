@@ -5,7 +5,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import tn.esprit.gestionpartner.clients.UserClient;
 import tn.esprit.gestionpartner.dto.PartnerDashboardResponse;
+import tn.esprit.gestionpartner.dto.UserDTO;
 import tn.esprit.gestionpartner.entities.*;
 import tn.esprit.gestionpartner.repositories.*;
 
@@ -20,25 +22,25 @@ public class PartnerDashboardService {
 
     private final JobOfferRepository jobOfferRepository;
     private final ApplicationRepository applicationRepository;
-    private final UserRepository userRepository;
+    private final UserClient userClient;
     private final PartnerRepository partnerRepository;
 
     public PartnerDashboardService(JobOfferRepository jobOfferRepository,
                                    ApplicationRepository applicationRepository,
-                                   UserRepository userRepository,
+                                   UserClient userClient,
                                    PartnerRepository partnerRepository) {
         this.jobOfferRepository = jobOfferRepository;
         this.applicationRepository = applicationRepository;
-        this.userRepository = userRepository;
+        this.userClient = userClient;
         this.partnerRepository = partnerRepository;
     }
 
     public PartnerDashboardResponse getDashboard() {
 
-        User currentUser = getCurrentUser();
+        UserDTO currentUser = getCurrentUser();
 
         // ✅ RÉCUPÉRATION CORRECTE DU PARTNER
-        Partner partner = partnerRepository.findByEmployer_Id(currentUser.getId())
+        Partner partner = partnerRepository.findByEmployerId(currentUser.getId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Partner profile not found for this user."
@@ -126,8 +128,16 @@ public class PartnerDashboardService {
                     it.appliedAt = a.getAppliedAt();
                     it.offerId = a.getJobOffer().getId();
                     it.offerTitle = a.getJobOffer().getTitle();
-                    it.studentUsername = a.getStudent().getUsername();
-                    it.studentEmail = a.getStudent().getEmail();
+                    // ✅ Fetch student info via Feign
+                    try {
+                        UserDTO student = userClient.getUserById(a.getStudentId());
+                        if (student != null) {
+                            it.studentUsername = student.getUsername();
+                            it.studentEmail = student.getEmail();
+                        }
+                    } catch (Exception e) {
+                        it.studentUsername = "Unknown";
+                    }
                     it.cvUrl = a.getCvUrl();
                     it.motivation = a.getMotivation();
                     it.score = a.getScore();
@@ -159,8 +169,16 @@ public class PartnerDashboardService {
                             it.note = a.getInterviewNote();
                             it.offerId = a.getJobOffer().getId();
                             it.offerTitle = a.getJobOffer().getTitle();
-                            it.studentUsername = a.getStudent().getUsername();
-                            it.studentEmail = a.getStudent().getEmail();
+                            // ✅ Fetch student info via Feign
+                            try {
+                                UserDTO student = userClient.getUserById(a.getStudentId());
+                                if (student != null) {
+                                    it.studentUsername = student.getUsername();
+                                    it.studentEmail = student.getEmail();
+                                }
+                            } catch (Exception e) {
+                                it.studentUsername = "Unknown";
+                            }
                             return it;
                         }).toList();
 
@@ -180,8 +198,16 @@ public class PartnerDashboardService {
                     it.applicationId = a.getId();
                     it.offerId = a.getJobOffer().getId();
                     it.offerTitle = a.getJobOffer().getTitle();
-                    it.studentUsername = a.getStudent().getUsername();
-                    it.studentEmail = a.getStudent().getEmail();
+                    // ✅ Fetch student info via Feign
+                    try {
+                        UserDTO student = userClient.getUserById(a.getStudentId());
+                        if (student != null) {
+                            it.studentUsername = student.getUsername();
+                            it.studentEmail = student.getEmail();
+                        }
+                    } catch (Exception e) {
+                        it.studentUsername = "Unknown";
+                    }
                     it.score = a.getScore();
                     it.status = a.getStatus().name();
                     it.appliedAt = a.getAppliedAt();
@@ -193,16 +219,17 @@ public class PartnerDashboardService {
         return res;
     }
 
-    private User getCurrentUser() {
+    private UserDTO getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || auth.getName() == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated.");
         }
 
-        return userRepository.findByUsername(auth.getName())
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found.")
-                );
+        UserDTO user = userClient.getUserByUsername(auth.getName());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found.");
+        }
+        return user;
     }
 }

@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {
-        "http://localhost:4200",
-        "http://localhost:49797"
-})
+
 @RestController
 @RequestMapping("/api/applications")
 @RequiredArgsConstructor
@@ -28,50 +25,50 @@ public class TrainerApplicationController {
     }
 
     @GetMapping("/{id}")
-    public TrainerApplication getById(@PathVariable Long id) {
+    public TrainerApplication getById(@PathVariable(name = "id") Long id) {
         return service.getById(id);
     }
 
     @PutMapping("/{id}")
-    public TrainerApplication update(@PathVariable Long id,
+    public TrainerApplication update(@PathVariable(name = "id") Long id,
                                      @RequestBody TrainerApplication updated) {
         return service.updateApplication(id, updated);
     }
 
     @GetMapping("/me")
-    public TrainerApplication getMine(@RequestParam Long userId) {
+    public TrainerApplication getMine(@RequestParam(name = "userId") Long userId) {
         return service.getByUserId(userId);
     }
 
     // ✅ Nouveau endpoint
     @GetMapping("/exists")
-    public ResponseEntity<Boolean> exists(@RequestParam Long userId) {
+    public ResponseEntity<Boolean> exists(@RequestParam(name = "userId") Long userId) {
         return ResponseEntity.ok(service.hasApplication(userId));
     }
 
     @GetMapping
-    public List<TrainerApplication> list(@RequestParam(required = false) ApplicationStatus status) {
+    public List<TrainerApplication> list(@RequestParam(name = "status", required = false) ApplicationStatus status) {
         return service.list(status);
     }
 
     @PatchMapping("/{id}/status")
-    public TrainerApplication updateStatus(@PathVariable Long id,
-                                           @RequestParam ApplicationStatus status) {
+    public TrainerApplication updateStatus(@PathVariable(name = "id") Long id,
+                                           @RequestParam(name = "status") ApplicationStatus status) {
         return service.updateStatus(id, status);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable(name = "id") Long id) {
         service.delete(id);
     }
 
     @PostMapping("/{id}/analyze")
-    public TrainerDetails analyze(@PathVariable Long id) {
+    public TrainerDetails analyze(@PathVariable(name = "id") Long id) {
         return service.analyzeApplication(id);
     }
 
     @PatchMapping("/{id}/decision")
-    public TrainerApplication decision(@PathVariable Long id, @RequestParam AdminDecision decision) {
+    public TrainerApplication decision(@PathVariable(name = "id") Long id, @RequestParam(name = "decision") AdminDecision decision) {
         return service.decide(id, decision);
     }
 }

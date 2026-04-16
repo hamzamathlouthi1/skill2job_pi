@@ -8,7 +8,7 @@ import { Observable, throwError } from 'rxjs';
 export class TrainerApplicationFoService {
 
   // ✅ Backend port 8087 (ton Spring)
-  private baseUrl = 'http://localhost:8087/api/applications';
+  private baseUrl = 'http://localhost:8090/api/applications';
 
   constructor(private http: HttpClient) {}
 
@@ -33,6 +33,6 @@ export class TrainerApplicationFoService {
     return this.http.get<string>(`${this.baseUrl}/exists`, { params });
   }
   getDetailsByApplicationId(applicationId: number): Observable<any> {
-    return this.http.get(`http://localhost:8087/api/admin/trainer-details/by-application/${applicationId}`);
+    return this.http.get(`http://localhost:8090/api/admin/trainer-details/by-application/${applicationId}`);
   }
 }

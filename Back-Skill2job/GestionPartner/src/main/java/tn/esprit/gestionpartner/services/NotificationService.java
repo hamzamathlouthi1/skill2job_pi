@@ -6,12 +6,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import tn.esprit.gestionpartner.clients.UserClient;
 import tn.esprit.gestionpartner.dto.NotificationResponse;
+import tn.esprit.gestionpartner.dto.UserDTO;
 import tn.esprit.gestionpartner.entities.Notification;
 import tn.esprit.gestionpartner.entities.NotificationType;
-import tn.esprit.gestionpartner.entities.User;
 import tn.esprit.gestionpartner.repositories.NotificationRepository;
-import tn.esprit.gestionpartner.repositories.UserRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -20,17 +20,17 @@ import java.util.Map;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final UserRepository userRepository;
+    private final UserClient userClient;
 
-    public NotificationService(NotificationRepository notificationRepository, UserRepository userRepository) {
+    public NotificationService(NotificationRepository notificationRepository, UserClient userClient) {
         this.notificationRepository = notificationRepository;
-        this.userRepository = userRepository;
+        this.userClient = userClient;
     }
 
     @Transactional
-    public void push(User receiver, NotificationType type, String message, String link) {
+    public void push(Long receiverId, NotificationType type, String message, String link) {
         Notification n = new Notification();
-        n.setUser(receiver);
+        n.setUserId(receiverId);
         n.setType(type);
         n.setMessage(message);
         n.setLink(link);
@@ -39,7 +39,7 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> myNotifications() {
-        User me = getCurrentUser();
+        UserDTO me = getCurrentUser();
         return notificationRepository.findByUserIdOrderByCreatedAtDesc(me.getId())
                 .stream()
                 .map(n -> new NotificationResponse(
@@ -54,17 +54,17 @@ public class NotificationService {
     }
 
     public Map<String, Long> unreadCount() {
-        User me = getCurrentUser();
+        UserDTO me = getCurrentUser();
         long c = notificationRepository.countByUserIdAndReadFalse(me.getId());
         return Map.of("unread", c);
     }
 
     @Transactional
     public void markRead(Long id) {
-        User me = getCurrentUser();
+        UserDTO me = getCurrentUser();
         Notification n = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
-        if (n.getUser() == null || !n.getUser().getId().equals(me.getId())) {
+        if (n.getUserId() == null || !n.getUserId().equals(me.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
         n.setRead(true);
@@ -73,7 +73,7 @@ public class NotificationService {
 
     @Transactional
     public void markAllRead() {
-        User me = getCurrentUser();
+        UserDTO me = getCurrentUser();
         List<Notification> list = notificationRepository.findByUserIdOrderByCreatedAtDesc(me.getId());
         for (Notification n : list) n.setRead(true);
         notificationRepository.saveAll(list);
@@ -81,12 +81,12 @@ public class NotificationService {
 
     @Transactional
     public String deleteMyNotification(Long id) {
-        User me = getCurrentUser();
+        UserDTO me = getCurrentUser();
 
         Notification n = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
 
-        if (n.getUser() == null || !n.getUser().getId().equals(me.getId())) {
+        if (n.getUserId() == null || !n.getUserId().equals(me.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
 
@@ -97,17 +97,20 @@ public class NotificationService {
     // ✅ NEW: clear all my notifications
     @Transactional
     public String clearAllMyNotifications() {
-        User me = getCurrentUser();
+        UserDTO me = getCurrentUser();
         notificationRepository.deleteByUserId(me.getId());
         return "All notifications cleared";
     }
 
-    private User getCurrentUser() {
+    private UserDTO getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth.getName() == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated.");
         }
-        return userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found."));
+        UserDTO user = userClient.getUserByUsername(auth.getName());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found.");
+        }
+        return user;
     }
 }

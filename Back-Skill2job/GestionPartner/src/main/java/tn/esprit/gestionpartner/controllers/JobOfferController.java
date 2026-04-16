@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/offers")
-@CrossOrigin(origins = "*")
+
 public class JobOfferController {
 
     private final JobOfferService service;

@@ -16,10 +16,12 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Student = User
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "student_id", nullable = false)
-    private User student;
+    // ✅ Store only the ID of the student from the User microservice
+    @Column(name = "student_id", nullable = false)
+    private Long studentId;
+ 
+    public Long getStudentId() { return studentId; }
+    public void setStudentId(Long studentId) { this.studentId = studentId; }
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "job_offer_id", nullable = false)
@@ -76,8 +78,7 @@ public class Application {
     // ===== Getters/Setters =====
     public Long getId() { return id; }
 
-    public User getStudent() { return student; }
-    public void setStudent(User student) { this.student = student; }
+
 
     public JobOffer getJobOffer() { return jobOffer; }
     public void setJobOffer(JobOffer jobOffer) { this.jobOffer = jobOffer; }

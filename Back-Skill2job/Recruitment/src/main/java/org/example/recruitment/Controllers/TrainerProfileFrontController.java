@@ -9,17 +9,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/trainer-profiles")
-@CrossOrigin(origins = {
-        "http://localhost:4200",
-        "http://localhost:49797"
-})
+
 @RequiredArgsConstructor
 public class TrainerProfileFrontController {
 
     private final TrainerProfileService service;
 
     @GetMapping("/me")
-    public TrainerProfile myProfile(@RequestParam Long userId) {
+    public TrainerProfile myProfile(@RequestParam(name = "userId") Long userId) {
         return service.getByUserId(userId);
     }
 
@@ -29,12 +26,12 @@ public class TrainerProfileFrontController {
     }
 
     @GetMapping("/{id}")
-    public TrainerProfile getById(@PathVariable Long id) {
+    public TrainerProfile getById(@PathVariable(name = "id") Long id) {
         return service.getById(id);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable(name = "id") Long id) {
         service.delete(id);
     }
 }

@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 @Injectable({ providedIn: 'root' })
 export class JobOfferService {
 
-  private baseUrl = 'http://localhost:8089/api/offers';
+  private baseUrl = 'http://localhost:8090/api/offers';
 
   constructor(
     private http: HttpClient,

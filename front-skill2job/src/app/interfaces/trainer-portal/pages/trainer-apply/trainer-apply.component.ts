@@ -51,7 +51,7 @@ export class TrainerApplyComponent implements OnInit {
       next: (status) => {
         if (status === 'PENDING' || status === 'ACCEPTED') {
           this.alreadyApplied = true;
-          this.router.navigate(['/become-trainer/my-application']);
+          this.router.navigate(['/trainer-portal/my-application']);
         } else {
           this.alreadyApplied = false;
         }
@@ -165,7 +165,7 @@ export class TrainerApplyComponent implements OnInit {
         this.cvUrl = '';
         this.motivation = '';
         this.alreadyApplied = true;
-        this.router.navigate(['/become-trainer/my-application']);
+        this.router.navigate(['/trainer-portal/my-application']);
       },
       error: (err: any) => {
         this.loading = false;

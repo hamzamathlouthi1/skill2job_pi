@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/partners")
-@CrossOrigin(origins = "*")
+
 public class PartnerController {
 
     private final PartnerPdfExportService partnerPdfExportService;

@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class TrainerProfileService {
-  private baseUrl = 'http://localhost:8087/api';
+  private baseUrl = 'http://localhost:8090/api';
 
   constructor(private http: HttpClient) {}
 
@@ -19,6 +19,6 @@ export class TrainerProfileService {
   }
 
   getMine(userId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/trainer-profile/user/${userId}`);
+    return this.http.get(`${this.baseUrl}/trainer-profiles/me?userId=${userId}`);
   }
 }

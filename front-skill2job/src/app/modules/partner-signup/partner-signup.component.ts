@@ -28,7 +28,7 @@ export class PartnerSignupComponent {
     description: ''
   };
 
-  private API = '/api'; // ✅ Using proxy to API Gateway
+  private API = 'http://localhost:8090/api';
 
   constructor(
     private http: HttpClient,
