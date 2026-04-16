@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ExamResultComponent } from './exam-result.component';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('ExamResultComponent', () => {
   let component: ExamResultComponent;
@@ -8,7 +11,18 @@ describe('ExamResultComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ExamResultComponent]
+      imports: [HttpClientTestingModule],
+      declarations: [ ExamResultComponent ],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({ id: '1' }),
+            snapshot: { paramMap: { get: () => '1' } }
+          }
+        }
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 

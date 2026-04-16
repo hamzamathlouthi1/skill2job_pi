@@ -34,11 +34,11 @@ export class TrainingCourseService {
   }
 
   getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+    return this.http.get<any[]>(this.apiUrl).pipe(catchError(this.handleError));
   }
 
   getById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
   }
 
   update(id: number, courseData: any): Observable<any> {

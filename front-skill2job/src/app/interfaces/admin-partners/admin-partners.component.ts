@@ -21,7 +21,9 @@ export class AdminPartnersComponent implements OnInit {
 
   loadPartners(): void {
     this.loading = true;
-    this.message = '';
+    if (!this.message.includes('✅')) {
+      this.message = '';
+    }
 
     this.partnerService.getAllPartners().subscribe({
       next: (list) => {
