@@ -1,4 +1,11 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+  discardPeriodicTasks,
+  flush
+} from '@angular/core/testing';
 import { TakeExamComponent } from './take-exam.component';
 import { ExamService } from '../../services/exam.service';
 import { AuthService } from '../../services/auth.service';
@@ -26,7 +33,6 @@ describe('TakeExamComponent', () => {
   };
 
   beforeEach(async () => {
-    // Fresh subjects for every test
     violationSubject = new Subject<any>();
     autoSubmitSubject = new Subject<void>();
 
@@ -60,66 +66,97 @@ describe('TakeExamComponent', () => {
     }).compileComponents();
   });
 
-  beforeEach(fakeAsync(() => {
+  it('should create and load exam', fakeAsync(() => {
     fixture = TestBed.createComponent(TakeExamComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges(); // triggers ngOnInit → loadExam
-    tick();                  // resolves observable
-    discardPeriodicTasks();  // clears timer from startTimer()
-  }));
+    fixture.detectChanges();
+    tick();
 
-  afterEach(() => {
-    discardPeriodicTasks();
-    fixture.destroy();
-  });
-
-  it('should create and load exam', fakeAsync(() => {
     expect(component).toBeTruthy();
     expect(examServiceSpy.getExamWithQuestions).toHaveBeenCalledWith(1);
     expect(component.questions.length).toBe(2);
-    expect(component.timeLeft).toBe(600); // 10 * 60
+    expect(component.timeLeft).toBe(600);
+
     discardPeriodicTasks();
+    fixture.destroy();
   }));
 
   it('should navigate between questions', fakeAsync(() => {
+    fixture = TestBed.createComponent(TakeExamComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+
     expect(component.currentQuestionIndex).toBe(0);
     component.nextQuestion();
     expect(component.currentQuestionIndex).toBe(1);
     component.previousQuestion();
     expect(component.currentQuestionIndex).toBe(0);
+
     discardPeriodicTasks();
+    fixture.destroy();
   }));
 
   it('should select an answer', fakeAsync(() => {
+    fixture = TestBed.createComponent(TakeExamComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+
     component.selectAnswer('A');
     expect(component.answers.length).toBe(1);
     expect(component.answers[0].selectedOption).toBe('A');
+
     discardPeriodicTasks();
+    fixture.destroy();
   }));
 
   it('should submit exam when all questions are answered', fakeAsync(() => {
+    fixture = TestBed.createComponent(TakeExamComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+
     component.selectAnswer('A');
     component.nextQuestion();
     component.selectAnswer('C');
     examServiceSpy.submitExam.and.returnValue(of({ score: 100 }));
     component.submitExam();
     tick();
+
     expect(examServiceSpy.submitExam).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalled();
+
     discardPeriodicTasks();
+    fixture.destroy();
   }));
 
   it('should handle violations via anti-cheat service', fakeAsync(() => {
+    fixture = TestBed.createComponent(TakeExamComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+
     violationSubject.next({ type: 'TAB_SWITCH', count: 1 });
+
     expect(component.warningVisible).toBeTrue();
     expect(component.violationType).toBe('TAB_SWITCH');
+
     discardPeriodicTasks();
+    fixture.destroy();
   }));
 
   it('should start timer and decrease timeLeft', fakeAsync(() => {
+    fixture = TestBed.createComponent(TakeExamComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    tick();
+
     const timeBefore = component.timeLeft;
     tick(1000);
     expect(component.timeLeft).toBe(timeBefore - 1);
+
     discardPeriodicTasks();
+    fixture.destroy();
   }));
 });

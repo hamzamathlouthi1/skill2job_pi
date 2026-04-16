@@ -44,7 +44,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        learnerRole = new Role(1, ERole.ROLE_LEARNER);
+        learnerRole = new Role(1L, ERole.ROLE_LEARNER);
         sampleUser = new User(1L, "testuser", "test@email.com", "encodedPassword", new HashSet<>(Collections.singletonList(learnerRole)));
     }
 
@@ -110,7 +110,7 @@ class UserServiceTest {
             request.setPassword("newpass");
             request.setRoles(Collections.singleton("admin"));
 
-            Role adminRole = new Role(2, ERole.ROLE_ADMIN);
+            Role adminRole = new Role(2L, ERole.ROLE_ADMIN);
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(sampleUser));
             when(userRepository.existsByUsername("newname")).thenReturn(false);
