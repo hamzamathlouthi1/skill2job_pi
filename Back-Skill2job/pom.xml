@@ -21,6 +21,7 @@
         <module>GestionFormation</module>
         <module>Recruitment</module>
         <module>GestionPartner</module>
+        <module>GestionUser</module>
     </modules>
 
     <properties>

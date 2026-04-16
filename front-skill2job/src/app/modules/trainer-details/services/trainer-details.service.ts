@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class TrainerDetailsService {
 
-  private apiUrl = 'http://localhost:8087/api/admin/trainer-details';
+  private apiUrl = 'http://localhost:8090/api/admin/trainer-details';
 
   constructor(private http: HttpClient) {}
 

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("*")
+
 @RestController
 @RequestMapping("/api/admin/trainer-profiles")
 @RequiredArgsConstructor
@@ -27,27 +27,27 @@ public class AdminTrainerProfileController {
     }
 
     @GetMapping("/{id}")
-    public TrainerProfile getById(@PathVariable Long id) {
+    public TrainerProfile getById(@PathVariable(name = "id") Long id) {
         return service.getById(id);
     }
 
     @GetMapping("/by-user/{userId}")
-    public TrainerProfile getByUserId(@PathVariable Long userId) {
+    public TrainerProfile getByUserId(@PathVariable(name = "userId") Long userId) {
         return service.getByUserId(userId);
     }
 
     @PutMapping("/{id}")
-    public TrainerProfile update(@PathVariable Long id, @RequestBody TrainerProfile profile) {
+    public TrainerProfile update(@PathVariable(name = "id") Long id, @RequestBody TrainerProfile profile) {
         return service.update(id, profile);
     }
 
     @PatchMapping("/{id}/status")
-    public TrainerProfile changeStatus(@PathVariable Long id, @RequestParam TrainerProfileStatus status) {
+    public TrainerProfile changeStatus(@PathVariable(name = "id") Long id, @RequestParam(name = "status") TrainerProfileStatus status) {
         return service.changeStatus(id, status);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable(name = "id") Long id) {
         service.delete(id);
     }
 }

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class HrService {
   private baseUrl = 'http://localhost:8090/api'; // API Gateway (preferred)
-  private directUrl = 'http://localhost:8087/api'; // Direct to recruitment service (backup)
+  private directUrl = 'http://localhost:8090/api';
 
   constructor(private http: HttpClient) {}
 

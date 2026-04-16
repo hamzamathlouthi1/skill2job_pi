@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class TrainerApplicationService {
-  private baseUrl = '/api';
+  private baseUrl = 'http://localhost:8090/api';
 
   constructor(private http: HttpClient) {}
 
@@ -23,11 +23,11 @@ export class TrainerApplicationService {
   }
 
   getByUserId(userId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/applications/user/${userId}`);
+    return this.http.get(`${this.baseUrl}/applications/me?userId=${userId}`);
   }
 
   getDetailsByApplicationId(applicationId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/applications/${applicationId}`);
+    return this.http.get(`${this.baseUrl}/admin/trainer-details/by-application/${applicationId}`);
   }
 
   update(applicationId: number, application: any): Observable<any> {
@@ -39,7 +39,7 @@ export class TrainerApplicationService {
   }
 
   exists(userId: number): Observable<string> {
-    return this.http.get(`${this.baseUrl}/applications/exists/${userId}`, { responseType: 'text' });
+    return this.http.get(`${this.baseUrl}/applications/exists?userId=${userId}`, { responseType: 'text' });
   }
 
   submit(application: any): Observable<any> {

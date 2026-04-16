@@ -31,17 +31,18 @@ public class TrainerApplication {
     @Column(nullable = false, length = 20)
     private ApplicationStatus status;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = true, updatable = false)
     private LocalDateTime submittedAt;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         this.submittedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        if (this.status == null) this.status = ApplicationStatus.PENDING;
+        if (this.status == null)
+            this.status = ApplicationStatus.PENDING;
     }
 
     @PreUpdate

@@ -10,10 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/messages")
-@CrossOrigin(origins = {
-        "http://localhost:4200",
-        "http://localhost:49797"
-})
+
 @RequiredArgsConstructor
 public class MessageController {
 
@@ -27,27 +24,27 @@ public class MessageController {
 
     // ✅ Conversation par applicationId
     @GetMapping("/conversation/{applicationId}")
-    public List<Message> getConversation(@PathVariable Long applicationId) {
+    public List<Message> getConversation(@PathVariable(name = "applicationId") Long applicationId) {
         return messageService.getConversation(applicationId);
     }
 
     // ✅ Messages non lus
     @GetMapping("/unread/{receiverId}")
-    public List<Message> getUnread(@PathVariable Long receiverId) {
+    public List<Message> getUnread(@PathVariable(name = "receiverId") Long receiverId) {
         return messageService.getUnread(receiverId);
     }
 
     // ✅ Count non lus
     @GetMapping("/unread/{receiverId}/count")
-    public Map<String, Long> countUnread(@PathVariable Long receiverId) {
+    public Map<String, Long> countUnread(@PathVariable(name = "receiverId") Long receiverId) {
         return Map.of("count", messageService.countUnread(receiverId));
     }
 
     // ✅ Marquer comme lu
     @PutMapping("/read/{applicationId}/{receiverId}")
     public void markAsRead(
-            @PathVariable Long applicationId,
-            @PathVariable Long receiverId
+            @PathVariable(name = "applicationId") Long applicationId,
+            @PathVariable(name = "receiverId") Long receiverId
     ) {
         messageService.markAsRead(applicationId, receiverId);
     }

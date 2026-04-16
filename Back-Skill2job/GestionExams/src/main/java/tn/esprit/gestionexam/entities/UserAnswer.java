@@ -20,7 +20,6 @@ public class UserAnswer {
 
     @ManyToOne
     @JoinColumn(name = "evaluation_id")
-    @JsonIgnoreProperties({"answers", "certificate", "exam"})  // ← break circular ref
-
+    @JsonIgnoreProperties("answers")
     private Evaluation evaluation;
 }

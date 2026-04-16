@@ -8,7 +8,7 @@ import tn.esprit.gestionpartner.services.PartnerDashboardService;
 
 @RestController
 @RequestMapping("/api/partner")
-@CrossOrigin(origins = "*")
+
 public class PartnerDashboardController {
 
     private final PartnerDashboardService dashboardService;

@@ -14,10 +14,10 @@
     </parent>
 
     <groupId>tn.esprit</groupId>
-    <artifactId>GestionUser</artifactId>
+    <artifactId>GestionPartner</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>GestionUser</name>
-    <description>Gestion des utilisateurs avec JWT et rôles</description>
+    <name>PartnerService</name>
+    <description>Microservice for Partner Management</description>
 
     <properties>
         <java.version>17</java.version>
@@ -54,6 +54,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
         <!-- ✅ JWT -->

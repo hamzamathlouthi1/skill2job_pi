@@ -99,7 +99,7 @@ export class TrainerProfilesComponent implements OnInit {
 
   loadDetails(applicationId: number) {
     this.loadingDetails = true;
-    this.http.get(`http://localhost:8087/api/admin/trainer-details/by-application/${applicationId}`)
+    this.http.get(`http://localhost:8090/api/admin/trainer-details/by-application/${applicationId}`)
       .subscribe({
         next: (data) => { this.selectedDetails = data; this.loadingDetails = false; },
         error: () => { this.selectedDetails = null; this.loadingDetails = false; }
@@ -108,7 +108,7 @@ export class TrainerProfilesComponent implements OnInit {
 
   loadDetailsByUserId(userId: number) {
     this.loadingDetails = true;
-    this.http.get<any[]>(`http://localhost:8087/api/admin/trainer-details`)
+    this.http.get<any[]>(`http://localhost:8090/api/admin/trainer-details`)
       .subscribe({
         next: (data) => {
           // trouve le detail dont l'application correspond au userId

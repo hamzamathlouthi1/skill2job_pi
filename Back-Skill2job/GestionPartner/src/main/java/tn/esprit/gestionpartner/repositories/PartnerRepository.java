@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface PartnerRepository extends JpaRepository<Partner, Long> {
 
-    Optional<Partner> findByEmployer_Id(Long employerId);
-    boolean existsByEmployer_Id(Long employerId);
+    Optional<Partner> findByEmployerId(Long employerId);
+    boolean existsByEmployerId(Long employerId);
 }

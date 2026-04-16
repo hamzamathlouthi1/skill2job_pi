@@ -33,17 +33,16 @@ public class Sessions {
 
     private Integer capacity;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "trainer_id")
-    private User user;
+    @Column(name = "trainer_id")
+    private Long trainerId;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
             name = "session_participants",
-            joinColumns = @JoinColumn(name = "session_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+            joinColumns = @JoinColumn(name = "session_id")
     )
-    private Set<User> participants = new HashSet<>();
+    @Column(name = "user_id")
+    private Set<Long> participantIds = new HashSet<>();
 
     // ✅ REMOVED @JsonIgnore — room must be serialized so Angular gets roomCode
     // ✅ ADDED @JsonIgnoreProperties to prevent circular reference (room -> session -> room -> ...)

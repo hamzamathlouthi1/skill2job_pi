@@ -11,10 +11,12 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ✅ Receiver
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    // ✅ Store only the ID of the receiver from the User microservice
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+ 
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -40,8 +42,7 @@ public class Notification {
 
     public Long getId() { return id; }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+
 
     public NotificationType getType() { return type; }
     public void setType(NotificationType type) { this.type = type; }

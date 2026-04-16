@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class MessageService {
 
-  private baseUrl = 'http://localhost:8087/api/messages';
+  private baseUrl = 'http://localhost:8090/api/messages';
 
   constructor(private http: HttpClient) {}
 

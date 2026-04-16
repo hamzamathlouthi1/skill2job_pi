@@ -86,15 +86,15 @@ export class TrainerHomeComponent implements OnInit {
 
   // ✅ CTA routing helpers
   goApply(): void {
-    this.router.navigate(['/become-trainer/apply']);
+    this.router.navigate(['/trainer-portal/apply']);
   }
 
   goMyApplication(): void {
-    this.router.navigate(['/become-trainer/my-application']);
+    this.router.navigate(['/trainer-portal/my-application']);
   }
 
   goMyProfile(): void {
-    this.router.navigate(['/become-trainer/my-profile']);
+    this.router.navigate(['/trainer-portal/my-profile']);
   }
 
   // (optionnel) bouton futur

@@ -6,7 +6,7 @@ import { Partner } from '../models/partner.model';
 @Injectable({ providedIn: 'root' })
 export class PartnerService {
 
-  private baseUrl = '/api/partners'; // ✅ Using proxy to API Gateway
+  private baseUrl = 'http://localhost:8090/api/partners';
 
   constructor(private http: HttpClient) {}
 

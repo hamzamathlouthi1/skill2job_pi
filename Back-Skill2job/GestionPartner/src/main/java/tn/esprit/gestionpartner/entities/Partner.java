@@ -19,10 +19,9 @@ public class Partner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ✅ 1 Employer -> 1 Partner
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "employer_id", nullable = false, foreignKey = @ForeignKey(name = "fk_partner_employer"))
-    private User employer;
+    // ✅ Store only the ID of the employer from the User microservice
+    @Column(name = "employer_id", nullable = false)
+    private Long employerId;
 
     private String companyName;
     private String industry;
@@ -62,8 +61,8 @@ public class Partner {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public User getEmployer() { return employer; }
-    public void setEmployer(User employer) { this.employer = employer; }
+    public Long getEmployerId() { return employerId; }
+    public void setEmployerId(Long employerId) { this.employerId = employerId; }
 
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }

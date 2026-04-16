@@ -22,7 +22,7 @@
     <div class="empty">
       <div class="title">No application found</div>
       <div class="desc">You haven't submitted an application yet.</div>
-      <a routerLink="/become-trainer/apply" class="btn primary">📩 Apply Now</a>
+      <a routerLink="/trainer-portal/apply" class="btn primary">📩 Apply Now</a>
     </div>
   </div>
 
@@ -120,7 +120,7 @@
         <button class="btn danger" (click)="remove()" [disabled]="loading">
           🗑️ Delete
         </button>
-        <a class="btn ghost" routerLink="/become-trainer/apply">✏️ New Submission</a>
+        <a class="btn ghost" routerLink="/trainer-portal/apply">✏️ New Submission</a>
       </div>
 
       <div class="note" *ngIf="app.status !== 'PENDING'">

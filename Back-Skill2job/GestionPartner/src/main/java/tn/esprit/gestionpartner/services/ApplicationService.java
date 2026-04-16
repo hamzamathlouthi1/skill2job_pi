@@ -8,13 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import tn.esprit.gestionpartner.clients.UserClient;
 import tn.esprit.gestionpartner.dto.ApplicationResponse;
 import tn.esprit.gestionpartner.dto.ScheduleInterviewRequest;
 import tn.esprit.gestionpartner.dto.UpdateApplicationStatusRequest;
+import tn.esprit.gestionpartner.dto.UserDTO;
 import tn.esprit.gestionpartner.entities.*;
 import tn.esprit.gestionpartner.repositories.ApplicationRepository;
 import tn.esprit.gestionpartner.repositories.JobOfferRepository;
-import tn.esprit.gestionpartner.repositories.UserRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final JobOfferRepository jobOfferRepository;
-    private final UserRepository userRepository;
+    private final UserClient userClient;
     private final NotificationService notificationService;
 
     @Value("${app.upload.dir:uploads}")
@@ -49,11 +50,11 @@ public class ApplicationService {
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               JobOfferRepository jobOfferRepository,
-                              UserRepository userRepository,
+                              UserClient userClient,
                               NotificationService notificationService) {
         this.applicationRepository = applicationRepository;
         this.jobOfferRepository = jobOfferRepository;
-        this.userRepository = userRepository;
+        this.userClient = userClient;
         this.notificationService = notificationService;
     }
 
@@ -63,7 +64,7 @@ public class ApplicationService {
     @Transactional
     public String applyWithFiles(Long jobOfferId, MultipartFile cv, MultipartFile motivationPdf) {
 
-        User student = getCurrentUser();
+        UserDTO student = getCurrentUser();
 
         if (jobOfferId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "jobOfferId is required.");
@@ -110,7 +111,7 @@ public class ApplicationService {
         String motivationUrl = saveFile(motivationPdf, "motivation", student.getId(), offer.getId());
 
         Application app = new Application();
-        app.setStudent(student);
+        app.setStudentId(student.getId());
         app.setJobOffer(offer);
 
         // ✅ keep your existing fields
@@ -136,14 +137,14 @@ public class ApplicationService {
         applicationRepository.save(app);
 
         // ✅ Notify partner employer
-        User partnerEmployer = offer.getPartner().getEmployer();
+        Long partnerEmployerId = offer.getPartner().getEmployerId();
 
         String msgPartner = "New application received for the offer: " + offer.getTitle()
                 + " (score " + score + "/100)"
                 + (initialStatus == ApplicationStatus.SHORTLISTED ? " ✅ Auto-Shortlisted" : "");
 
         notificationService.push(
-                partnerEmployer,
+                partnerEmployerId,
                 NotificationType.APPLICATION_RECEIVED,
                 msgPartner,
                 "/partner/offers/" + offer.getId() + "/applications"
@@ -154,7 +155,7 @@ public class ApplicationService {
                 + (initialStatus == ApplicationStatus.SHORTLISTED ? " ✅ Shortlisted" : "");
 
         notificationService.push(
-                student,
+                student.getId(),
                 NotificationType.STATUS_UPDATED,
                 msgLearner,
                 "/user/applications"
@@ -167,7 +168,7 @@ public class ApplicationService {
     // MY APPLICATIONS
     // =====================================
     public List<ApplicationResponse> myApplications() {
-        User student = getCurrentUser();
+        UserDTO student = getCurrentUser();
 
         return applicationRepository
                 .findByStudentIdOrderByAppliedAtDesc(student.getId())
@@ -215,16 +216,16 @@ public class ApplicationService {
         applicationRepository.save(app);
 
         notificationService.push(
-                app.getStudent(),
+                app.getStudentId(),
                 NotificationType.STATUS_UPDATED,
                 "Application status updated: " + request.getStatus() + " (Offre: " + app.getJobOffer().getTitle() + ")",
                 "/user/applications"
         );
 
         notificationService.push(
-                app.getJobOffer().getPartner().getEmployer(),
+                app.getJobOffer().getPartner().getEmployerId(),
                 NotificationType.STATUS_UPDATED,
-                "You have updated the status of " + app.getStudent().getUsername() + " -> " + request.getStatus(),
+                "You have updated the status of an application -> " + request.getStatus(),
                 "/partner/offers/" + app.getJobOffer().getId() + "/applications"
         );
 
@@ -258,16 +259,16 @@ public class ApplicationService {
         applicationRepository.save(app);
 
         notificationService.push(
-                app.getStudent(),
+                app.getStudentId(),
                 NotificationType.INTERVIEW_SCHEDULED,
                 "Interview scheduled for the offer: " + app.getJobOffer().getTitle(),
                 "/user/applications"
         );
 
         notificationService.push(
-                app.getJobOffer().getPartner().getEmployer(),
+                app.getJobOffer().getPartner().getEmployerId(),
                 NotificationType.INTERVIEW_SCHEDULED,
-                "Scheduled interview with: " + app.getStudent().getUsername(),
+                "Scheduled interview scheduled.",
                 "/partner/offers/" + app.getJobOffer().getId() + "/applications"
         );
 
@@ -278,7 +279,7 @@ public class ApplicationService {
     // HAS APPLIED
     // =====================================
     public Map<String, Boolean> hasApplied(Long offerId) {
-        User student = getCurrentUser();
+        UserDTO student = getCurrentUser();
         boolean applied = applicationRepository.existsByStudentIdAndJobOfferId(student.getId(), offerId);
         return Map.of("applied", applied);
     }
@@ -294,6 +295,16 @@ public class ApplicationService {
                 ? partner.getCompanyName()
                 : "Company";
 
+        String studentUsername = "Unknown";
+        String studentEmail = "";
+        try {
+            UserDTO student = userClient.getUserById(a.getStudentId());
+            if (student != null) {
+                studentUsername = student.getUsername();
+                studentEmail = student.getEmail();
+            }
+        } catch (Exception e) {}
+
         return new ApplicationResponse(
                 a.getId(),
                 a.getStatus(),
@@ -306,8 +317,8 @@ public class ApplicationService {
                 partner.getId(),
                 partnerName,
 
-                a.getStudent().getUsername(),
-                a.getStudent().getEmail(),
+                studentUsername,
+                studentEmail,
 
                 a.getCvUrl(),
                 a.getMotivation(),
@@ -323,7 +334,7 @@ public class ApplicationService {
     // =====================================
     // SECURITY HELPER
     // =====================================
-    private User getCurrentUser() {
+    private UserDTO getCurrentUser() {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -331,8 +342,11 @@ public class ApplicationService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated.");
         }
 
-        return userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found."));
+        UserDTO user = userClient.getUserByUsername(auth.getName());
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found.");
+        }
+        return user;
     }
 
     // =====================================
@@ -384,7 +398,7 @@ public class ApplicationService {
     // =====================================
 // ✅ ADVANCED SCORE (0–100) - FIXED
 // =====================================
-    private int calculateAdvancedScore(User student, JobOffer offer, String cvText, String motivationText) {
+    private int calculateAdvancedScore(UserDTO student, JobOffer offer, String cvText, String motivationText) {
 
         int score = 0;
 

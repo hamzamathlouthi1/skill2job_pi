@@ -12,7 +12,7 @@ export class TrainerDetailsComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  private baseUrl = 'http://localhost:8087/api/admin/trainer-details';
+  private baseUrl = 'http://localhost:8090/api/admin/trainer-details';
 
   constructor(private http: HttpClient) {}
 
