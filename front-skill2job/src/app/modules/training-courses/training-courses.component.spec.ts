@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TrainingCoursesComponent } from './training-courses.component';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('TrainingCoursesComponent', () => {
   let component: TrainingCoursesComponent;
@@ -8,7 +9,9 @@ describe('TrainingCoursesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TrainingCoursesComponent]
+      imports: [HttpClientTestingModule],
+      declarations: [TrainingCoursesComponent],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 

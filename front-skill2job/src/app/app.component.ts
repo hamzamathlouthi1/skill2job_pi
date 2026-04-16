@@ -7,6 +7,7 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  title = 'skill2job';
   showLoader = true;
   private firstLoad = true;
 

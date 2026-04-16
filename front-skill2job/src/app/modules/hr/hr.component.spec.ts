@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { HrComponent } from './hr.component';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('HrComponent', () => {
   let component: HrComponent;
@@ -8,7 +9,9 @@ describe('HrComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HrComponent]
+      imports: [HttpClientTestingModule],
+      declarations: [HrComponent],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 

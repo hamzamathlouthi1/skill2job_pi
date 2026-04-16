@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SigninComponent } from './signin.component';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('SigninComponent', () => {
   let component: SigninComponent;
@@ -8,7 +9,9 @@ describe('SigninComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SigninComponent]
+      imports: [HttpClientTestingModule],
+      declarations: [SigninComponent],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 
