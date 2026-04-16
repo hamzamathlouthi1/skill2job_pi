@@ -56,7 +56,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        learnerRole = new Role(1, ERole.ROLE_LEARNER);
+        learnerRole = new Role(1L, ERole.ROLE_LEARNER);
         sampleUser = new User(1L, "testuser", "test@email.com", "encodedPassword", new HashSet<>(Collections.singletonList(learnerRole)));
     }
 
