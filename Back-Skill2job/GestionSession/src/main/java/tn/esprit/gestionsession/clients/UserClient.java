@@ -5,14 +5,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import tn.esprit.gestionsession.dto.UserDTO;
 
-import java.util.List;
-
-@FeignClient(name = "gestionuser", url = "http://gestionuser:8089/api")
+@FeignClient(name = "ms-user")   // matches spring.application.name in ms-user
 public interface UserClient {
 
-    @GetMapping("/admin/users/by-username/{username}")
+    @GetMapping("/api/admin/users/by-username/{username}")
     UserDTO getUserByUsername(@PathVariable("username") String username);
 
-    @GetMapping("/admin/users/{id}")
+    @GetMapping("/api/admin/users/{id}")
     UserDTO getUserById(@PathVariable("id") Long id);
 }

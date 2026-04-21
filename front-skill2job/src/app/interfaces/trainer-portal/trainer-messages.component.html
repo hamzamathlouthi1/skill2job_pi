@@ -84,7 +84,7 @@
         </textarea>
         <button class="send-btn"
                 (click)="send()"
-                [disabled]="!newMessage?.trim() || sending">
+                [disabled]="!newMessage.trim() || sending">
           <span *ngIf="!sending">📨</span>
           <span *ngIf="sending">⏳</span>
         </button>

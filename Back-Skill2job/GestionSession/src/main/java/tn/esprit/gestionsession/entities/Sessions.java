@@ -35,6 +35,9 @@ public class Sessions {
 
     @Column(name = "trainer_id")
     private Long trainerId;
+    
+    @Column(name = "formation_id")
+    private Long formationId;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(

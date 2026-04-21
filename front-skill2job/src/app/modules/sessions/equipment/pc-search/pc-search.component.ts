@@ -16,6 +16,7 @@ export class PcSearchComponent {
   offers: PcOffer[] = [];
   loading = false;
   showResults = false;
+  errorMessage = '';
 
   maxPrice?: number;
   minRam?: number;
@@ -23,27 +24,30 @@ export class PcSearchComponent {
   constructor(private pcService: PcService) {}
 
   search(): void {
+    // Clear previous state
+    this.offers = [];
+    this.errorMessage = '';
+    this.loading = true;
+    this.showResults = true;
 
-  // 🔥 clear old results immediately
-  this.offers = [];
-
-  this.loading = true;
-  this.showResults = true;
-
-  this.pcService.getOffers(this.maxPrice, this.minRam)
-    .subscribe({
-      next: (data) => {
-        this.offers = data;   // replace with new filtered results
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      }
-    });
-}
+    this.pcService.getOffers(this.maxPrice, this.minRam)
+      .subscribe({
+        next: (data) => {
+          this.offers = data;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Search error:', err);
+          this.errorMessage = err?.error
+            ? String(err.error)
+            : 'An error occurred while fetching laptops. Please try again.';
+          this.loading = false;
+        }
+      });
+  }
 
   closeModal(): void {
     this.showResults = false;
+    this.errorMessage = '';
   }
 }

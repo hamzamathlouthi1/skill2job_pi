@@ -6,7 +6,7 @@
 
   <div style="display:flex; gap:10px">
 
-    <button class="add-btn" routerLink="/trainer-sessions/equipments/add">
+    <button class="add-btn" (click)="openAddEquipmentModal()">
       + Add Equipment
     </button>
 
@@ -67,7 +67,7 @@
 
       <p>No equipment found</p>
 
-      <button class="add-btn" routerLink="/trainer-sessions/equipments/add">
+      <button class="add-btn" (click)="openAddEquipmentModal()">
         Add your first equipment
       </button>
 
@@ -125,8 +125,7 @@
 
       <button
         class="edit-btn"
-        [routerLink]="['/trainer-sessions/equipments/edit', selectedEquipment.id]"
-        (click)="closeDetails()"
+        (click)="openEditEquipmentModal(selectedEquipment); closeDetails()"
       >
         Edit
       </button>
@@ -134,7 +133,7 @@
 
       <button
         class="delete-btn"
-        (click)="deleteEquipment(selectedEquipment.id!); closeDetails()"
+        (click)="openDeleteEquipmentModal(selectedEquipment); closeDetails()"
       >
         Delete
       </button>
@@ -205,7 +204,7 @@
      class="reservation-card">
 
   <div class="reservation-title">
-    {{ r.session?.name }}
+    {{ r.session.name }}
   </div>
 
   <div class="reservation-line">
@@ -223,7 +222,7 @@
   <div class="reservation-line">
     End:
     <strong>
-      {{ r.session?.endAt | date:'medium' }}
+      {{ r.session.endAt | date:'medium' }}
     </strong>
   </div>
 
@@ -238,11 +237,139 @@
   <div class="reservation-line">
     Salle:
     <strong>
-      {{ r.session?.salle?.name }}
+      {{ r.session.salle?.name }}
     </strong>
   </div>
 
 </div>
   </div>
 
+</div>
+
+
+<!-- ========================= -->
+<!-- ADD/EDIT EQUIPMENT MODAL -->
+<!-- ========================= -->
+<div
+  class="modal-overlay"
+  *ngIf="showEquipmentModal"
+  (click)="closeEquipmentModal()"
+>
+  <div
+    class="modal-card"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- CLOSE BUTTON -->
+    <button class="close-btn" (click)="closeEquipmentModal()">
+      ✕
+    </button>
+
+    <!-- MODAL TITLE -->
+    <h2>{{ equipmentModalTitle }}</h2>
+
+    <!-- ERROR MESSAGE -->
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+
+    <!-- FORM -->
+    <form class="equipment-form">
+      <div class="form-group">
+        <label for="name">Equipment Name</label>
+        <input
+          type="text"
+          id="name"
+          class="form-control"
+          [(ngModel)]="currentEquipment.name"
+          name="name"
+          required
+          placeholder="Enter equipment name">
+      </div>
+
+      <div class="form-group">
+        <label for="quantity">Quantity</label>
+        <input
+          type="number"
+          id="quantity"
+          class="form-control"
+          [(ngModel)]="currentEquipment.quantity"
+          name="quantity"
+          required
+          min="1"
+          placeholder="Enter quantity">
+      </div>
+
+      <div class="form-group">
+        <label for="photo">Photo</label>
+        <input
+          type="file"
+          id="photo"
+          class="form-control"
+          (change)="onFileSelected($event)"
+          accept="image/*">
+      </div>
+
+      <!-- Image Preview -->
+      <div *ngIf="previewImage" class="preview-container">
+        <img [src]="previewImage" class="preview-image" />
+      </div>
+    </form>
+
+    <!-- MODAL ACTIONS -->
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeEquipmentModal()">
+        Cancel
+      </button>
+      <button
+        class="save-btn"
+        (click)="saveEquipment()"
+        [disabled]="!currentEquipment.name || currentEquipment.quantity === undefined || currentEquipment.quantity === null || (!isEditEquipmentMode && !selectedFile)">
+        {{ isEditEquipmentMode ? 'Update Equipment' : 'Create Equipment' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========================= -->
+<!-- DELETE EQUIPMENT MODAL -->
+<!-- ========================= -->
+<div
+  class="modal-overlay"
+  *ngIf="showDeleteEquipmentModal"
+  (click)="closeDeleteEquipmentModal()"
+>
+  <div
+    class="modal-card delete-modal"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- CLOSE BUTTON -->
+    <button class="close-btn" (click)="closeDeleteEquipmentModal()">
+      ✕
+    </button>
+
+    <!-- WARNING ICON -->
+    <div class="warning-icon">
+      ⚠️
+    </div>
+
+    <!-- WARNING MESSAGE -->
+    <div class="warning-message">
+      Delete <strong>{{ equipmentToDelete?.name }}</strong>?
+    </div>
+
+    <div class="warning-hint">
+      This action cannot be undone.
+    </div>
+
+    <!-- MODAL ACTIONS -->
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="closeDeleteEquipmentModal()">
+        Cancel
+      </button>
+      <button class="confirm-btn" (click)="deleteEquipment()">
+        Delete Permanently
+      </button>
+    </div>
+  </div>
 </div>

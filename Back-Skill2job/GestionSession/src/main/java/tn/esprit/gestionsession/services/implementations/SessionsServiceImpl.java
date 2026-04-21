@@ -1,10 +1,13 @@
 package tn.esprit.gestionsession.services.implementations;
 
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import tn.esprit.gestionsession.clients.FormationClient;
 import tn.esprit.gestionsession.clients.UserClient;
+import tn.esprit.gestionsession.dto.FormationDTO;
 import tn.esprit.gestionsession.dto.UserDTO;
 import tn.esprit.gestionsession.entities.*;
 import tn.esprit.gestionsession.repositories.*;
@@ -12,8 +15,8 @@ import tn.esprit.gestionsession.services.interfaces.SessionsInterface;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Service
 public class SessionsServiceImpl implements SessionsInterface {
@@ -24,6 +27,7 @@ public class SessionsServiceImpl implements SessionsInterface {
     private final UserClient userClient;
     private final SimpMessagingTemplate messagingTemplate;
     private final RoomRepository roomRepository;
+    private final FormationClient formationClient;
 
     @Autowired
     public SessionsServiceImpl(
@@ -32,7 +36,8 @@ public class SessionsServiceImpl implements SessionsInterface {
             SessionEquipmentRepository sessionEquipmentRepository,
             UserClient userClient,
             SimpMessagingTemplate messagingTemplate,
-            RoomRepository roomRepository
+            RoomRepository roomRepository,
+            FormationClient formationClient
     ) {
         this.sessionsRepository = sessionsRepository;
         this.equipmentRepository = equipmentRepository;
@@ -40,37 +45,49 @@ public class SessionsServiceImpl implements SessionsInterface {
         this.userClient = userClient;
         this.messagingTemplate = messagingTemplate;
         this.roomRepository = roomRepository;
-
+        this.formationClient = formationClient;
     }
 
     @Override
     @Transactional
     public Sessions addSession(Sessions session) {
 
+        // ── Validate formationId exists in formation-service ──────
+        if (session.getFormationId() != null) {
+            try {
+                FormationDTO formation = formationClient.getFormationById(session.getFormationId());
+                if (formation == null) {
+                    throw new RuntimeException("Formation not found with id: " + session.getFormationId());
+                }
+            } catch (FeignException.NotFound e) {
+                throw new RuntimeException("Formation not found with id: " + session.getFormationId());
+            } catch (FeignException e) {
+                throw new RuntimeException("Could not reach formation-service: " + e.getMessage());
+            }
+        }
+
+        // ── Duration check ────────────────────────────────────────
         LocalDateTime start = session.getStartAt();
         LocalDateTime end   = session.getEndAt();
 
         long minutes = java.time.Duration.between(start, end).toMinutes();
-
         if (minutes <= 0 || minutes > 120) {
             throw new RuntimeException("Session cannot exceed 2 hours");
         }
 
+        // ── ONLINE: create room ───────────────────────────────────
         if (session.getType() == SessionType.ONLINE) {
-
             Room room = new Room();
             room.setRoomCode(UUID.randomUUID().toString());
             room.setMeetingLink("http://localhost:4200/live/" + room.getRoomCode());
             room.setStartAt(start);
             room.setEndAt(end);
-
-            // SAVE ROOM FIRST ✅
             roomRepository.save(room);
-
             room.setSession(session);
             session.setRoom(room);
         }
 
+        // ── ONSITE: check salle + equipment ──────────────────────
         if (session.getType() == SessionType.ONSITE) {
             if (session.getSalle() == null) {
                 throw new RuntimeException("OFFLINE session must have a salle");
@@ -88,7 +105,6 @@ public class SessionsServiceImpl implements SessionsInterface {
 
             if (session.getSessionEquipments() != null) {
                 for (SessionEquipment se : session.getSessionEquipments()) {
-
                     Equipment equipment = equipmentRepository.findById(se.getEquipment().getId())
                             .orElseThrow(() -> new RuntimeException("Equipment not found"));
 
@@ -96,13 +112,11 @@ public class SessionsServiceImpl implements SessionsInterface {
                             equipment.getId(), start, end);
 
                     int available = equipment.getQuantity() - reserved;
-
                     if (se.getQuantityUsed() > available) {
                         throw new RuntimeException(
                                 equipment.getName() + " only " + available + " available during this time"
                         );
                     }
-
                     se.setSession(session);
                 }
             }
@@ -137,31 +151,23 @@ public class SessionsServiceImpl implements SessionsInterface {
         return sessionsRepository.findAllWithRoomAndSalle();
     }
 
-    // ✅ FIXED - uses native INSERT + countParticipant to bypass Hibernate cache
     @Override
     @Transactional
     public Sessions joinSession(Long sessionId, Long userId) {
-
         boolean alreadyJoined = sessionsRepository.countParticipant(sessionId, userId) > 0;
-
         if (alreadyJoined) {
             return sessionsRepository.findById(sessionId)
                     .orElseThrow(() -> new RuntimeException("Session not found"));
         }
-
         sessionsRepository.addParticipant(sessionId, userId);
-
         return sessionsRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
     }
 
-    // ✅ FIXED - uses native DELETE + countParticipant to bypass Hibernate cache
     @Override
     @Transactional
     public Sessions leaveSession(Long sessionId, Long userId) {
-
         boolean isJoined = sessionsRepository.countParticipant(sessionId, userId) > 0;
-
         if (!isJoined) {
             throw new RuntimeException("User is not in this session");
         }
@@ -176,7 +182,7 @@ public class SessionsServiceImpl implements SessionsInterface {
                     "/topic/room/" + session.getRoom().getRoomCode(),
                     java.util.Map.of(
                             "type", "LEAVE",
-                            "username", java.util.Optional.ofNullable(userClient.getUserById(userId))
+                            "username", Optional.ofNullable(userClient.getUserById(userId))
                                     .map(UserDTO::getUsername)
                                     .orElse("unknown")
                     )

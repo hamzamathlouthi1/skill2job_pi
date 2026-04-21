@@ -72,7 +72,6 @@
   transform: translateY(0);
 }
 
-/* PC Button variant */
 .pc-btn {
   background: #c22b33 !important;
 }
@@ -81,7 +80,6 @@
   background: #a1252b !important;
 }
 
-/* Green variant (if needed) */
 .add-btn.green-btn {
   background: #16a34a !important;
   box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
@@ -145,38 +143,76 @@
   gap: 30px;
 }
 
-/* ---------- Map Container ---------- */
+/* ---------- Main Map ---------- */
 .blocs-map {
   width: 100%;
-  height: 420px; /* necessary for Leaflet to display */
+  height: 420px;
   border-radius: 16px;
   overflow: hidden;
   margin-bottom: 24px;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 2px solid rgba(185, 28, 28, 0.2);
+  box-shadow: 0 12px 30px rgba(185, 28, 28, 0.08);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  /* Leaflet needs a non-zero z-index context */
+  position: relative;
+  z-index: 1;
 }
 
-/* Modal map used to pick location */
+.blocs-map:hover {
+  border-color: #b91c1c;
+  box-shadow: 0 20px 40px rgba(185, 28, 28, 0.12);
+}
+
+/* ---------- Modal Map (pick location) ---------- */
 .modal-map {
-  width: 100%;
-  height: 300px;
+  width: 100% !important;
+  height: 320px !important;
+  display: block;
   border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.06);
-  margin-top: 8px;
+  border: 2px solid #e2e8f0;
+  margin-top: 12px;
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.08);
+  overflow: hidden;
+  position: relative;
+  background: #f8fafc;
+  /* Must be above the modal content but below modal overlay */
+  z-index: 10;
+}
+
+/* Ensure Leaflet container fills the wrapper */
+.modal-map .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .form-group .hint {
   font-size: 12px;
   color: #64748b;
-  margin-top: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+  border-radius: 6px;
 }
 
-/* Location view map (read-only) */
+/* ---------- Location View Map (read-only) ---------- */
 .location-view-map {
-  width: 100%;
-  height: 350px;
+  width: 100% !important;
+  height: 380px !important;
+  display: block;
   border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 2px solid #e2e8f0;
   margin: 20px 0;
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.08);
+  overflow: hidden;
+  position: relative;
+  background: #f8fafc;
+  z-index: 10;
+}
+
+.location-view-map .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .location-modal .location-text {
@@ -205,7 +241,6 @@
   transition: all 0.3s ease;
 }
 
-/* Red gradient overlay on hover */
 .bloc-card::after {
   content: "";
   position: absolute;
@@ -230,7 +265,7 @@
   border-color: rgba(185, 28, 28, 0.2);
 }
 
-/* ---------- Card Header (Image Container) ---------- */
+/* ---------- Card Header ---------- */
 .card-header {
   height: 140px;
   background: linear-gradient(135deg, #b91c1c, #c22b33);
@@ -326,6 +361,7 @@
 .salles-label {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   color: #b91c1c;
   font-size: 14px;
@@ -334,33 +370,38 @@
   letter-spacing: 0.3px;
   background: rgba(185, 28, 28, 0.05);
   padding: 8px 12px;
-  border-radius: 40px;
-  width: fit-content;
+  border-radius: 8px;
+  width: 100%;
   margin-bottom: 12px;
+}
+
+.add-salle-btn {
+  background: #b91c1c;
+  color: white;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: none;
+  letter-spacing: normal;
+  margin-left: auto;
+}
+
+.add-salle-btn:hover {
+  background: #991b1b;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.3);
 }
 
 .salles-label::before {
   content: "🚪";
   font-size: 14px;
-}
-
-.salles-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.salles-list li {
-  padding: 8px 12px;
-  margin-bottom: 6px;
-  background: #f8fafc;
-  border-left: 3px solid #b91c1c;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #1e1e1e;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .salle-name {
@@ -375,6 +416,43 @@
   color: #b91c1c;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.salle-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.salle-edit-btn, .salle-delete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  color: #b91c1c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.salle-edit-btn:hover {
+  background: #b91c1c;
+  color: white;
+  transform: rotate(360deg) scale(1.15);
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.3);
+}
+
+.salle-delete-btn:hover {
+  background: #b91c1c;
+  color: white;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.3);
 }
 
 .no-salles {
@@ -438,9 +516,10 @@
   animation: modalZoom 0.3s cubic-bezier(0.17, 0.67, 0.21, 1);
   max-height: 90vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Red glow border */
 .modal-card::before {
   content: "";
   position: absolute;
@@ -454,7 +533,6 @@
   opacity: 0.35;
 }
 
-/* Delete modal specific */
 .modal-card.delete-modal {
   width: 400px;
 }
@@ -498,9 +576,16 @@
 }
 
 /* ---------- Form Styles ---------- */
+form {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .form-group {
   margin-bottom: 20px;
   text-align: left;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group label {
@@ -575,7 +660,6 @@
   gap: 6px;
 }
 
-/* Cancel Button */
 .modal-actions .cancel-btn {
   background: white;
   color: #64748b;
@@ -588,7 +672,6 @@
   border-color: #cbd5e1;
 }
 
-/* Save Button */
 .modal-actions .save-btn {
   background: #b91c1c;
   color: white;
@@ -606,7 +689,6 @@
   cursor: not-allowed;
 }
 
-/* Confirm Delete Button */
 .modal-actions .confirm-btn {
   background: #b91c1c;
   color: white;
@@ -676,159 +758,19 @@
   background: #991b1b;
 }
 
-/* ---------- Animations ---------- */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+/* ---------- Leaflet z-index fixes inside modal ---------- */
+.modal-overlay .leaflet-pane,
+.modal-overlay .leaflet-shadow-pane,
+.modal-overlay .leaflet-marker-pane,
+.modal-overlay .leaflet-popup-pane {
+  z-index: inherit !important;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.modal-overlay .leaflet-popup {
+  z-index: 1000 !important;
 }
 
-@keyframes modalZoom {
-  from {
-    opacity: 0;
-    transform: scale(0.8) translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* ---------- Responsive Design ---------- */
-@media (max-width: 768px) {
-  .blocs-page {
-    margin-left: 0;
-    width: 100%;
-    margin-top: 80px;
-    padding: 20px;
-  }
-
-  .blocs-header {
-    flex-direction: column;
-    gap: 15px;
-    align-items: stretch;
-  }
-
-  .blocs-header h2 {
-    font-size: 24px;
-  }
-
-  .header-actions {
-    flex-direction: column;
-  }
-
-  .blocs-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .modal-card {
-    width: 95%;
-    padding: 24px;
-  }
-
-  .modal-actions {
-    flex-direction: column;
-  }
-
-  .modal-actions button {
-    width: 100%;
-  }
-}
-
-/* ---------- Small Mobile ---------- */
-@media (max-width: 480px) {
-  .blocs-page {
-    padding: 16px;
-  }
-
-  .modal-card {
-    padding: 20px;
-  }
-
-  .modal-card h2 {
-    font-size: 20px;
-  }
-
-  .card-header {
-    height: 120px;
-  }
-
-  .card-header-content h3 {
-    font-size: 20px;
-  }
-
-  .card-actions {
-    top: 8px;
-    right: 8px;
-  }
-
-  .edit-btn, .delete-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
-  }
-
-  .salles-list li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .salle-capacity {
-    align-self: flex-start;
-  }
-}
-
-/* ---------- Tooltip Style ---------- */
-[title] {
-  position: relative;
-}
-
-[title]:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1e293b;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  white-space: nowrap;
-  z-index: 1000;
-  margin-bottom: 5px;
-}
-/* Map Styles */
-.blocs-map {
-  height: 400px;
-  width: 100%;
-  border-radius: 24px;
-  margin-bottom: 30px;
-  border: 2px solid rgba(185, 28, 28, 0.2);
-  box-shadow: 0 12px 30px rgba(185, 28, 28, 0.08);
-  transition: all 0.3s ease;
-  z-index: 1;
-}
-
-.blocs-map:hover {
-  border-color: #b91c1c;
-  box-shadow: 0 20px 40px rgba(185, 28, 28, 0.12);
-}
-
-.hint {
-  display: block;
-  margin-top: 8px;
-  font-size: 12px;
-  color: #64748b;
-  font-style: italic;
-}
-
-/* Leaflet Popup Customization */
+/* ---------- Leaflet Popup Customization ---------- */
 ::ng-deep .leaflet-popup-content-wrapper {
   border-radius: 16px;
   background: white;
@@ -847,24 +789,31 @@
   border: 1px solid rgba(185, 28, 28, 0.2);
 }
 
-::ng-deep .leaflet-container a.leaflet-popup-close-button {
-  color: #b91c1c;
-  top: 8px;
-  right: 8px;
+::ng-deep .leaflet-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .blocs-map {
-    height: 300px;
-  }
-  
-  .modal-map {
-    height: 200px;
-  }
+::ng-deep .bloc-marker-tooltip {
+  background: linear-gradient(135deg, #b91c1c, #c22b33) !important;
+  color: white !important;
+  border: 2px solid white !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4) !important;
+  white-space: nowrap;
 }
 
-/* Location View Modal Specific Styles */
+::ng-deep .bloc-marker-tooltip::before {
+  border-top-color: #b91c1c !important;
+  border-left-color: #b91c1c !important;
+  filter: drop-shadow(-1px -1px 1px rgba(0, 0, 0, 0.1));
+}
+
+/* ---------- Location Modal ---------- */
 .location-modal {
   width: 600px !important;
   max-width: 95%;
@@ -885,7 +834,7 @@
   word-break: break-word;
 }
 
-/* Salle Items Styling */
+/* ---------- Salle Items ---------- */
 .salle-item {
   display: flex;
   justify-content: space-between;
@@ -941,24 +890,7 @@
   color: #856404;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .location-view-map {
-    height: 250px;
-  }
-  
-  .salle-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .status-badge {
-    align-self: flex-start;
-  }
-}
-
-/* Map loading state */
+/* ---------- Map Loading State ---------- */
 .map-loading {
   height: 350px;
   width: 100%;
@@ -982,4 +914,170 @@
   border-radius: 50%;
   border-top-color: #b91c1c;
   animation: spin 0.8s linear infinite;
+}
+
+.hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* ---------- Animations ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes modalZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ---------- Tooltip Style ---------- */
+[title] {
+  position: relative;
+}
+
+[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 5px;
+}
+
+/* ---------- Responsive Design ---------- */
+@media (max-width: 768px) {
+  .blocs-page {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 80px;
+    padding: 20px;
+  }
+
+  .blocs-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .blocs-header h2 {
+    font-size: 24px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .blocs-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .modal-card {
+    width: 95%;
+    padding: 24px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+
+  .blocs-map {
+    height: 300px;
+  }
+
+  .modal-map {
+    height: 200px !important;
+  }
+
+  .location-view-map {
+    height: 250px !important;
+  }
+
+  .salle-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .status-badge {
+    align-self: flex-start;
+  }
+}
+
+/* ---------- Small Mobile ---------- */
+@media (max-width: 480px) {
+  .blocs-page {
+    padding: 16px;
+  }
+
+  .modal-card {
+    padding: 20px;
+  }
+
+  .modal-card h2 {
+    font-size: 20px;
+  }
+
+  .card-header {
+    height: 120px;
+  }
+
+  .card-header-content h3 {
+    font-size: 20px;
+  }
+
+  .card-actions {
+    top: 8px;
+    right: 8px;
+  }
+
+  .edit-btn, .delete-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+/* ---------- Required Indicator ---------- */
+.required {
+  color: #b91c1c;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+/* ---------- Select Field Styling ---------- */
+.form-control[type="select"],
+select.form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b91c1c' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
 }

@@ -6,7 +6,6 @@ import { TrainerSessionsTableComponent } from './sessions/trainer-sessions-table
 import { LearnerSessionTableComponent } from './sessions/learner-sessions-table/learner-session-table.component';
 import { BlocsComponent } from './blocs/blocs.component';
 import { EquipmentTableComponent } from './equipment/equipment-table/equipment-table.component';
-import { EquipmentFormComponent } from './equipment/equipment-form/equipment-form.component';
 import { PcSearchComponent } from './equipment/pc-search/pc-search.component';
 import { SalleTableComponent } from './salle/salle-table/salle-table.component';
 import { SalleFormComponent } from './salle/salle-form/salle-form.component';
@@ -16,8 +15,6 @@ const routes: Routes = [
   { path: '', component: SessionsTableComponent },               // default admin sessions page
   { path: 'trainer', component: TrainerSessionsTableComponent }, // trainer-specific view
   { path: 'learner', component: LearnerSessionTableComponent },  // learner-specific view
-  { path: 'equipments/add', component: EquipmentFormComponent },       // /admin/sessions/equipments/add
-  { path: 'equipments/edit/:id', component: EquipmentFormComponent }, // /admin/sessions/equipments/edit/:id
   { path: 'equipments', component: EquipmentTableComponent },    // /admin/sessions/equipments
   { path: 'rooms/add', component: SalleFormComponent },              // /admin/sessions/rooms/add
   { path: 'rooms/edit/:id', component: SalleFormComponent },     // /admin/sessions/rooms/edit/:id

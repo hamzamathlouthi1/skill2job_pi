@@ -19,7 +19,6 @@ import { BlocsComponent } from './blocs/blocs.component';
 
 // equipments
 import { EquipmentTableComponent } from './equipment/equipment-table/equipment-table.component';
-import { EquipmentFormComponent } from './equipment/equipment-form/equipment-form.component';
 import { TrainerEquipmentTableComponent } from './equipment/trainer-equipments-table/trainer-equipments-table.component';
 import { PcSearchComponent } from './equipment/pc-search/pc-search.component';
 
@@ -44,7 +43,6 @@ import { TrainerRoomsComponent } from './rooms/trainer-rooms/trainer-rooms.compo
     SessionsTableComponent,
     BlocsComponent,
     EquipmentTableComponent,
-    EquipmentFormComponent,
     PcSearchComponent,
     SalleTableComponent,
     SalleFormComponent,

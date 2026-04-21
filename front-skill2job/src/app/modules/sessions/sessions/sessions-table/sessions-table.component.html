@@ -159,6 +159,20 @@
               <span class="error-message" *ngIf="errors['salleId']">{{ errors['salleId'] }}</span>
             </div>
           </div>
+
+          <!-- TRAINING COURSE SELECTION -->
+          <div class="form-section">
+            <label>Training Course</label>
+            <div class="select-wrapper">
+              <select [(ngModel)]="newSession.formationId" name="formation">
+                <option [ngValue]="null">Select a training course (optional)</option>
+                <option *ngFor="let formation of formations" [ngValue]="formation.id">
+                  {{ formation.title }}
+                </option>
+              </select>
+              <span class="select-arrow">▼</span>
+            </div>
+          </div>
         </div>
       </div>
 

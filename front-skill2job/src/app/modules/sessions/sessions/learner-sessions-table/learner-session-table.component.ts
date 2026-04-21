@@ -141,17 +141,22 @@ export class LearnerSessionTableComponent implements OnInit {
     this.sessionsService.joinSession(session.id!).subscribe({
       next: (updatedSession: any) => {
         this.loading = false;
-        this.loadSessions();
 
-        // Fetch full session to get roomCode
+        // Fetch full session to get roomCode and redirect to live meet
         this.sessionsService.getSessionById(updatedSession.id!).subscribe({
           next: (fullSession: any) => {
             if (fullSession.type === 'ONLINE' && fullSession.room?.roomCode) {
+              // Navigate to live meet component immediately
               this.router.navigate(['/live', fullSession.id, fullSession.room.roomCode]);
+            } else {
+              // For non-online sessions, just reload
+              this.loadSessions();
             }
           },
           error: (err) => {
             console.error('Error fetching session details:', err);
+            this.loading = false;
+            this.loadSessions();
           }
         });
       },

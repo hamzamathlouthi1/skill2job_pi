@@ -1,9 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../modules/services/auth.service';
+import { NotificationsBellComponent } from '../notifications-bell/notifications-bell.component';
 
 @Component({
   selector: 'app-user-layout',
+  standalone: true,
+  imports: [CommonModule, RouterModule, NotificationsBellComponent],
   templateUrl: './user-layout.component.html',
   styleUrls: ['./user-layout.component.scss']
 })

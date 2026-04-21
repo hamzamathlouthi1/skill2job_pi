@@ -12,6 +12,7 @@ import { NotificationService } from '../../../services/notification.service';
 import { SalleService } from '../../../services/salle.service';
 import { EquipmentService } from '../../../services/equipment.service';
 import { AuthService, JwtResponse } from '../../../services/auth.service';
+import { TrainingCourseService } from '../../../training-courses/services/training-course.service';
 import { Session } from '../../../models/session.model';
 import { Equipment } from '../../../models/equipment.model';
 import { SessionEquipment } from '../../../models/session-equipment.model';
@@ -34,6 +35,7 @@ import { SessionEquipment } from '../../../models/session-equipment.model';
 export class SessionsTableComponent implements OnInit {
   sessions: Session[] = [];
   salles: any[] = [];
+  formations: any[] = [];
   equipments: Equipment[] = [];
   availableEquipments: Equipment[] = [];
   selectedSession: Session | null = null;
@@ -69,6 +71,7 @@ export class SessionsTableComponent implements OnInit {
     endAt: null,
     capacity: 0,
     salleId: null,
+    formationId: null,
     trainerId: null,
     sessionEquipments: [] as SessionEquipment[]
   };
@@ -80,6 +83,7 @@ export class SessionsTableComponent implements OnInit {
     private notify: NotificationService,
     private salleService: SalleService,
     private equipmentService: EquipmentService,
+    private trainingCourseService: TrainingCourseService,
     private authService: AuthService
   ) {}
 
@@ -104,6 +108,7 @@ export class SessionsTableComponent implements OnInit {
     // admin and other roles continue in this component
     this.loadSessions();
     this.loadSalles();
+    this.loadFormations();
     this.loadEquipments();
     this.availableEquipments = [...this.equipments];
   }
@@ -183,6 +188,14 @@ export class SessionsTableComponent implements OnInit {
         this.equipments = data;
         this.availableEquipments = [...data];
       }
+    });
+  }
+
+  // LOAD ALL TRAINING COURSES (FORMATIONS)
+  loadFormations() {
+    this.trainingCourseService.getAll().subscribe({
+      next: (data: any[]) => this.formations = data,
+      error: (err: any) => console.error('Error loading formations:', err)
     });
   }
 
@@ -279,6 +292,7 @@ export class SessionsTableComponent implements OnInit {
       endAt: session.endAt,
       capacity: session.capacity,
       salleId: session.salle?.id ?? null,
+      formationId: (session as any).formationId ?? null,
       trainerId: session.user?.id ?? this.currentUserId,
       sessionEquipments: session.sessionEquipments
         ? session.sessionEquipments.map((se: SessionEquipment) => ({
@@ -340,6 +354,7 @@ export class SessionsTableComponent implements OnInit {
       endAt: null,
       capacity: 0,
       salleId: null,
+      formationId: null,
       trainerId: this.currentUserId, // CRITICAL: Set from current user
       sessionEquipments: []
     };
@@ -583,6 +598,11 @@ export class SessionsTableComponent implements OnInit {
   // Add salle for onsite sessions
   if (this.newSession.type === 'ONSITE' && this.newSession.salleId) {
     payload.salle = { id: this.newSession.salleId };
+  }
+
+  // Add formation if selected
+  if (this.newSession.formationId) {
+    payload.formationId = this.newSession.formationId;
   }
 
   console.log('Saving session with payload:', payload);

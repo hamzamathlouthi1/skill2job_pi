@@ -68,7 +68,7 @@
           <span class="label-row">
             <span>📝 Motivation</span>
             <span class="hint" [class.good]="isMotivationValid" [class.bad]="motivation && !isMotivationValid">
-              {{ (motivation?.length || 0) }}/50 min
+              {{ (motivation.length || 0) }}/50 min
             </span>
           </span>
           <textarea class="textarea" rows="8"

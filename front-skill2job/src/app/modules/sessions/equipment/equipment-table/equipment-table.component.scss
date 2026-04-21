@@ -619,3 +619,180 @@
 .pc-btn {
   background: #c22b33;
 }
+
+/* ---------- Form Styles ---------- */
+.equipment-form {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.form-group label::after {
+  content: " *";
+  color: #b91c1c;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  background: #f8fafc;
+  font-family: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #b91c1c;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.1);
+}
+
+.form-control.ng-invalid.ng-touched {
+  border-color: #b91c1c;
+  background: #fff5f5;
+}
+
+.error-message {
+  color: #b91c1c;
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fff5f5;
+  border-radius: 8px;
+  border-left: 3px solid #b91c1c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.error-message::before {
+  content: "⚠️";
+  font-size: 14px;
+}
+
+/* Preview Image Styles */
+.preview-container {
+  margin: 16px 0;
+  text-align: center;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(185, 28, 28, 0.15);
+  border: 2px solid #e2e8f0;
+}
+
+/* ---------- Modal Delete Styles ---------- */
+.modal-card.delete-modal {
+  width: 400px;
+}
+
+.warning-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: warningBounce 0.6s ease;
+}
+
+.warning-message {
+  color: #b91c1c;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.warning-hint {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.modal-actions .confirm-btn {
+  background: #b91c1c;
+  color: white;
+  border: 2px solid #b91c1c;
+}
+
+.modal-actions .confirm-btn:hover {
+  background: #991b1b;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.35);
+}
+
+.modal-actions .cancel-btn {
+  background: white;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+}
+
+.modal-actions .cancel-btn:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+}
+
+.modal-actions .save-btn {
+  background: #b91c1c;
+  color: white;
+  border: 2px solid #b91c1c;
+}
+
+.modal-actions .save-btn:hover:not(:disabled) {
+  background: #991b1b;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.35);
+}
+
+.modal-actions .save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Animations ---------- */
+@keyframes warningBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalZoom {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

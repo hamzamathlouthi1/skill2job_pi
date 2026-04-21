@@ -106,7 +106,7 @@
       </textarea>
       <button class="chat-send"
               (click)="sendMessage()"
-              [disabled]="!newMessage?.trim() || sendingMessage">
+              [disabled]="!newMessage.trim() || sendingMessage">
         {{ sendingMessage ? '⏳' : '📨' }}
       </button>
     </div>

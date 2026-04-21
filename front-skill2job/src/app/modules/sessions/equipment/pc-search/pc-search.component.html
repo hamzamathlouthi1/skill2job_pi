@@ -39,15 +39,23 @@
 
     <h3 class="modal-title">Results</h3>
 
+    <!-- LOADING -->
     <div *ngIf="loading" class="loading">
-      Scraping laptops...
+      ⏳ Scraping laptops, please wait...
     </div>
 
-    <div *ngIf="!loading && offers.length === 0" class="empty">
-      No offers found.
+    <!-- ERROR -->
+    <div *ngIf="!loading && errorMessage" class="error">
+      ⚠️ {{ errorMessage }}
     </div>
 
-    <div class="cards" *ngIf="offers.length > 0">
+    <!-- EMPTY -->
+    <div *ngIf="!loading && !errorMessage && offers.length === 0" class="empty">
+      No offers found matching your criteria.
+    </div>
+
+    <!-- RESULTS -->
+    <div class="cards" *ngIf="!loading && offers.length > 0">
 
       <div class="card" *ngFor="let pc of offers">
 
@@ -60,7 +68,7 @@
         </div>
 
         <div class="price">
-          {{ pc.price }} DT
+          {{ pc.price | number:'1.0-3' }} DT
         </div>
 
         <div class="website">

@@ -22,6 +22,7 @@ export class CourseManagementComponent implements OnInit {
   selectedImage?: File | null = null;
   selectedPdf?: File | null = null;
   imagePreview: string | null = null;
+  environment = environment;
 
   constructor(private service: TrainingCourseService, private http: HttpClient, private router: Router) {}
   goToCourse(id: number) {
