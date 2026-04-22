@@ -24,17 +24,22 @@ export class TrainerMessagesComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const raw =
-      localStorage.getItem('trainer_user_id') || localStorage.getItem('userId');
-
-    if (raw && !isNaN(Number(raw))) {
-      this.userId = Number(raw);
-      this.loadApplication();
-    } else {
-      this.loading = false;
+  try {
+    const raw = localStorage.getItem('user');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      this.userId = parsed?.id || null;
     }
+  } catch {
+    this.userId = null;
   }
 
+  if (this.userId) {
+    this.loadApplication();
+  } else {
+    this.loading = false;
+  }
+}
   ngOnDestroy(): void {
     if (this.pollInterval) {
       clearInterval(this.pollInterval);

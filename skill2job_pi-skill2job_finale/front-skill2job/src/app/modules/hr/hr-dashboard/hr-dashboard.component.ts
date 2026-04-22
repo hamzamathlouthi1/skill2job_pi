@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HrService } from '../hr/services/hr.service';
+import { HrService } from '../services/hr.service';
 
 @Component({
   selector: 'app-hr-dashboard',
@@ -28,7 +28,7 @@ export class HrDashboardComponent implements OnInit {
     return Math.round((this.accepted / this.total) * 100);
   }
 
-  constructor(private hrService: HrService) {}
+  constructor(private hrService: HrService) { }
 
   ngOnInit(): void {
     this.hrService.getAllApplications().subscribe({

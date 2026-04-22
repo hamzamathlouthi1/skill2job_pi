@@ -1,11 +1,13 @@
 package tn.esprit.gestionuser.controllers;
 
+import tn.esprit.gestionuser.entities.SpinHistory;
 import tn.esprit.gestionuser.entities.Wallet;
 import tn.esprit.gestionuser.entities.WalletTransaction;
-import tn.esprit.gestionuser.entities.SpinHistory;
 import tn.esprit.gestionuser.services.WalletService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -14,96 +16,100 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/wallet")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class WalletController {
 
     private final WalletService walletService;
 
-    // ══════════════════════════════════════════════════════════════
-    // GET MY WALLET
-    // ══════════════════════════════════════════════════════════════
+    private String getUsername(Authentication auth) {
+        if (auth == null || auth.getName() == null || auth.getName().isBlank()) {
+            throw new RuntimeException("Unauthenticated — no username in security context");
+        }
+        return auth.getName();
+    }
+
     @GetMapping("/me")
     @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
-    public ResponseEntity<Wallet> getMyWallet(Authentication authentication) {
-        String username = authentication.getName();
-        Wallet wallet = walletService.getWalletByUsername(username);
-        return ResponseEntity.ok(wallet);
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // GET MY BALANCE
-    // ══════════════════════════════════════════════════════════════
-    @GetMapping("/balance")
-    @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Double>> getBalance(Authentication authentication) {
-        String username = authentication.getName();
-        Double balance = walletService.getBalance(username);
-        return ResponseEntity.ok(Map.of("balance", balance));
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // GET MY TRANSACTIONS
-    // ══════════════════════════════════════════════════════════════
-    @GetMapping("/transactions")
-    @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
-    public ResponseEntity<List<WalletTransaction>> getTransactions(Authentication authentication) {
-        String username = authentication.getName();
-        List<WalletTransaction> transactions = walletService.getTransactions(username);
-        return ResponseEntity.ok(transactions);
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // CHECK IF CAN SPIN TODAY
-    // ══════════════════════════════════════════════════════════════
-    @GetMapping("/can-spin")
-    @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Boolean>> canSpin(Authentication authentication) {
-        String username = authentication.getName();
-        boolean canSpin = walletService.canSpinToday(username);
-        return ResponseEntity.ok(Map.of("canSpin", canSpin));
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // SPIN THE WHEEL
-    // ══════════════════════════════════════════════════════════════
-    @PostMapping("/spin")
-    @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> spinWheel(Authentication authentication) {
+    public ResponseEntity<?> getMyWallet(Authentication auth) {
         try {
-            String username = authentication.getName();
-            Integer pointsWon = walletService.spinWheel(username);
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "pointsWon", pointsWon,
-                    "message", "You won " + pointsWon + " points! Keep spinning daily to earn more!"
-            ));
+            Wallet wallet = walletService.getWalletByUsername(getUsername(auth));
+            return ResponseEntity.ok(wallet);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "error", e.getMessage()
-            ));
+            log.error("GET /wallet/me failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // GET SPIN HISTORY
-
-
-    // ══════════════════════════════════════════════════════════════
-    @GetMapping("/spin-history")
+    @GetMapping("/balance")
     @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
-    public ResponseEntity<List<SpinHistory>> getSpinHistory(Authentication authentication) {
-        String username = authentication.getName();
-        List<SpinHistory> history = walletService.getSpinHistory(username);
-        return ResponseEntity.ok(history);
+    public ResponseEntity<?> getBalance(Authentication auth) {
+        try {
+            return ResponseEntity.ok(Map.of("balance", walletService.getBalance(getUsername(auth))));
+        } catch (Exception e) {
+            log.error("GET /wallet/balance failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // ADD CREDIT (ADMIN)
-    // ══════════════════════════════════════════════════════════════
+    @GetMapping("/transactions")
+    @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
+    public ResponseEntity<?> getTransactions(Authentication auth) {
+        try {
+            List<WalletTransaction> txs = walletService.getTransactions(getUsername(auth));
+            return ResponseEntity.ok(txs);
+        } catch (Exception e) {
+            log.error("GET /wallet/transactions failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/can-spin")
+    @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
+    public ResponseEntity<?> canSpin(Authentication auth) {
+        try {
+            return ResponseEntity.ok(Map.of("canSpin", walletService.canSpinToday(getUsername(auth))));
+        } catch (Exception e) {
+            log.error("GET /wallet/can-spin failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/spin")
+    @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
+    public ResponseEntity<?> spinWheel(Authentication auth) {
+        try {
+            Integer pointsWon = walletService.spinWheel(getUsername(auth));
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "pointsWon", pointsWon,
+                    "message", "You won " + pointsWon + " points!"));
+        } catch (Exception e) {
+            log.error("POST /wallet/spin failed: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/spin-history")
+    @PreAuthorize("hasAnyAuthority('ROLE_LEARNER', 'ROLE_ADMIN')")
+    public ResponseEntity<?> getSpinHistory(Authentication auth) {
+        try {
+            List<SpinHistory> history = walletService.getSpinHistory(getUsername(auth));
+            return ResponseEntity.ok(history);
+        } catch (Exception e) {
+            log.error("GET /wallet/spin-history failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/add-credit")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> addCredit(@RequestBody Map<String, Object> request) {
@@ -111,12 +117,10 @@ public class WalletController {
             String username = (String) request.get("username");
             Double amount = Double.valueOf(request.get("amount").toString());
             String description = (String) request.getOrDefault("description", "Credit added by admin");
-
-            walletService.credit(username, amount, description,
-                    tn.esprit.gestionuser.entities.WalletTransaction.TransactionType.CREDIT);
-
+            walletService.credit(username, amount, description, WalletTransaction.TransactionType.CREDIT);
             return ResponseEntity.ok(Map.of("message", "Credit added successfully"));
         } catch (Exception e) {
+            log.error("POST /wallet/add-credit failed: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }

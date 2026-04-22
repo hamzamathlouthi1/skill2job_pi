@@ -213,7 +213,7 @@ const routes: Routes = [
   {
     path: 'hr-dashboard',
     loadChildren: () =>
-      import('./modules/hr-dashboard/hr-dashboard.module').then(
+      import('./modules/hr/hr-dashboard/hr-dashboard.module').then(
         m => m.HrDashboardModule
       ),
     canActivate: [AuthGuard],
@@ -248,4 +248,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

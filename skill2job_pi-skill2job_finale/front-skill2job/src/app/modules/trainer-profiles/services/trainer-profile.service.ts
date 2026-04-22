@@ -14,6 +14,10 @@ export class TrainerProfileService {
     return this.http.get<any[]>(this.apiUrl);
   }
 
+  getMine(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/by-user/${userId}`);
+  }
+
   changeStatus(id: number, status: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${id}/status?status=${status}`, {});
   }

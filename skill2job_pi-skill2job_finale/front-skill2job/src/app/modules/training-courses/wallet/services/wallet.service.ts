@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
 
 // ✅ NO AuthService import — JwtInterceptor handles headers automatically
 
@@ -34,11 +33,10 @@ export interface SpinHistory {
 
 @Injectable({ providedIn: 'root' })
 export class WalletService {
-  private apiUrl = `${environment.apiUrl}/wallet`;
-
+  private apiUrl = 'http://localhost:8090/api/wallet';
   // ✅ Only HttpClient — NO AuthService, NO getAuthHeaders()
   // JwtInterceptor adds Bearer token automatically to every request
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getMyWallet(): Observable<Wallet> {
     return this.http.get<Wallet>(`${this.apiUrl}/me`);

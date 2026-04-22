@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class HrService {
   private baseUrl = 'http://localhost:8090/api/applications';
+  private trainerProfilesUrl = 'http://localhost:8090/api/admin/trainer-profiles';
 
   constructor(private http: HttpClient) {}
 
@@ -27,5 +28,18 @@ export class HrService {
 
   deleteApplication(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/${id}`);
+  }
+
+  createTrainerProfile(profile: {
+    userId: number;
+    mainSpeciality: string;
+    level: string;
+    status: string;
+  }): Observable<any> {
+    return this.http.post(this.trainerProfilesUrl, profile);
+  }
+
+  getTrainerProfileByUserId(userId: number): Observable<any> {
+    return this.http.get(`${this.trainerProfilesUrl}/by-user/${userId}`);
   }
 }

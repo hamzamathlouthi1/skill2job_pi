@@ -23,7 +23,7 @@ import { AuthModule } from './interfaces/auth/auth.module';
 import { ExamsBackModule } from './interfaces/exams-back/exams-back.module';
 import { TrainingCoursesModule } from './modules/training-courses/training-courses.module';
 import { HrModule } from './modules/hr/hr.module';
-import { HrDashboardModule } from './modules/hr-dashboard/hr-dashboard.module';
+import { HrDashboardModule } from './modules/hr/hr-dashboard/hr-dashboard.module';
 
 // Recruitment Module Imports
 import { TrainerPortalModule } from './interfaces/trainer-portal/trainer-portal.module';
@@ -60,4 +60,4 @@ import { TrainerPortalModule } from './interfaces/trainer-portal/trainer-portal.
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }

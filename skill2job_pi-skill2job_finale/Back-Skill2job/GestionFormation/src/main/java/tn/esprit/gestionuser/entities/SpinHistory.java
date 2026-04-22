@@ -28,13 +28,10 @@ public class SpinHistory {
     private Integer pointsWon;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt;   // ← was missing, caused ORDER BY crash
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (spinDate == null) {
-            spinDate = LocalDate.now();
-        }
     }
 }

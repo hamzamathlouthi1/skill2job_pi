@@ -31,13 +31,12 @@
 
 .content {
   position: relative;
-
   margin-left: 270px;
   margin-top: 0px;
   padding: 30px;
-
   height: calc(100vh - 120px);
   overflow: auto;
-
   background: transparent;
+  width: calc(100vw - 270px);
+  box-sizing: border-box;
 }

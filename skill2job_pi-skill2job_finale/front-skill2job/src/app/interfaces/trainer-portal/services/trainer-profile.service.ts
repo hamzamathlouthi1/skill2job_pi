@@ -1,24 +1,26 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, switchMap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TrainerProfileService {
-  private baseUrl = 'http://localhost:8090/api/trainer-profiles';
+  private baseUrl = 'http://localhost:8090/api/admin/trainer-profiles';
   private detailsUrl = 'http://localhost:8090/api/admin/trainer-details';
 
   constructor(private http: HttpClient) {}
 
   getMine(userId: number): Observable<any> {
-    const params = new HttpParams().set('userId', String(userId));
-    return this.http.get(`${this.baseUrl}/me`, { params });
+    return this.http.get(`${this.baseUrl}/by-user/${userId}`);
   }
 
   updateMyProfile(userId: number, profile: any): Observable<any> {
-    const params = new HttpParams().set('userId', String(userId));
-    return this.http.put(`${this.baseUrl}/me`, profile, { params });
+    return this.getMine(userId).pipe(
+      switchMap((existing: any) =>
+        this.http.put(`${this.baseUrl}/${existing.id}`, profile)
+      )
+    );
   }
 
   getDetailsByApplicationId(applicationId: number): Observable<any> {
