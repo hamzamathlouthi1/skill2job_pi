@@ -1,21 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import { EquipmentService } from '../../../services/equipment.service';
 import { Router } from '@angular/router';
 import { Equipment } from '../../../models/equipment.model';
 import { EquipmentReservation } from '../../../models/session-equipment.model';
 import { NotificationService } from '../../../services/notification.service';
+import { PcOffer } from '../../../models/pc-offer.model';
+import { PcService } from '../../../services/pc.service';
 
 @Component({
   selector: 'app-equipment-table',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './equipment-table.component.html',
   styleUrls: ['./equipment-table.component.scss']
 })
 export class EquipmentTableComponent implements OnInit {
+
   equipments: Equipment[] = [];
 
   // Form modal properties
@@ -31,11 +29,22 @@ export class EquipmentTableComponent implements OnInit {
   equipmentToDelete: Equipment | null = null;
   showDeleteEquipmentModal = false;
 
+  // ── PC Search modal ──────────────────────────────────────────
+  showPcModal = false;
+  pcOffers: PcOffer[] = [];
+  pcLoading = false;
+  pcErrorMessage = '';
+  pcStatusMessage = '';
+  maxPrice?: number;
+  minRam?: number;
+  // ────────────────────────────────────────────────────────────
+
   constructor(
     private equipmentService: EquipmentService,
     private router: Router,
-    private notify: NotificationService
-  ) {}
+    private notify: NotificationService,
+    private pcService: PcService
+  ) { }
 
   selectedEquipment: any = null;
   reservations: EquipmentReservation[] = [];
@@ -47,10 +56,10 @@ export class EquipmentTableComponent implements OnInit {
 
   loadEquipments() {
     this.equipmentService.getAllEquipments().subscribe({
-      next: data => {
+      next: (data) => {
         this.equipments = data;
       },
-      error: err => {
+      error: (err) => {
         console.error('Error loading equipments', err);
       }
     });
@@ -66,8 +75,7 @@ export class EquipmentTableComponent implements OnInit {
 
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
-    img.src =
-      'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="%23e2e8f0"/><text x="50%" y="50%" font-size="14" fill="%23666" text-anchor="middle" dominant-baseline="middle">No Image</text></svg>';
+    img.src = 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="%23e2e8f0"/><text x="50%" y="50%" font-size="14" fill="%23666" text-anchor="middle" dominant-baseline="middle">No Image</text></svg>';
   }
 
   getPhotoUrl(filename: string): string {
@@ -129,17 +137,12 @@ export class EquipmentTableComponent implements OnInit {
   }
 
   saveEquipment(): void {
-    if (
-      !this.currentEquipment.name ||
-      this.currentEquipment.quantity === undefined ||
-      this.currentEquipment.quantity === null
-    ) {
+    if (!this.currentEquipment.name || this.currentEquipment.quantity === undefined || this.currentEquipment.quantity === null) {
       this.error = 'Please fill all required fields';
       return;
     }
 
     if (this.isEditEquipmentMode && this.currentEquipment.id) {
-      // Update equipment
       const formData = new FormData();
       formData.append('name', this.currentEquipment.name);
       formData.append('quantity', this.currentEquipment.quantity.toString());
@@ -147,32 +150,24 @@ export class EquipmentTableComponent implements OnInit {
         formData.append('file', this.selectedFile);
       }
 
-      this.equipmentService
-        .updateWithPhoto(this.currentEquipment.id, formData)
-        .subscribe({
-          next: (updatedEquipment: Equipment) => {
-            const index = this.equipments.findIndex(
-              e => e.id === updatedEquipment.id
-            );
-            if (index !== -1) {
-              this.equipments[index] = updatedEquipment;
-            }
-            this.closeEquipmentModal();
-            this.error = null;
-            this.notify.success('Equipment updated successfully');
-          },
-          error: (err: any) => {
-            console.error('Error updating equipment:', err);
-            const errorMsg =
-              err?.error?.message ||
-              err?.message ||
-              'Failed to update equipment';
-            this.error = errorMsg;
-            this.notify.error(errorMsg);
+      this.equipmentService.updateWithPhoto(this.currentEquipment.id, formData).subscribe({
+        next: (updatedEquipment: Equipment) => {
+          const index = this.equipments.findIndex(e => e.id === updatedEquipment.id);
+          if (index !== -1) {
+            this.equipments[index] = updatedEquipment;
           }
-        });
+          this.closeEquipmentModal();
+          this.error = null;
+          this.notify.success('Equipment updated successfully');
+        },
+        error: (err: any) => {
+          console.error('Error updating equipment:', err);
+          const errorMsg = err?.error?.message || err?.message || 'Failed to update equipment';
+          this.error = errorMsg;
+          this.notify.error(errorMsg);
+        }
+      });
     } else {
-      // Add new equipment
       if (!this.selectedFile) {
         this.error = 'Please select an image';
         this.notify.error('Please select an image');
@@ -184,15 +179,8 @@ export class EquipmentTableComponent implements OnInit {
       formData.append('quantity', this.currentEquipment.quantity.toString());
       formData.append('file', this.selectedFile);
 
-      console.log('Adding equipment with FormData:', {
-        name: this.currentEquipment.name,
-        quantity: this.currentEquipment.quantity,
-        photoName: this.selectedFile?.name
-      });
-
       this.equipmentService.addWithPhoto(formData).subscribe({
         next: (newEquipment: Equipment) => {
-          console.log('Equipment added successfully:', newEquipment);
           this.equipments.push(newEquipment);
           this.closeEquipmentModal();
           this.error = null;
@@ -200,8 +188,7 @@ export class EquipmentTableComponent implements OnInit {
         },
         error: (err: any) => {
           console.error('Error adding equipment:', err);
-          const errorMsg =
-            err?.error?.message || err?.message || 'Failed to add equipment';
+          const errorMsg = err?.error?.message || err?.message || 'Failed to add equipment';
           this.error = errorMsg;
           this.notify.error(errorMsg);
         }
@@ -211,23 +198,19 @@ export class EquipmentTableComponent implements OnInit {
 
   deleteEquipment(): void {
     if (this.equipmentToDelete && this.equipmentToDelete.id) {
-      this.equipmentService
-        .deleteEquipment(this.equipmentToDelete.id)
-        .subscribe({
-          next: () => {
-            this.equipments = this.equipments.filter(
-              e => e.id !== this.equipmentToDelete?.id
-            );
-            this.closeDeleteEquipmentModal();
-            this.error = null;
-            this.notify.success('Equipment deleted successfully');
-          },
-          error: err => {
-            console.error('Error deleting equipment:', err);
-            this.error = err?.error?.message || 'Failed to delete equipment';
-            this.closeDeleteEquipmentModal();
-          }
-        });
+      this.equipmentService.deleteEquipment(this.equipmentToDelete.id).subscribe({
+        next: () => {
+          this.equipments = this.equipments.filter(e => e.id !== this.equipmentToDelete?.id);
+          this.closeDeleteEquipmentModal();
+          this.error = null;
+          this.notify.success('Equipment deleted successfully');
+        },
+        error: (err) => {
+          console.error('Error deleting equipment:', err);
+          this.error = err?.error?.message || 'Failed to delete equipment';
+          this.closeDeleteEquipmentModal();
+        }
+      });
     }
   }
 
@@ -240,16 +223,18 @@ export class EquipmentTableComponent implements OnInit {
   }
 
   openReservations(equipmentId: number) {
-    this.equipmentService.getReservations(equipmentId).subscribe({
-      next: data => {
-        this.reservations = data;
-        this.showReservationsModal = true;
-      },
-      error: err => {
-        console.error(err);
-        this.notify.error('Failed to load reservations');
-      }
-    });
+    this.equipmentService
+      .getReservations(equipmentId)
+      .subscribe({
+        next: (data) => {
+          this.reservations = data;
+          this.showReservationsModal = true;
+        },
+        error: (err) => {
+          console.error(err);
+          this.notify.error('Failed to load reservations');
+        }
+      });
   }
 
   closeReservations() {
@@ -261,5 +246,57 @@ export class EquipmentTableComponent implements OnInit {
     const startDate = new Date(start).getTime();
     const endDate = new Date(end).getTime();
     return Math.round((endDate - startDate) / 3600000);
+  }
+
+  // ───────────────────────────────────────────────────────────── PC SEARCH MODAL
+
+  openPcModal(): void {
+    this.showPcModal = true;
+    this.pcOffers = [];
+    this.pcErrorMessage = '';
+    this.pcStatusMessage = '';
+    this.pcLoading = false;
+  }
+
+  closePcModal(): void {
+    this.showPcModal = false;
+    this.pcOffers = [];
+    this.pcErrorMessage = '';
+    this.pcStatusMessage = '';
+  }
+
+  searchPcs(): void {
+    if (this.maxPrice !== undefined && this.maxPrice !== null && this.maxPrice < 0) {
+      this.pcErrorMessage = 'Please enter a valid price';
+      return;
+    }
+
+    this.pcOffers = [];
+    this.pcErrorMessage = '';
+    this.pcStatusMessage = 'Searching for laptops... This may take a moment.';
+    this.pcLoading = true;
+
+    this.pcService.getOffers(this.maxPrice, this.minRam).subscribe({
+      next: (data) => {
+        this.pcOffers = data;
+        this.pcLoading = false;
+        this.pcStatusMessage = data.length === 0 ? 'No laptops found matching your criteria.' : '';
+      },
+      error: (err) => {
+        console.error('PC search error:', err);
+        this.pcLoading = false;
+        this.pcStatusMessage = '';
+
+        let errorMsg = 'An error occurred while fetching laptops. Please try again.';
+        if (err.error) {
+          errorMsg = typeof err.error === 'string' ? err.error : (err.error.error || errorMsg);
+        }
+        if (err.status === 0) errorMsg = 'Cannot connect to server. Make sure the backend is running.';
+        else if (err.status === 500) errorMsg = 'Server error: ' + (err.error?.error || 'Scraping failed');
+        else if (err.status === 503) errorMsg = 'Server temporarily unavailable. Please try again later.';
+
+        this.pcErrorMessage = errorMsg;
+      }
+    });
   }
 }

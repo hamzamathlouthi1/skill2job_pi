@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SalleService } from '../../../services/salle.service';
 import { BlocService } from '../../../services/blocs.service';
 import { Salle } from '../../../models/salle.model';
@@ -9,8 +7,6 @@ import { Bloc } from '../../../models/blocs.model';
 
 @Component({
   selector: 'app-salle-form',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './salle-form.component.html',
   styleUrls: ['./salle-form.component.scss']
 })

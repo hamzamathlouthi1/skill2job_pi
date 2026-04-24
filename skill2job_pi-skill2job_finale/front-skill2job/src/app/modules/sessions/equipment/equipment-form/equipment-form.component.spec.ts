@@ -12,21 +12,11 @@ describe('EquipmentFormComponent', () => {
   let equipmentServiceSpy: jasmine.SpyObj<EquipmentService>;
 
   beforeEach(async () => {
-    equipmentServiceSpy = jasmine.createSpyObj('EquipmentService', [
-      'getById',
-      'add',
-      'addWithPhoto',
-      'updateWithPhoto',
-      'getPhotoUrl'
-    ]);
+    equipmentServiceSpy = jasmine.createSpyObj('EquipmentService', ['getById', 'add', 'addWithPhoto', 'updateWithPhoto', 'getPhotoUrl']);
     equipmentServiceSpy.getById.and.returnValue(of({ name: '', quantity: 0 }));
 
     await TestBed.configureTestingModule({
-      imports: [
-        EquipmentFormComponent,
-        HttpClientTestingModule,
-        RouterTestingModule
-      ],
+      imports: [EquipmentFormComponent, HttpClientTestingModule, RouterTestingModule],
       providers: [
         { provide: EquipmentService, useValue: equipmentServiceSpy },
         {
@@ -36,7 +26,8 @@ describe('EquipmentFormComponent', () => {
           }
         }
       ]
-    }).compileComponents();
+    })
+      .compileComponents();
 
     fixture = TestBed.createComponent(EquipmentFormComponent);
     component = fixture.componentInstance;
@@ -47,3 +38,4 @@ describe('EquipmentFormComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

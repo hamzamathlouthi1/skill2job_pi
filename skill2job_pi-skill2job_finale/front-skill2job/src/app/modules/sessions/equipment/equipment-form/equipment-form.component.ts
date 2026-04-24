@@ -1,17 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { EquipmentService } from '../../../services/equipment.service';
 
 @Component({
   selector: 'app-equipment-form',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './equipment-form.component.html',
   styleUrls: ['./equipment-form.component.scss']
 })
 export class EquipmentFormComponent implements OnInit {
+
   name = '';
   quantity = 0;
   selectedFile!: File;
@@ -24,7 +21,7 @@ export class EquipmentFormComponent implements OnInit {
     private equipmentService: EquipmentService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // check if edit mode
@@ -86,7 +83,7 @@ export class EquipmentFormComponent implements OnInit {
           console.log('Equipment created without photo');
           this.router.navigate(['/trainer-sessions/equipments']);
         },
-        error: err => {
+        error: (err) => {
           console.error(err);
           alert('Failed to create equipment');
         }
@@ -104,30 +101,43 @@ export class EquipmentFormComponent implements OnInit {
 
     // ADD
     if (!this.isEdit) {
+
       this.equipmentService.addWithPhoto(formData).subscribe({
+
         next: () => {
-          console.log('Equipment created');
+
+          console.log("Equipment created");
 
           // ✅ correct redirect
           this.router.navigate(['/trainer-sessions/equipments']);
+
         },
 
         error: err => console.error(err)
+
       });
+
     }
 
     // EDIT
     else {
+
       this.equipmentService.updateWithPhoto(this.id, formData).subscribe({
+
         next: () => {
-          console.log('Equipment updated');
+
+          console.log("Equipment updated");
 
           // ✅ correct redirect
           this.router.navigate(['/trainer-sessions/equipments']);
+
         },
 
         error: err => console.error(err)
+
       });
+
     }
+
   }
 }

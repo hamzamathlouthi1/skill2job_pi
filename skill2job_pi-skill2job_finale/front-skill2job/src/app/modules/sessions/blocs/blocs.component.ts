@@ -1,7 +1,4 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import * as L from 'leaflet';
 import { Bloc } from '../../models/blocs.model';
 import { BlocService } from '../../services/blocs.service';
@@ -10,8 +7,6 @@ import { Salle } from '../../models/salle.model';
 
 @Component({
   selector: 'app-blocs',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './blocs.component.html',
   styleUrls: ['./blocs.component.css']
 })
@@ -52,10 +47,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
   salleToDelete: Salle | null = null;
   showDeleteSalleModal = false;
 
-  constructor(
-    private blocService: BlocService,
-    private salleService: SalleService
-  ) {}
+  constructor(private blocService: BlocService, private salleService: SalleService) { }
 
   ngOnInit(): void {
     this.loadBlocs();
@@ -66,12 +58,9 @@ export class BlocsComponent implements OnInit, AfterViewInit {
   }
 
   private configureLeafletIcons() {
-    const ICON_RETINA_URL =
-      'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
-    const ICON_URL =
-      'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png';
-    const SHADOW_URL =
-      'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png';
+    const ICON_RETINA_URL = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
+    const ICON_URL = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png';
+    const SHADOW_URL = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png';
 
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: ICON_RETINA_URL,
@@ -101,17 +90,16 @@ export class BlocsComponent implements OnInit, AfterViewInit {
   loadBlocs(): void {
     this.loading = true;
     this.blocService.getAll().subscribe({
-      next: data => {
+      next: (data) => {
         this.blocs = data || [];
         this.error = null;
         this.loading = false;
         this.populateSalles();
       },
-      error: err => {
+      error: (err) => {
         console.error('Error loading blocs:', err);
         if (err && err.status) {
-          this.error = `Error ${err.status} ${err.statusText ||
-            ''} - ${err.message || 'Server error'}`;
+          this.error = `Error ${err.status} ${err.statusText || ''} - ${err.message || 'Server error'}`;
         } else {
           this.error = err?.message || 'Failed to load blocs';
         }
@@ -124,9 +112,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
     this.configureLeafletIcons();
 
     if (this.map) {
-      try {
-        this.map.remove();
-      } catch (e) {}
+      try { this.map.remove(); } catch (e) { }
     }
 
     const mapElement = document.getElementById('blocsMap');
@@ -141,9 +127,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
     this.addMarkers();
 
     setTimeout(() => {
-      try {
-        this.map.invalidateSize({ animate: false, pan: false });
-      } catch (e) {}
+      try { this.map.invalidateSize({ animate: false, pan: false }); } catch (e) { }
     }, 100);
   }
 
@@ -153,9 +137,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
 
     // Destroy existing modal map
     if (this.modalMap) {
-      try {
-        this.modalMap.remove();
-      } catch (e) {}
+      try { this.modalMap.remove(); } catch (e) { }
       this.modalMap = undefined;
       this.modalMarker = undefined;
     }
@@ -193,15 +175,13 @@ export class BlocsComponent implements OnInit, AfterViewInit {
         this.modalMap.setView([coords[0], coords[1]], 15);
         this.forceMapResize(this.modalMap);
       } else {
-        this.forwardGeocode(this.currentBloc.location)
-          .then(res => {
-            if (res && this.modalMap) {
-              this.placeModalMarker(res.lat, res.lon);
-              this.modalMap.setView([res.lat, res.lon], 15);
-              this.forceMapResize(this.modalMap);
-            }
-          })
-          .catch(() => {});
+        this.forwardGeocode(this.currentBloc.location).then(res => {
+          if (res && this.modalMap) {
+            this.placeModalMarker(res.lat, res.lon);
+            this.modalMap.setView([res.lat, res.lon], 15);
+            this.forceMapResize(this.modalMap);
+          }
+        }).catch(() => { });
       }
     }
 
@@ -212,23 +192,17 @@ export class BlocsComponent implements OnInit, AfterViewInit {
 
       this.placeModalMarker(clickLat, clickLng);
 
-      fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${clickLat}&lon=${clickLng}`
-      )
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${clickLat}&lon=${clickLng}`)
         .then(r => r.json())
         .then(data => {
           if (data && data.display_name) {
             this.currentBloc.location = data.display_name;
           } else {
-            this.currentBloc.location = `${clickLat.toFixed(
-              6
-            )}, ${clickLng.toFixed(6)}`;
+            this.currentBloc.location = `${clickLat.toFixed(6)}, ${clickLng.toFixed(6)}`;
           }
         })
         .catch(() => {
-          this.currentBloc.location = `${clickLat.toFixed(
-            6
-          )}, ${clickLng.toFixed(6)}`;
+          this.currentBloc.location = `${clickLat.toFixed(6)}, ${clickLng.toFixed(6)}`;
         });
     });
   }
@@ -236,22 +210,16 @@ export class BlocsComponent implements OnInit, AfterViewInit {
   // ─── HELPER: force Leaflet to recalculate map size ──────────────────────────
   private forceMapResize(map: L.Map): void {
     // Call immediately
-    try {
-      map.invalidateSize({ animate: false, pan: false });
-    } catch (e) {}
+    try { map.invalidateSize({ animate: false, pan: false }); } catch (e) { }
 
     // Call again after browser paint
     requestAnimationFrame(() => {
-      try {
-        map.invalidateSize({ animate: false, pan: false });
-      } catch (e) {}
+      try { map.invalidateSize({ animate: false, pan: false }); } catch (e) { }
     });
 
     // Final call after any lingering CSS transitions
     setTimeout(() => {
-      try {
-        map.invalidateSize({ animate: false, pan: false });
-      } catch (e) {}
+      try { map.invalidateSize({ animate: false, pan: false }); } catch (e) { }
     }, 300);
   }
 
@@ -259,16 +227,12 @@ export class BlocsComponent implements OnInit, AfterViewInit {
     if (!this.modalMap) return;
 
     if (this.modalMarker) {
-      try {
-        this.modalMap.removeLayer(this.modalMarker);
-      } catch (e) {}
+      try { this.modalMap.removeLayer(this.modalMarker); } catch (e) { }
     }
 
     const icon = L.icon({
-      iconUrl:
-        'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-      shadowUrl:
-        'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
@@ -291,13 +255,9 @@ export class BlocsComponent implements OnInit, AfterViewInit {
     return null;
   }
 
-  private async forwardGeocode(
-    address: string
-  ): Promise<{ lat: number; lon: number } | null> {
+  private async forwardGeocode(address: string): Promise<{ lat: number, lon: number } | null> {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        address
-      )}&limit=1`;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -316,9 +276,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
   private async addMarkers(): Promise<void> {
     // Clear existing markers
     this.markers.forEach(marker => {
-      try {
-        this.map.removeLayer(marker);
-      } catch (e) {}
+      try { this.map.removeLayer(marker); } catch (e) { }
     });
     this.markers = [];
 
@@ -346,10 +304,8 @@ export class BlocsComponent implements OnInit, AfterViewInit {
 
       if (lat !== null && lng !== null) {
         const redIcon = L.icon({
-          iconUrl:
-            'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-          shadowUrl:
-            'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
           iconSize: [25, 41],
           iconAnchor: [12, 41],
           popupAnchor: [1, -34],
@@ -359,14 +315,9 @@ export class BlocsComponent implements OnInit, AfterViewInit {
         const marker = L.marker([lat, lng], { icon: redIcon }).addTo(this.map);
         marker.bindPopup(`
   <div style="text-align:center; min-width:140px;">
-    <div style="font-size:15px; font-weight:700; color:#b91c1c; margin-bottom:4px;">🏢 ${
-      bloc.nom
-    }</div>
-    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">${
-      bloc.location
-    }</div>
-    <div style="font-size:12px; color:#b91c1c; font-weight:600;">🚪 ${bloc
-      .salles?.length || 0} salle(s)</div>
+    <div style="font-size:15px; font-weight:700; color:#b91c1c; margin-bottom:4px;">🏢 ${bloc.nom}</div>
+    <div style="font-size:12px; color:#64748b; margin-bottom:4px;">${bloc.location}</div>
+    <div style="font-size:12px; color:#b91c1c; font-weight:600;">🚪 ${bloc.salles?.length || 0} salle(s)</div>
   </div>
 `);
         this.markers.push(marker);
@@ -411,9 +362,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
     this.currentBloc = this.initializeBloc();
 
     if (this.modalMap) {
-      try {
-        this.modalMap.remove();
-      } catch (e) {}
+      try { this.modalMap.remove(); } catch (e) { }
       this.modalMap = undefined;
       this.modalMarker = undefined;
     }
@@ -434,9 +383,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
     this.showLocationModal = false;
     this.locationViewBloc = null;
     if (this.locationViewMap) {
-      try {
-        this.locationViewMap.remove();
-      } catch (e) {}
+      try { this.locationViewMap.remove(); } catch (e) { }
       this.locationViewMap = undefined;
     }
   }
@@ -448,9 +395,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
     this.configureLeafletIcons();
 
     if (this.locationViewMap) {
-      try {
-        this.locationViewMap.remove();
-      } catch (e) {}
+      try { this.locationViewMap.remove(); } catch (e) { }
       this.locationViewMap = undefined;
     }
 
@@ -473,30 +418,24 @@ export class BlocsComponent implements OnInit, AfterViewInit {
       if (coords) {
         this.initializeMapWithLocation(coords[0], coords[1], 15, true);
       } else {
-        this.geocodeAddress(this.locationViewBloc.location)
-          .then(result => {
-            if (result) {
-              this.initializeMapWithLocation(result.lat, result.lon, 15, true);
-            } else {
-              this.initializeMapWithLocation(defaultLat, defaultLng, 13, false);
-            }
-          })
-          .catch(() => {
+        this.geocodeAddress(this.locationViewBloc.location).then(result => {
+          if (result) {
+            this.initializeMapWithLocation(result.lat, result.lon, 15, true);
+          } else {
             this.initializeMapWithLocation(defaultLat, defaultLng, 13, false);
-          });
+          }
+        }).catch(() => {
+          this.initializeMapWithLocation(defaultLat, defaultLng, 13, false);
+        });
       }
     } else {
       this.initializeMapWithLocation(defaultLat, defaultLng, 13, false);
     }
   }
 
-  private async geocodeAddress(
-    address: string
-  ): Promise<{ lat: number; lon: number } | null> {
+  private async geocodeAddress(address: string): Promise<{ lat: number, lon: number } | null> {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        address
-      )}&limit=1`;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -512,45 +451,31 @@ export class BlocsComponent implements OnInit, AfterViewInit {
     return null;
   }
 
-  private initializeMapWithLocation(
-    lat: number,
-    lng: number,
-    zoom: number,
-    hasValidLocation: boolean
-  ): void {
+  private initializeMapWithLocation(lat: number, lng: number, zoom: number, hasValidLocation: boolean): void {
     this.locationViewMap = L.map('locationViewMap', {
       fadeAnimation: false,
       zoomAnimation: false
     }).setView([lat, lng], zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.locationViewMap);
 
     if (hasValidLocation && this.locationViewBloc) {
       const redIcon = L.icon({
-        iconUrl:
-          'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-        shadowUrl:
-          'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
         shadowSize: [41, 41]
       });
 
-      const marker = L.marker([lat, lng], { icon: redIcon }).addTo(
-        this.locationViewMap
-      );
-      marker
-        .bindPopup(
-          `
+      const marker = L.marker([lat, lng], { icon: redIcon }).addTo(this.locationViewMap);
+      marker.bindPopup(`
         <b>${this.locationViewBloc.nom}</b><br/>
         ${this.locationViewBloc.location}
-      `
-        )
-        .openPopup();
+      `).openPopup();
     } else {
       const message = this.locationViewBloc?.location
         ? `Could not find coordinates for: "${this.locationViewBloc.location}"`
@@ -558,13 +483,11 @@ export class BlocsComponent implements OnInit, AfterViewInit {
 
       L.popup()
         .setLatLng([lat, lng])
-        .setContent(
-          `
+        .setContent(`
           <b>${this.locationViewBloc?.nom || 'Bloc'}</b><br/>
           ${message}<br/>
           <small>Click on the map in edit mode to set a precise location</small>
-        `
-        )
+        `)
         .openOn(this.locationViewMap);
     }
 
@@ -575,7 +498,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
   saveBloc(): void {
     if (this.isEditMode && this.currentBloc.id) {
       this.blocService.update(this.currentBloc.id, this.currentBloc).subscribe({
-        next: updatedBloc => {
+        next: (updatedBloc) => {
           const index = this.blocs.findIndex(b => b.id === updatedBloc.id);
           if (index !== -1) {
             this.blocs[index] = updatedBloc;
@@ -584,20 +507,20 @@ export class BlocsComponent implements OnInit, AfterViewInit {
           this.error = null;
           this.refreshMap();
         },
-        error: err => {
+        error: (err) => {
           console.error('Error updating bloc:', err);
           this.error = err?.message || 'Failed to update bloc';
         }
       });
     } else {
       this.blocService.add(this.currentBloc).subscribe({
-        next: newBloc => {
+        next: (newBloc) => {
           this.blocs.push(newBloc);
           this.closeModal();
           this.error = null;
           this.refreshMap();
         },
-        error: err => {
+        error: (err) => {
           console.error('Error adding bloc:', err);
           this.error = err?.message || 'Failed to add bloc';
         }
@@ -614,7 +537,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
           this.error = null;
           this.refreshMap();
         },
-        error: err => {
+        error: (err) => {
           console.error('Error deleting bloc:', err);
           this.error = err?.message || 'Failed to delete bloc';
           this.closeDeleteModal();
@@ -626,9 +549,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
   refreshMap(): void {
     if (this.map) {
       this.markers.forEach(marker => {
-        try {
-          this.map.removeLayer(marker);
-        } catch (e) {}
+        try { this.map.removeLayer(marker); } catch (e) { }
       });
       this.markers = [];
       this.addMarkers(); // async, no need to await
@@ -647,8 +568,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
           })
         }));
 
-        console.log(
-          'Salles attached to blocs:',
+        console.log('Salles attached to blocs:',
           this.blocs.map(b => ({
             blocId: b.id,
             sallesCount: b.salles?.length || 0
@@ -657,7 +577,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
 
         setTimeout(() => this.initMap(), 200);
       },
-      error: err => {
+      error: (err) => {
         console.error('Error loading salles:', err);
         setTimeout(() => this.initMap(), 200);
       }
@@ -713,45 +633,33 @@ export class BlocsComponent implements OnInit, AfterViewInit {
   }
 
   saveSalle(): void {
-    if (
-      !this.currentSalle.name ||
-      !this.currentSalle.capacity ||
-      !this.selectedBlocForSalle
-    ) {
+    if (!this.currentSalle.name || !this.currentSalle.capacity || !this.selectedBlocForSalle) {
       this.error = 'Please fill all required fields';
       return;
     }
 
     if (this.isEditSalleMode && this.currentSalle.id) {
-      this.salleService
-        .update(this.currentSalle.id, this.currentSalle)
-        .subscribe({
-          next: updatedSalle => {
-            const bloc = this.blocs.find(
-              b => b.id === this.selectedBlocForSalle?.id
-            );
-            if (bloc && bloc.salles) {
-              const index = bloc.salles.findIndex(
-                s => s.id === updatedSalle.id
-              );
-              if (index !== -1) {
-                bloc.salles[index] = updatedSalle;
-              }
+      this.salleService.update(this.currentSalle.id, this.currentSalle).subscribe({
+        next: (updatedSalle) => {
+          const bloc = this.blocs.find(b => b.id === this.selectedBlocForSalle?.id);
+          if (bloc && bloc.salles) {
+            const index = bloc.salles.findIndex(s => s.id === updatedSalle.id);
+            if (index !== -1) {
+              bloc.salles[index] = updatedSalle;
             }
-            this.closeSalleModal();
-            this.error = null;
-          },
-          error: err => {
-            console.error('Error updating salle:', err);
-            this.error = err?.message || 'Failed to update salle';
           }
-        });
+          this.closeSalleModal();
+          this.error = null;
+        },
+        error: (err) => {
+          console.error('Error updating salle:', err);
+          this.error = err?.message || 'Failed to update salle';
+        }
+      });
     } else {
       this.salleService.add(this.currentSalle).subscribe({
-        next: newSalle => {
-          const bloc = this.blocs.find(
-            b => b.id === this.selectedBlocForSalle?.id
-          );
+        next: (newSalle) => {
+          const bloc = this.blocs.find(b => b.id === this.selectedBlocForSalle?.id);
           if (bloc) {
             if (!bloc.salles) bloc.salles = [];
             bloc.salles.push(newSalle);
@@ -759,7 +667,7 @@ export class BlocsComponent implements OnInit, AfterViewInit {
           this.closeSalleModal();
           this.error = null;
         },
-        error: err => {
+        error: (err) => {
           console.error('Error adding salle:', err);
           this.error = err?.message || 'Failed to add salle';
         }
@@ -773,15 +681,13 @@ export class BlocsComponent implements OnInit, AfterViewInit {
         next: () => {
           this.blocs.forEach(bloc => {
             if (bloc.salles) {
-              bloc.salles = bloc.salles.filter(
-                s => s.id !== this.salleToDelete?.id
-              );
+              bloc.salles = bloc.salles.filter(s => s.id !== this.salleToDelete?.id);
             }
           });
           this.closeDeleteSalleModal();
           this.error = null;
         },
-        error: err => {
+        error: (err) => {
           console.error('Error deleting salle:', err);
           this.error = err?.message || 'Failed to delete salle';
           this.closeDeleteSalleModal();

@@ -1,13 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { SalleService } from '../../../services/salle.service';
 import { Salle } from '../../../models/salle.model';
 
 @Component({
   selector: 'app-salle-table',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
   templateUrl: './salle-table.component.html',
   styleUrls: ['./salle-table.component.scss']
 })

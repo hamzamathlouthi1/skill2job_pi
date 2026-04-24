@@ -1,15 +1,11 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { SessionsService } from '../../../services/sessions.service';
 import { Session } from '../../../models/session.model';
 
 @Component({
   selector: 'app-learner-session-table',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './learner-session-table.component.html',
   styleUrls: ['./learner-session-table.component.css']
 })

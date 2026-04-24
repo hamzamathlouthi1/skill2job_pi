@@ -17,7 +17,7 @@ export class TrainerEquipmentTableComponent implements OnInit {
     private equipmentService: EquipmentService,
     private router: Router,
     private notify: NotificationService
-  ) {}
+  ) { }
 
   selectedEquipment: any = null;
 

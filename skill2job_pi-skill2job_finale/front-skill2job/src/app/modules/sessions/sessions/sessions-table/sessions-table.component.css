@@ -1078,6 +1078,7 @@ mat-form-field.error ::ng-deep .mat-form-field-wrapper {
     font-size: 15px;
   }
 
+
   .equipment-header {
     flex-direction: column;
     align-items: flex-start;
@@ -1088,4 +1089,100 @@ mat-form-field.error ::ng-deep .mat-form-field-wrapper {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ---------- Native Date Input ---------- */
+.date-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 14px;
+  background: white;
+  box-sizing: border-box;
+  cursor: pointer;
+  color: #1e1e1e;
+  transition: all 0.2s;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #b91c1c;
+  box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.1);
+}
+
+.input-wrapper.error .date-input {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+}
+
+/* ---------- Error Modal ---------- */
+.error-modal-card {
+  background: white;
+  border-radius: 24px;
+  padding: 36px 32px 28px;
+  width: 440px;
+  max-width: 94vw;
+  box-shadow: 0 25px 60px rgba(185, 28, 28, 0.3);
+  border: 2px solid #fca5a5;
+  text-align: center;
+  animation: modalZoom 0.3s cubic-bezier(0.17, 0.67, 0.21, 1);
+}
+
+.error-modal-icon {
+  font-size: 52px;
+  margin-bottom: 12px;
+  display: block;
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+.error-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #b91c1c;
+  margin: 0 0 16px;
+}
+
+.error-modal-body {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.error-modal-line {
+  color: #7f1d1d;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.error-modal-close-btn {
+  background: #b91c1c;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  padding: 12px 36px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 8px 20px rgba(185, 28, 28, 0.3);
+}
+
+.error-modal-close-btn:hover {
+  background: #991b1b;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(185, 28, 28, 0.4);
 }

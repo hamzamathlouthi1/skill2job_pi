@@ -1,6 +1,4 @@
-import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SessionsService } from '../../../services/sessions.service';
 import { NotificationService } from '../../../services/notification.service';
@@ -14,9 +12,6 @@ import { SessionEquipment } from '../../../models/session-equipment.model';
 
 @Component({
   selector: 'app-sessions-table',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  schemas: [NO_ERRORS_SCHEMA],
   templateUrl: './sessions-table.component.html',
   styleUrls: ['./sessions-table.component.css']
 })
@@ -29,6 +24,11 @@ export class SessionsTableComponent implements OnInit {
   selectedSession: Session | null = null;
   showAddModal = false;
   loading = false;
+
+  // Error modal
+  showErrorModal = false;
+  errorModalTitle = '';
+  errorModalMessage = '';
 
   // Current user info
   currentUser: JwtResponse | null = null;
@@ -43,12 +43,13 @@ export class SessionsTableComponent implements OnInit {
 
   // Validation errors
   errors: { [key: string]: string } = {};
-  minDate: Date = new Date(); // Today's date - prevent past dates
+  minDate: Date = new Date();
+  minDateStr: string = new Date().toISOString().split('T')[0]; // 'yyyy-MM-dd'
 
-  // Properties for date/time handling
-  startDateObj: Date | null = null;
+  // Properties for date/time handling (strings for native date input)
+  startDateStr: string = '';
   startTimeStr: string = '09:00';
-  endDateObj: Date | null = null;
+  endDateStr: string = '';
   endTimeStr: string = '11:00';
 
   // NEW SESSION OBJECT
@@ -201,18 +202,15 @@ export class SessionsTableComponent implements OnInit {
       });
   }
 
-  // Helper method to combine date and time into ISO string
-  private combineDateAndTime(
-    date: Date | null,
-    timeStr: string
-  ): string | null {
-    if (!date || !timeStr) return null;
-
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    const combined = new Date(date);
-    combined.setHours(hours, minutes, 0, 0);
-
-    return combined.toISOString();
+  // Helper: combine 'yyyy-MM-dd' + 'HH:mm' → local datetime string (NO UTC conversion)
+  // Sending as local time preserves what the user entered; the backend stores it as-is.
+  private combineDateAndTime(dateStr: string, timeStr: string): string | null {
+    if (!dateStr || !timeStr) return null;
+    // Validate the resulting datetime is real
+    const test = new Date(`${dateStr}T${timeStr}:00`);
+    if (isNaN(test.getTime())) return null;
+    // Return local ISO-like string WITHOUT the Z (no UTC shift)
+    return `${dateStr}T${timeStr}:00`;
   }
 
   // Update start when date changes
@@ -228,19 +226,13 @@ export class SessionsTableComponent implements OnInit {
   }
 
   private updateStartDateTime() {
-    this.newSession.startAt = this.combineDateAndTime(
-      this.startDateObj,
-      this.startTimeStr
-    );
+    this.newSession.startAt = this.combineDateAndTime(this.startDateStr, this.startTimeStr);
     delete this.errors['startDate'];
     // Auto-set end to start + 2 hours
     if (this.newSession.startAt) {
-      const start = new Date(this.newSession.startAt);
-      const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
-
-      // Update end date/time fields
-      this.endDateObj = end;
-      this.endTimeStr = end.toTimeString().slice(0, 5); // "HH:MM"
+      const end = new Date(new Date(this.newSession.startAt).getTime() + 2 * 60 * 60 * 1000);
+      this.endDateStr = end.toISOString().split('T')[0];
+      this.endTimeStr = end.toTimeString().slice(0, 5);
       this.newSession.endAt = end.toISOString();
       delete this.errors['endDate'];
       delete this.errors['duration'];
@@ -260,10 +252,7 @@ export class SessionsTableComponent implements OnInit {
   }
 
   private updateEndDateTime() {
-    this.newSession.endAt = this.combineDateAndTime(
-      this.endDateObj,
-      this.endTimeStr
-    );
+    this.newSession.endAt = this.combineDateAndTime(this.endDateStr, this.endTimeStr);
     if (this.newSession.endAt && this.newSession.startAt) {
       const start = new Date(this.newSession.startAt).getTime();
       const end = new Date(this.newSession.endAt).getTime();
@@ -302,12 +291,16 @@ export class SessionsTableComponent implements OnInit {
         : []
     };
 
-    // populate date/time objects for picker inputs
-    this.startDateObj = session.startAt ? new Date(session.startAt) : null;
+    // populate date string fields for native inputs
+    this.startDateStr = session.startAt
+      ? new Date(session.startAt).toISOString().split('T')[0]
+      : '';
     this.startTimeStr = session.startAt
       ? new Date(session.startAt).toTimeString().slice(0, 5)
       : '09:00';
-    this.endDateObj = session.endAt ? new Date(session.endAt) : null;
+    this.endDateStr = session.endAt
+      ? new Date(session.endAt).toISOString().split('T')[0]
+      : '';
     this.endTimeStr = session.endAt
       ? new Date(session.endAt).toTimeString().slice(0, 5)
       : '11:00';
@@ -363,20 +356,15 @@ export class SessionsTableComponent implements OnInit {
       sessionEquipments: []
     };
 
-    // Set default times
-    const now = new Date();
-    const start = new Date(now);
-    start.setHours(9, 0, 0, 0);
-
-    const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
-
-    this.startDateObj = start;
+    // Set default date strings for native inputs
+    const todayStr = new Date().toISOString().split('T')[0];
+    this.startDateStr = todayStr;
     this.startTimeStr = '09:00';
-    this.endDateObj = end;
+    this.endDateStr = todayStr;
     this.endTimeStr = '11:00';
 
-    this.newSession.startAt = start.toISOString();
-    this.newSession.endAt = end.toISOString();
+    this.newSession.startAt = this.combineDateAndTime(this.startDateStr, this.startTimeStr);
+    this.newSession.endAt = this.combineDateAndTime(this.endDateStr, this.endTimeStr);
 
     this.availableEquipments = [...this.equipments];
     this.maybeRefreshAvailability();
@@ -644,17 +632,48 @@ export class SessionsTableComponent implements OnInit {
   private handleError(err: any): void {
     this.loading = false;
     console.error('Full error:', err);
-    if (err.error) {
-      const msg =
-        typeof err.error === 'string'
-          ? err.error
-          : err.error.message
-          ? err.error.message
-          : JSON.stringify(err.error);
-      this.notify.error(msg);
+
+    let rawMsg = '';
+
+    if (!err.error && err.status === 0) {
+      rawMsg = 'Cannot connect to server. Make sure the backend is running.';
+    } else if (err.error) {
+      if (typeof err.error === 'string' && err.error.trim().length > 0) {
+        rawMsg = err.error.trim();
+      } else if (err.error.message) {
+        rawMsg = err.error.message;
+      } else if (err.error.error) {
+        rawMsg = err.error.error;
+      } else if (err.error.errors && Array.isArray(err.error.errors)) {
+        rawMsg = err.error.errors.map((e: any) => e.defaultMessage || e.message).join('\n');
+      } else {
+        const raw = JSON.stringify(err.error);
+        rawMsg = raw !== '{}' ? raw : `Server error (${err.status})`;
+      }
+    } else if (err.status) {
+      rawMsg = `Server error: ${err.status} ${err.statusText || ''}`;
     } else {
-      this.notify.error('Server not reachable');
+      rawMsg = 'An unexpected error occurred. Please try again.';
     }
+
+    // Categorize the error to show a meaningful title, but always show the real message
+    const lower = rawMsg.toLowerCase();
+    if (lower.includes('room') || lower.includes('salle') || lower.includes('already booked') || lower.includes('conflict')) {
+      this.errorModalTitle = '\ud83c\udfe2 Room Already Booked';
+    } else if (lower.includes('equipment') || lower.includes('stock') || lower.includes('quantity') || lower.includes('available')) {
+      this.errorModalTitle = '\ud83d\udce6 Equipment Not Available';
+    } else {
+      this.errorModalTitle = 'Session Could Not Be Created';
+    }
+    // Always show the real backend message so the user knows exactly what went wrong
+    this.errorModalMessage = rawMsg;
+    this.showErrorModal = true;
+  }
+
+  closeErrorModal(): void {
+    this.showErrorModal = false;
+    this.errorModalTitle = '';
+    this.errorModalMessage = '';
   }
 
   // DETAILS

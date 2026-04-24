@@ -16,7 +16,7 @@
   padding: 30px;
   background: #ffffff;
   border-radius: 14px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -52,7 +52,7 @@
 .form-group input:focus {
   border-color: #c22b33;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(194, 43, 51, 0.1);
+  box-shadow: 0 0 0 2px rgba(194,43,51,0.1);
 }
 
 input[type="file"] {
@@ -84,7 +84,7 @@ input[type="file"] {
 
 .save-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(194, 43, 51, 0.25);
+  box-shadow: 0 6px 15px rgba(194,43,51,0.25);
 }
 
 .save-btn:active {
@@ -102,3 +102,4 @@ input[type="file"] {
 .cancel-btn:hover {
   background: #ddd;
 }
+

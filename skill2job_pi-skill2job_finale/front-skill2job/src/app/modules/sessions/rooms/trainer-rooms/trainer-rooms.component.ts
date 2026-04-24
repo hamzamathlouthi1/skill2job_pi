@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { RoomService } from '../../../services/room.service';
 import { AuthService } from '../../../services/auth.service';
@@ -7,8 +6,6 @@ import { Room } from '../../../models/room.model';
 
 @Component({
   selector: 'app-trainer-rooms',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './trainer-rooms.component.html',
   styleUrls: ['./trainer-rooms.component.css']
 })

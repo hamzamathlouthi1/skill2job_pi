@@ -485,6 +485,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -495,6 +496,7 @@
     opacity: 0;
     transform: scale(0.8) translateY(40px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -617,6 +619,7 @@
   white-space: nowrap;
   z-index: 1000;
 }
+
 .header-actions {
   display: flex;
   gap: 10px;
@@ -775,10 +778,12 @@
 
 /* ---------- Animations ---------- */
 @keyframes warningBounce {
+
   0%,
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.1);
   }
@@ -788,6 +793,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -798,6 +804,7 @@
     transform: scale(0.95);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
