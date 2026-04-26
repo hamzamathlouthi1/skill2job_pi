@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_IMAGE = 'azizl/recruitment'
+    }
+
+    tools {
+        maven 'Maven'
+        jdk   'JDK21'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('IdeaProjects/Recruitment') {
+                    sh './mvnw clean package -DskipTests'
+                }
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                dir('IdeaProjects/Recruitment') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            docker build -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
+                            docker tag  ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKERHUB_IMAGE}:latest
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed — check the logs above.'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
