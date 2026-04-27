@@ -36,9 +36,9 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
                         sh '''
-                            docker build -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
-                            docker tag  ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
                             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            docker build -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
+                            docker tag ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
                             docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
                             docker push ${DOCKERHUB_IMAGE}:latest
                         '''
