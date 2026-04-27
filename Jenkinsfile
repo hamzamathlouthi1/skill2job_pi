@@ -11,9 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/hamzamathlouthi1/skill2job_pi.git',
-                    credentialsId: 'github-credentials'
+                checkout scm
             }
         }
         stage('Build') {
