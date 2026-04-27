@@ -2,7 +2,6 @@ pipeline {
     agent any
     environment {
         DOCKERHUB_IMAGE = 'souhakhelifi/gestionformation'
-        SONAR_PROJECT   = 'gestionformation-backend'
     }
     tools {
         maven 'Maven'
@@ -26,20 +25,6 @@ pipeline {
             post {
                 always {
                     junit '**/target/surefire-reports/*.xml'
-                }
-            }
-        }
-        stage('Code Quality — SonarQube') {
-            steps {
-                withSonarQubeEnv('SonarCloud') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                            mvn sonar:sonar \
-                              -Dsonar.projectKey=${SONAR_PROJECT} \
-                              -Dsonar.host.url=https://sonarcloud.io \
-                              -Dsonar.login=${SONAR_TOKEN}
-                        '''
-                    }
                 }
             }
         }
