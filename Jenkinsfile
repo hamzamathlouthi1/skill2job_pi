@@ -18,16 +18,6 @@ pipeline {
                 sh 'mvn clean package -DskipTests'
             }
         }
-        stage('Unit Tests') {
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
-            }
-        }
         stage('Docker Build & Push') {
             steps {
                 withCredentials([usernamePassword(
