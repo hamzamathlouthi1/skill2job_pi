@@ -18,6 +18,21 @@ pipeline {
                 sh 'mvn clean package -DskipTests'
             }
         }
+        stage('Code Quality — SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            mvn sonar:sonar \
+                              -Dsonar.projectKey=gestionformation-backend \
+                              -Dsonar.projectName="GestionFormation Backend" \
+                              -Dsonar.host.url=http://192.168.161.129:9000 \
+                              -Dsonar.login=${SONAR_TOKEN}
+                        '''
+                    }
+                }
+            }
+        }
         stage('Docker Build & Push') {
             steps {
                 withCredentials([usernamePassword(
