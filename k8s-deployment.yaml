@@ -21,7 +21,7 @@ spec:
         - containerPort: 8089
         env:
         - name: DB_HOST
-          value: "localhost"
+          value: "192.168.161.129"
         - name: DB_PORT
           value: "3306"
         - name: DB_NAME
