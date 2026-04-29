@@ -84,27 +84,26 @@ pipeline {
         }
         
         stage('Health Check') {
-            steps {
-                script {
-                    retry(10) {
-                        sh 'sleep 10'
-                        sh 'curl -f http://localhost:8082/actuator/health'
-                    }
-                }
-            }
-        }
-        
-        stage('Verify Traefik Routing') {
-            steps {
-                script {
-                    retry(5) {
-                        sh 'sleep 5'
-                        sh 'curl -f http://localhost:81/api/exams/actuator/health'
-                    }
-                }
+    steps {
+        script {
+            retry(10) {
+                sh 'sleep 10'
+                sh 'curl -f http://exams-service:8082/actuator/health'
             }
         }
     }
+}
+        
+        stage('Verify Traefik Routing') {
+    steps {
+        script {
+            retry(5) {
+                sh 'sleep 5'
+                sh 'curl -f http://traefik:81/api/exams/actuator/health'
+            }
+        }
+    }
+}
     
     post {
         success {
