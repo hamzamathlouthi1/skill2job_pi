@@ -1,0 +1,103 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Your credentials
+        DOCKER_CREDS = credentials('docker-hub-credentials')
+        GITHUB_TOKEN = credentials('github-token')
+        
+        // Service config
+        SERVICE_NAME = 'gestion-exams'
+        DOCKER_IMAGE = 'your-dockerhub/gestion-exams'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Unit Tests') {
+            steps {
+                sh '''
+                    cd GestionExams
+                    mvn clean test
+                '''
+            }
+            post {
+                always {
+                    junit 'GestionExams/target/surefire-reports/*.xml'
+                }
+            }
+        }
+        
+        stage('Build & Push Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'docker-hub-credentials') {
+                        sh '''
+                            docker build -f GestionExams/Dockerfile -t ${DOCKER_IMAGE}:${BUILD_NUMBER} .
+                            docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy with Docker Compose') {
+            steps {
+                sh '''
+                    cd GestionExams
+                    # Pull latest image
+                    docker-compose -f docker-compose-exams.yml pull exams-service
+                    # Restart only exams-service
+                    docker-compose -f docker-compose-exams.yml up -d --no-deps exams-service
+                    # Ensure all services are running
+                    docker-compose -f docker-compose-exams.yml up -d
+                '''
+            }
+        }
+        
+        stage('Health Check') {
+            steps {
+                script {
+                    retry(10) {
+                        sh "sleep 5"
+                        sh "curl -f http://localhost:8082/actuator/health"
+                        sh "curl -f http://localhost:8081/dashboard/"  # Traefik dashboard
+                        sh "curl -f http://localhost:9091/-/healthy"   # Prometheus
+                        sh "curl -f http://localhost:3001/api/health"  # Grafana
+                    }
+                }
+            }
+        }
+        
+        stage('Verify Traefik Routing') {
+            steps {
+                sh '''
+                    # Test Traefik routes to your service
+                    curl -H "Host: localhost" http://localhost/api/exams/actuator/health
+                '''
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo """
+            ✅ DEPLOYMENT SUCCESSFUL!
+            
+            Your service is running:
+            - Exams API: http://localhost:8082
+            - Via Traefik: http://localhost/api/exams/...
+            - Traefik Dashboard: http://localhost:8081/dashboard/
+            - Prometheus: http://localhost:9091
+            - Grafana: http://localhost:3001 (admin/admin)
+            """
+        }
+        failure {
+            echo "❌ Build failed! Check Jenkins logs."
+        }
+    }
+}
