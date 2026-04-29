@@ -16,7 +16,14 @@ pipeline {
         stage('Docker Build') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
-                    sh "docker build -f GestionSession/Dockerfile -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    sh """
+                        docker build \
+                          --build-arg BUILDKIT_INLINE_CACHE=1 \
+                          -f GestionSession/Dockerfile \
+                          -t ${IMAGE_NAME}:${IMAGE_TAG} \
+                          -t ${IMAGE_NAME}:latest \
+                          .
+                    """
                 }
             }
         }
@@ -28,8 +35,9 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                     sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker push ${IMAGE_NAME}:latest"
                 }
             }
         }
@@ -42,7 +50,7 @@ pipeline {
                     docker run -d \
                       --name gestion-sessions \
                       -p 8085:8085 \
-                      ${IMAGE_NAME}:${IMAGE_TAG}
+                      ${IMAGE_NAME}:latest
                 """
             }
         }
