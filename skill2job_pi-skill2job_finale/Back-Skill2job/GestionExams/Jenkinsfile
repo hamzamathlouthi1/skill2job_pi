@@ -2,13 +2,16 @@ pipeline {
     agent any
     
     environment {
-        // Your credentials
         DOCKER_CREDS = credentials('docker-hub-credentials')
         GITHUB_TOKEN = credentials('github-token')
         
-        // Service config
         SERVICE_NAME = 'gestion-exams'
-        DOCKER_IMAGE = 'your-dockerhub/gestion-exams'
+        DOCKER_IMAGE = 'klibimayssa/gestion-exams'
+    }
+    
+    tools {
+        maven 'Maven-3'
+        jdk 'JDK-21'
     }
     
     stages {
@@ -20,42 +23,69 @@ pipeline {
         
         stage('Unit Tests') {
             steps {
-                sh '''
-                    cd GestionExams
-                    mvn clean test
-                '''
+                dir('Back-Skill2job') {
+                    sh 'mvn clean test -pl GestionExams -am'
+                }
             }
             post {
                 always {
-                    junit 'GestionExams/target/surefire-reports/*.xml'
+                    junit 'Back-Skill2job/GestionExams/target/surefire-reports/*.xml'
                 }
             }
         }
         
-        stage('Build & Push Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker-hub-credentials') {
-                        sh '''
-                            docker build -f GestionExams/Dockerfile -t ${DOCKER_IMAGE}:${BUILD_NUMBER} .
-                            docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                        '''
+                    dir('Back-Skill2job') {
+                        sh """
+                            docker build \
+                                -f GestionExams/Dockerfile \
+                                -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                                -t ${DOCKER_IMAGE}:latest \
+                                .
+                        """
                     }
                 }
             }
         }
         
-        stage('Deploy with Docker Compose') {
+        stage('Push Docker Image') {
             steps {
-                sh '''
-                    cd GestionExams
-                    # Pull latest image
-                    docker-compose -f docker-compose-exams.yml pull exams-service
-                    # Restart only exams-service
-                    docker-compose -f docker-compose-exams.yml up -d --no-deps exams-service
-                    # Ensure all services are running
-                    docker-compose -f docker-compose-exams.yml up -d
-                '''
+                script {
+                    sh """
+                        echo ${DOCKER_CREDS_PSW} | docker login \
+                            -u ${DOCKER_CREDS_USR} \
+                            --password-stdin
+                        docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                        docker push ${DOCKER_IMAGE}:latest
+                    """
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                script {
+                    dir('Back-Skill2job') {
+                        sh """
+                            docker stop exams-service || true
+                            docker rm exams-service || true
+                            docker run -d \
+                                --name exams-service \
+                                -p 8082:8082 \
+                                -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true\\&useSSL=false\\&serverTimezone=UTC\\&allowPublicKeyRetrieval=true \
+                                -e SPRING_DATASOURCE_USERNAME=root \
+                                -e SPRING_DATASOURCE_PASSWORD=root \
+                                -e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka \
+                                -e SERVER_PORT=8082 \
+                                -e MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus \
+                                -e MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true \
+                                --network skill2job-network \
+                                ${DOCKER_IMAGE}:latest
+                        """
+                    }
+                }
             }
         }
         
@@ -63,11 +93,8 @@ pipeline {
             steps {
                 script {
                     retry(10) {
-                        sh "sleep 5"
-                        sh "curl -f http://localhost:8082/actuator/health"
-                        sh "curl -f http://localhost:8081/dashboard/"  
-                        sh "curl -f http://localhost:9091/-/healthy"   
-                        sh "curl -f http://localhost:3001/api/health"  
+                        sh 'sleep 10'
+                        sh 'curl -f http://localhost:8082/actuator/health'
                     }
                 }
             }
@@ -75,29 +102,30 @@ pipeline {
         
         stage('Verify Traefik Routing') {
             steps {
-                sh '''
-                    # Test Traefik routes to your service
-                    curl -H "Host: localhost" http://localhost/api/exams/actuator/health
-                '''
+                script {
+                    retry(5) {
+                        sh 'sleep 5'
+                        sh 'curl -f http://localhost:81/api/exams/actuator/health'
+                    }
+                }
             }
         }
     }
     
     post {
         success {
-            echo """
-            ✅ DEPLOYMENT SUCCESSFUL!
-            
-            Your service is running:
-            - Exams API: http://localhost:8082
-            - Via Traefik: http://localhost/api/exams/...
-            - Traefik Dashboard: http://localhost:8081/dashboard/
-            - Prometheus: http://localhost:9091
-            - Grafana: http://localhost:3001 (admin/admin)
-            """
+            echo '✅ DEPLOYMENT SUCCESSFUL!'
+            echo 'Exams API: http://localhost:8082'
+            echo 'Via Traefik: http://localhost:81/api/exams'
+            echo 'Traefik Dashboard: http://localhost:8081/dashboard/'
+            echo 'Prometheus: http://localhost:9091'
+            echo 'Grafana: http://localhost:3001'
         }
         failure {
-            echo "❌ Build failed! Check Jenkins logs."
+            echo '❌ Build failed! Check Jenkins logs.'
+        }
+        always {
+            sh 'docker logout || true'
         }
     }
 }
