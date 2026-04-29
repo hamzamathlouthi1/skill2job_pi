@@ -66,8 +66,5 @@ pipeline {
         failure {
             echo 'Pipeline GestionFormation failed — check the logs above.'
         }
-        always {
-            cleanWs()
-        }
     }
 }
