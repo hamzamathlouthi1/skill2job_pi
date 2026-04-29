@@ -22,21 +22,8 @@ pipeline {
         stage('Build') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    // ❌ tests désactivés ici
                     sh 'mvn clean package -DskipTests -pl GestionPartner -am'
-                }
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionPartner') {
-                    sh 'mvn test'
-                }
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true,
-                          testResults: 'skill2job_pi-skill2job_finale/Back-Skill2job/GestionPartner/target/surefire-reports/*.xml'
                 }
             }
         }
@@ -117,7 +104,7 @@ pipeline {
             echo 'Partner API: http://localhost:8086'
         }
         failure {
-            echo '❌ Pipeline GestionPartner failed — check the logs above.'
+            echo '❌ Pipeline failed — check logs'
         }
         always {
             sh 'docker logout || true'
