@@ -64,6 +64,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh """
+                    docker network create skill2job-network || true
                     docker stop exams-service || true
                     docker rm exams-service || true
                     docker run -d \
