@@ -39,14 +39,15 @@ pipeline {
         }
         stage('Docker Build & Push') {
             steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
                         sh '''
-                            docker build -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
+                            docker build -f GestionFormation/Dockerfile \
+                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
                             docker tag  ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
                             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                             docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
