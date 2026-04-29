@@ -2,16 +2,21 @@
 FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 
-# Copy parent pom and install it first
-COPY pom.xml ./pom.xml
-RUN mvn install -N -DskipTests
+# Copy parent pom
+COPY pom.xml .
 
-# Copy Recruitment module
-COPY Recruitment/pom.xml Recruitment/pom.xml
-COPY Recruitment/src Recruitment/src
+# Copy all modules
+COPY Eureka_project Eureka_project
+COPY GestionExams GestionExams
+COPY GestionSession GestionSession
+COPY GestionFormation GestionFormation
+COPY Recruitment Recruitment
+COPY GestionPartner GestionPartner
+COPY GestionUser GestionUser
+COPY api_gateway_pi api_gateway_pi
 
-# Build Recruitment
-RUN mvn clean package -DskipTests -pl Recruitment
+# Build only Recruitment service
+RUN mvn clean package -DskipTests -pl Recruitment -am
 
 # Runtime stage
 FROM eclipse-temurin:17-jdk
