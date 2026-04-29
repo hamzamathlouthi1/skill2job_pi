@@ -39,7 +39,7 @@ pipeline {
         }
         stage('Docker Build & Push') {
             steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
