@@ -15,14 +15,14 @@ pipeline {
         }
         stage('Build') {
             steps {
-                dir('Back-Skill2job/GestionFormation') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
                     sh 'mvn clean package -DskipTests'
                 }
             }
         }
         stage('Code Quality — SonarQube') {
             steps {
-                dir('Back-Skill2job/GestionFormation') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
                     withSonarQubeEnv('SonarQube') {
                         withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                             sh '''
@@ -39,7 +39,7 @@ pipeline {
         }
         stage('Docker Build & Push') {
             steps {
-                dir('Back-Skill2job/GestionFormation') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
@@ -58,7 +58,7 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             steps {
-                dir('Back-Skill2job/GestionFormation') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
                     sh '''
                         kubectl apply -f k8s-deployment.yaml
                         kubectl rollout status deployment/gestionformation
