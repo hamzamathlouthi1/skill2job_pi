@@ -29,7 +29,7 @@ spec:
         - name: DB_USERNAME
           value: "root"
         - name: DB_PASSWORD
-          value: ""
+          value: "root"
 ---
 apiVersion: v1
 kind: Service
