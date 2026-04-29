@@ -1,0 +1,68 @@
+<div class="offers-page">
+
+  <div class="top">
+    <h2>Job Offers</h2>
+
+    <button class="btn" (click)="loadOffers()" [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="filters">
+    <input
+      class="input"
+      type="text"
+      placeholder="Search by title / location..."
+      [(ngModel)]="keyword"
+      (input)="applyFilters()"
+    />
+
+    <select class="select" [(ngModel)]="type" (change)="applyFilters()">
+      <option value="ALL">All types</option>
+      <option value="INTERNSHIP">Internship</option>
+      <option value="JOB">Job</option>
+    </select>
+
+    <select class="select" [(ngModel)]="mode" (change)="applyFilters()">
+      <option value="ALL">All modes</option>
+      <option value="ONSITE">Onsite</option>
+      <option value="REMOTE">Remote</option>
+      <option value="HYBRID">Hybrid</option>
+    </select>
+  </div>
+
+  <div *ngIf="error" class="alert error">⚠️ {{ error }}</div>
+  <div *ngIf="loading" class="loading">Chargement...</div>
+
+  <div class="grid" *ngIf="!loading && filtered.length > 0">
+    <div
+      class="card"
+      *ngFor="let o of filtered; trackBy: trackById"
+      (click)="openDetails(o.id)"
+    >
+      <div class="card-head">
+        <h3 class="title">{{ o.title }}</h3>
+        <span class="pill">{{ o.type }}</span>
+      </div>
+
+      <p class="desc">{{ o.description }}</p>
+
+      <div class="meta">
+        <span>📍 {{ o.location || 'N/A' }}</span>
+        <span>🧭 {{ o.mode }}</span>
+      </div>
+
+      <button
+        class="btn small primary"
+        (click)="openDetails(o.id); $event.stopPropagation()"
+        [disabled]="!o.id"
+      >
+        View details
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && filtered.length === 0" class="empty">
+    Aucune offre disponible.
+  </div>
+</div>

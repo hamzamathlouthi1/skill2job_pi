@@ -1,0 +1,103 @@
+<header class="navbar">
+  <div class="nav-left">
+    <span class="brand" routerLink="/user">SKILL2JOB</span>
+  </div>
+
+  <div class="nav-center">
+    <nav class="nav-links">
+      <a routerLink="/user" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active">Home</a>
+      <a routerLink="/user/courses" routerLinkActive="active">Courses</a>
+      <a routerLink="/user/offers" routerLinkActive="active">Job Offers</a>
+      <a routerLink="/user/exams" routerLinkActive="active">Exams</a>
+      <a routerLink="/user/sessions" routerLinkActive="active">Sessions</a>
+      <a routerLink="/user/certificates" routerLinkActive="active">Certificates</a>
+      <a routerLink="/user/applications" routerLinkActive="active">My Applications</a>
+      <button class="trainer-btn" routerLink="/trainer-portal">Become Trainer</button>
+    </nav>
+  </div>
+
+  <div class="nav-right">
+    <!-- ✅ Notifications -->
+    <app-notifications-bell></app-notifications-bell>
+
+    <div class="profile-menu" (click)="toggleProfileMenu()">
+      <div class="profile-icon-wrapper">
+        <div class="profile-circle">
+          {{ getInitials(currentUser?.username || 'Learner') }}
+        </div>
+        <span class="profile-name">{{ currentUser?.username || 'Learner' }}</span>
+        <i class="fas fa-chevron-down" [class.rotate]="isProfileMenuOpen"></i>
+      </div>
+
+      <!-- Dropdown Menu -->
+      <div class="profile-dropdown" *ngIf="isProfileMenuOpen" (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <div class="profile-circle large">
+            {{ getInitials(currentUser?.username || 'Learner') }}
+          </div>
+          <div class="dropdown-user-info">
+            <strong>{{ currentUser?.username || 'Learner' }}</strong>
+            <span>{{ currentUser?.email || '' }}</span>
+          </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-item" routerLink="/profile">
+          <i class="fas fa-user menu-icon"></i>
+          <span>My Profile</span>
+          <div class="item-glow"></div>
+        </div>
+
+        <div class="dropdown-item" routerLink="/user/courses">
+          <i class="fas fa-book menu-icon"></i>
+          <span>My Courses</span>
+          <div class="item-glow"></div>
+        </div>
+
+        <div class="dropdown-item" routerLink="/user/exams">
+          <i class="fas fa-file-alt menu-icon"></i>
+          <span>My Exams</span>
+          <div class="item-glow"></div>
+        </div>
+
+        <div class="dropdown-item" routerLink="/user/sessions">
+          <i class="fas fa-chalkboard-teacher menu-icon"></i>
+          <span>My Sessions</span>
+          <div class="item-glow"></div>
+        </div>
+
+        <div class="dropdown-item" routerLink="/user/certificates">
+          <i class="fas fa-certificate menu-icon"></i>
+          <span>My Certificates</span>
+          <div class="item-glow"></div>
+        </div>
+
+        <div class="dropdown-item" routerLink="/settings">
+          <i class="fas fa-cog menu-icon"></i>
+          <span>Settings</span>
+          <div class="item-glow"></div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-item" routerLink="/help">
+          <i class="fas fa-question-circle menu-icon"></i>
+          <span>Help & Support</span>
+          <div class="item-glow"></div>
+        </div>
+
+        <div class="dropdown-item logout" (click)="logout()">
+          <i class="fas fa-sign-out-alt menu-icon"></i>
+          <span>Logout</span>
+          <div class="item-glow"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ✅ Le contenu change selon la route -->
+<div class="user-content">
+  <router-outlet></router-outlet>
+</div>

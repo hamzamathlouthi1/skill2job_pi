@@ -1,0 +1,234 @@
+<div class="dash">
+
+  <div class="dash-head">
+    <div>
+      <h2>Partner Dashboard</h2>
+      <p>Get insights into your job offers and applications to optimize your hiring process.</p>
+    </div>
+
+    <button class="btn" (click)="load()" [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert error">⚠️ {{ error }}</div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    Loading dashboard data...
+  </div>
+
+  <ng-container *ngIf="!loading && data">
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+
+      <div class="kpi">
+        <div class="kpi-title">Total Offers</div>
+        <div class="kpi-value">{{ data.totalOffers }}</div>
+        <div class="kpi-sub muted">All published offers</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-title">Open Offers</div>
+        <div class="kpi-value">{{ data.openOffers }}</div>
+        <div class="kpi-sub muted">Active offers</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-title">Total Applications</div>
+        <div class="kpi-value">{{ data.totalApplications }}</div>
+        <div class="kpi-sub muted">Applications received</div>
+      </div>
+
+      <div class="kpi warn">
+        <div class="kpi-title">Expiring Soon</div>
+        <div class="kpi-value">{{ data.offersExpiringSoonCount }}</div>
+        <div class="kpi-sub muted">Deadlines in 7 days</div>
+      </div>
+
+      <div class="kpi info">
+        <div class="kpi-title">Interviews</div>
+        <div class="kpi-value">{{ data.interviewsScheduled }}</div>
+        <div class="kpi-sub muted">INTERVIEW status</div>
+      </div>
+
+      <div class="kpi success">
+        <div class="kpi-title">Upcoming Interviews</div>
+        <div class="kpi-value">{{ data.upcomingInterviewsCount }}</div>
+        <div class="kpi-sub muted">Upcoming</div>
+      </div>
+
+      <!-- ✅ NEW KPI -->
+      <div class="kpi score">
+        <div class="kpi-title">Avg Score</div>
+        <div class="kpi-value">{{ data.avgScore }}</div>
+        <div class="kpi-sub muted">Average match score</div>
+      </div>
+
+      <!-- ✅ NEW KPI -->
+      <div class="kpi shortlisted">
+        <div class="kpi-title">Shortlisted Rate</div>
+        <div class="kpi-value">{{ data.shortlistedRate }}%</div>
+        <div class="kpi-sub muted">SHORTLISTED / total</div>
+      </div>
+
+      <!-- ✅ NEW KPI -->
+      <div class="kpi accepted">
+        <div class="kpi-title">Acceptance Rate</div>
+        <div class="kpi-value">{{ data.acceptanceRate }}%</div>
+        <div class="kpi-sub muted">ACCEPTED / total</div>
+      </div>
+
+    </div>
+
+    <!-- STATUS DISTRIBUTION -->
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Applications by status</h3>
+        <p class="muted">Distribution of applications by status</p>
+      </div>
+
+      <div class="bars">
+        <div class="bar-row" *ngFor="let key of ['SENT','SHORTLISTED','INTERVIEW','ACCEPTED','REJECTED']">
+          <div class="bar-label">{{ key }}</div>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width]="widthPercent(getStatusValue(key))"></div>
+          </div>
+          <div class="bar-val">{{ getStatusValue(key) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ TOP CANDIDATES -->
+    <div class="panel" *ngIf="data.topCandidates && data.topCandidates.length > 0">
+      <div class="panel-head">
+        <h3>Top candidates</h3>
+        <p class="muted">Top 5 by score</p>
+      </div>
+
+      <div class="table">
+        <div class="t-head topcand">
+          <span>Candidate</span>
+          <span>Offer</span>
+          <span>Score</span>
+          <span>Status</span>
+          <span>Date</span>
+          <span></span>
+        </div>
+
+        <div class="t-row topcand" *ngFor="let a of data.topCandidates">
+          <span class="cand">
+            <b>
+              {{ a.studentUsername }}
+              <span class="tag top" *ngIf="isTopCandidate(a.score)">🏆 Top</span>
+            </b>
+            <small class="muted">{{ a.studentEmail }}</small>
+          </span>
+
+          <span class="offer">{{ a.offerTitle }}</span>
+
+          <span class="score">
+            <span class="score-pill" [ngClass]="scoreClass(a.score)">{{ a.score ?? 0 }}/100</span>
+          </span>
+
+          <span class="status">
+            <span class="pill" [ngClass]="a.status?.toLowerCase()">
+              {{ a.status }}
+            </span>
+            <span class="tag auto" *ngIf="isAutoShortlisted(a.status, a.score)">✅ Auto</span>
+          </span>
+
+          <span class="date">{{ a.appliedAt | date:'short' }}</span>
+
+          <span class="act">
+            <button class="btn ghost sm" (click)="openOfferApps(a.offerId)">View</button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 COLUMNS -->
+    <div class="two-col">
+
+      <!-- RECENT APPLICATIONS -->
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Recent applications</h3>
+          <p class="muted">Latest 10 applications</p>
+        </div>
+
+        <div class="table">
+          <div class="t-head">
+            <span>Candidate</span>
+            <span>Offer</span>
+            <span>Score</span>
+            <span>Status</span>
+            <span>Date</span>
+            <span></span>
+          </div>
+
+          <div class="t-row" *ngFor="let a of data.recentApplications">
+            <span class="cand">
+              <b>
+                {{ a.studentUsername }}
+                <span class="tag top" *ngIf="isTopCandidate(a.score)">🏆 Top</span>
+              </b>
+              <small class="muted">{{ a.studentEmail }}</small>
+            </span>
+
+            <span class="offer">{{ a.offerTitle }}</span>
+
+            <span class="score">
+              <span class="score-pill" [ngClass]="scoreClass(a.score)">{{ a.score ?? 0 }}/100</span>
+            </span>
+
+            <span class="status">
+              <span class="pill" [ngClass]="a.status?.toLowerCase()">{{ a.status }}</span>
+              <span class="tag auto" *ngIf="isAutoShortlisted(a.status, a.score)">✅ Auto</span>
+            </span>
+
+            <span class="date">{{ a.appliedAt | date:'short' }}</span>
+
+            <span class="act">
+              <button class="btn ghost sm" (click)="openOfferApps(a.offerId)">View</button>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPCOMING INTERVIEWS -->
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Upcoming interviews</h3>
+        </div>
+
+        <div *ngIf="data.upcomingInterviews.length === 0" class="empty muted">
+          No scheduled interviews at this time.
+        </div>
+
+        <div class="interview-card" *ngFor="let i of data.upcomingInterviews">
+          <div class="i-top">
+            <div>
+              <b>{{ i.studentUsername }}</b>
+              <div class="muted">{{ i.studentEmail }}</div>
+              <div class="muted">Offer: {{ i.offerTitle }}</div>
+            </div>
+            <div class="i-date">
+              {{ i.interviewAt | date:'medium' }}
+            </div>
+          </div>
+
+          <div class="i-actions">
+            <button class="btn sm" (click)="openOfferApps(i.offerId)">Applications</button>
+            <button class="btn primary sm" *ngIf="i.meetLink" (click)="openMeet(i.meetLink)">Join Meet</button>
+          </div>
+
+          <div class="muted" *ngIf="i.note"><b>Note:</b> {{ i.note }}</div>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>

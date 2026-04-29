@@ -1,0 +1,71 @@
+<header class="navbar">
+
+  <div class="nav-left">
+    <span class="brand">SKILL2JOB</span>
+  </div>
+
+  <div class="nav-center">
+    <nav class="nav-links"> 
+      <!-- ✅ revenir à l'accueil partner (home) -->
+      <a routerLink="./" routerLinkActive="active">Home</a>
+      <a routerLink="profile" routerLinkActive="active">Company Profile</a>
+      <!-- ✅ CHILD ROUTE -->
+      <a routerLink="offers" routerLinkActive="active">My Offers</a>
+      <a routerLink="dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="calendar" routerLinkActive="active">Calendar</a>
+
+
+
+      
+    </nav>
+  </div>
+
+  <div class="nav-right">
+    <!-- ✅ Notifications -->
+  <app-notifications-bell></app-notifications-bell>
+    <div class="profile-menu" (click)="toggleProfileMenu($event)">
+      <div class="profile-icon-wrapper">
+        <div class="profile-circle">
+          {{ getInitials(currentUser?.username || 'Partner') }}
+        </div>
+
+        <span class="profile-name">
+          {{ currentUser?.username || 'Partner' }}
+        </span>
+
+        <i class="fas fa-chevron-down" [class.rotate]="isProfileMenuOpen"></i>
+      </div>
+
+      <div class="profile-dropdown"
+           *ngIf="isProfileMenuOpen"
+           (click)="$event.stopPropagation()">
+
+        <div class="dropdown-header">
+          <div class="dropdown-user-avatar">
+            <div class="profile-circle large">
+              {{ getInitials(currentUser?.username || 'Partner') }}
+            </div>
+          </div>
+
+          <div class="dropdown-user-info">
+            <strong>{{ currentUser?.username || 'Partner' }}</strong>
+            <span>Partner Account</span>
+          </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-item logout" (click)="logout()">
+          <i class="fas fa-sign-out-alt menu-icon"></i>
+          <span>Logout</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+
+<!-- ✅ WRAPPER PRO pour toutes les pages enfants -->
+<main class="partner-content">
+  <router-outlet></router-outlet>
+</main>

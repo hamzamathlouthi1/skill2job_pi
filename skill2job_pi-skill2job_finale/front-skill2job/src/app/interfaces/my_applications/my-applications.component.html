@@ -1,0 +1,144 @@
+<div class="apps-page">
+
+  <div class="head">
+    <div>
+      <h2>My Applications</h2>
+      <p>Track the status of your job applications and manage your career opportunities.</p>
+    </div>
+
+    <button class="btn" (click)="load()" [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar" *ngIf="!loading">
+    <div class="search">
+      <span class="icon">🔎</span>
+      <input
+        type="text"
+        placeholder="Search (offer, company, location)..."
+        [(ngModel)]="q"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+
+    <div class="filters">
+      <select [(ngModel)]="status" (ngModelChange)="applyFilters()">
+        <option value="ALL">ALL</option>
+        <option value="SENT">SENT</option>
+        <option value="SHORTLISTED">SHORTLISTED</option>
+        <option value="INTERVIEW">INTERVIEW</option>
+        <option value="ACCEPTED">ACCEPTED</option>
+        <option value="REJECTED">REJECTED</option>
+      </select>
+
+      <select [(ngModel)]="sort" (ngModelChange)="applyFilters()">
+        <option value="NEWEST">NEWEST</option>
+        <option value="OLDEST">OLDEST</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert error">⚠️ {{ error }}</div>
+  <div *ngIf="success" class="alert success">{{ success }}</div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    Loading applications...
+  </div>
+
+  <div *ngIf="!loading && filtered.length === 0" class="empty">
+    <p>No applications found. Start applying to job offers to see them here!</p>
+  </div>
+
+  <div class="grid one-col" *ngIf="!loading && filtered.length > 0">
+    <div class="card" *ngFor="let a of filtered; trackBy: trackById">
+
+      <div class="top">
+  <div class="title">
+    <h3>{{ a.offerTitle }}</h3>
+
+    <!-- ✅ Badges line -->
+    <div class="badges">
+      <!-- Top candidate -->
+      <span class="pill top" *ngIf="isTopCandidate(a.score)">🏆 Top Candidate</span>
+
+      <!-- Auto shortlisted -->
+      <span class="pill auto"
+            *ngIf="a.status === 'SHORTLISTED' && a.autoShortlisted">
+        ✅ Auto-Shortlisted
+      </span>
+    </div>
+
+    <span class="muted">{{ a.partnerName }} • {{ a.location || '-' }}</span>
+  </div>
+
+  <span class="status" [ngClass]="badgeClass(a.status)">
+    {{ statusLabel(a.status) }}
+  </span>
+</div>
+
+      <div class="meta">
+        <div class="row">
+          <span class="k">Applied On</span>
+          <span class="v">{{ a.appliedAt | date:'medium' }}</span>
+        </div>
+        <!-- ✅ SCORE -->
+<div class="score-row" *ngIf="a.score !== null && a.score !== undefined">
+  <div class="score-top">
+    <span class="k">Score</span>
+    <span class="v">
+      <span class="score-badge" [ngClass]="scoreClass(a.score)">
+        {{ a.score }}/100
+      </span>
+    </span>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-fill" [style.width.%]="a.score"></div>
+  </div>
+
+  <div class="score-hint">{{ scoreLabel(a.score) }}</div>
+</div>
+        <!-- ✅ INTERVIEW DETAILS (NEW) -->
+        <div *ngIf="a.status === 'INTERVIEW' && (a.interviewAt || a.meetLink)" class="interview-box">
+          <div class="interview-title">📅 Interview Scheduled</div>
+
+          <div class="row" *ngIf="a.interviewAt">
+            <span class="k">Interview Date</span>
+            <span class="v">{{ a.interviewAt | date:'medium' }}</span>
+          </div>
+
+          <div class="row" *ngIf="a.meetLink">
+            <span class="k">Google Meet</span>
+            <span class="v link">
+              <a [href]="a.meetLink" target="_blank" rel="noopener noreferrer">
+                {{ a.meetLink }}
+              </a>
+            </span>
+          </div>
+
+          <div class="row" *ngIf="a.interviewNote">
+            <span class="k">Note</span>
+            <span class="v">{{ a.interviewNote }}</span>
+          </div>
+
+          <div class="interview-actions" *ngIf="a.meetLink">
+            <button class="btn primary" (click)="joinMeet(a.meetLink!)">
+              Join Meet
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn ghost" (click)="openOffer(a.offerId)">
+          View Offer
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
