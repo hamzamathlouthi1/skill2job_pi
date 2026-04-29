@@ -65,9 +65,9 @@ pipeline {
                     retry(10) {
                         sh "sleep 5"
                         sh "curl -f http://localhost:8082/actuator/health"
-                        sh "curl -f http://localhost:8081/dashboard/"  # Traefik dashboard
-                        sh "curl -f http://localhost:9091/-/healthy"   # Prometheus
-                        sh "curl -f http://localhost:3001/api/health"  # Grafana
+                        sh "curl -f http://localhost:8081/dashboard/"  
+                        sh "curl -f http://localhost:9091/-/healthy"   
+                        sh "curl -f http://localhost:3001/api/health"  
                     }
                 }
             }
