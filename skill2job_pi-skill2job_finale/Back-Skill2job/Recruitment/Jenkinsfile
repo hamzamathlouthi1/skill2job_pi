@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir('Back-Skill2job/Recruitment') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment') {
                     sh 'chmod +x mvnw'
                     sh './mvnw clean package -DskipTests'
                 }
@@ -29,7 +29,7 @@ pipeline {
 
         stage('Docker Build & Push') {
             steps {
-                dir('Back-Skill2job/Recruitment') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment') {
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
