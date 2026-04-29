@@ -23,21 +23,21 @@ pipeline {
         
         stage('Unit Tests') {
             steps {
-                dir('Back-Skill2job/GestionExams') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
                     sh 'mvn clean test'
                 }
             }
             post {
                 always {
                     junit allowEmptyResults: true,
-                          testResults: 'Back-Skill2job/GestionExams/target/surefire-reports/*.xml'
+                          testResults: 'skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams/target/surefire-reports/*.xml'
                 }
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                dir('Back-Skill2job') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
                     sh """
                         docker build \
                             -f GestionExams/Dockerfile \
