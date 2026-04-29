@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_IMAGE = 'azizl/recruitment'
+        SONAR_PROJECT_KEY = 'recruitment-backend'
     }
 
     tools {
@@ -23,6 +24,21 @@ pipeline {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment') {
                     sh 'chmod +x mvnw'
                     sh './mvnw clean package -DskipTests'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            ./mvnw sonar:sonar \
+                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                -Dsonar.projectName="Recruitment Backend" \
+                                -Dsonar.java.source=17
+                        '''
+                    }
                 }
             }
         }
