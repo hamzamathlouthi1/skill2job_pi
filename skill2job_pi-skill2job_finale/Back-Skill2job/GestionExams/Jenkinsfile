@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_CREDS = credentials('docker-hub-credentials')
-        GITHUB_TOKEN = credentials('github-token')
+        DOCKER_CREDS = credentials('dockerhub-credentials')
+        GITHUB_TOKEN = credentials('github-credentials')
         
         SERVICE_NAME = 'gestion-exams'
         DOCKER_IMAGE = 'klibimayssa/gestion-exams'
