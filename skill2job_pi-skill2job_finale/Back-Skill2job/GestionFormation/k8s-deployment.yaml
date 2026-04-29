@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestionformation
+  labels:
+    app: gestionformation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestionformation
+  template:
+    metadata:
+      labels:
+        app: gestionformation
+    spec:
+      containers:
+      - name: gestionformation
+        image: souhakhelifi/gestionformation:latest
+        ports:
+        - containerPort: 8083
+        env:
+        - name: DB_HOST
+          value: "192.168.161.129"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "gestionformation"
+        - name: DB_USERNAME
+          value: "root"
+        - name: DB_PASSWORD
+          value: ""
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gestionformation-service
+spec:
+  selector:
+    app: gestionformation
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 8083
+    targetPort: 8083
+    nodePort: 30083
