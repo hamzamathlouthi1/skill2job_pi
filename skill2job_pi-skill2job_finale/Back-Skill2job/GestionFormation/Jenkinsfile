@@ -10,37 +10,23 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scmGit(
-                    branches: [[name: '*/DevOps']],
-                    extensions: [
-                        cloneOption(shallow: true, depth: 1, noTags: true),
-                        sparseCheckoutPaths([
-                            [path: 'skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation'],
-                            [path: 'skill2job_pi-skill2job_finale/Back-Skill2job/pom.xml']
-                        ])
-                    ],
-                    userRemoteConfigs: [[
-                        credentialsId: 'github-credentials',
-                        url: 'https://github.com/hamzamathlouthi1/skill2job_pi.git'
-                    ]]
-                )
+                checkout scm
             }
         }
         stage('Build') {
             steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
-                    sh 'mvn clean package -DskipTests -pl GestionFormation -am'
+                dir('Back-Skill2job/GestionFormation') {
+                    sh 'mvn clean package -DskipTests'
                 }
             }
         }
         stage('Code Quality — SonarQube') {
             steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                dir('Back-Skill2job/GestionFormation') {
                     withSonarQubeEnv('SonarQube') {
                         withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                             sh '''
                                 mvn sonar:sonar \
-                                  -pl GestionFormation \
                                   -Dsonar.projectKey=gestionformation-backend \
                                   -Dsonar.projectName="GestionFormation Backend" \
                                   -Dsonar.host.url=http://192.168.161.129:9000 \
@@ -53,7 +39,7 @@ pipeline {
         }
         stage('Docker Build & Push') {
             steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                dir('Back-Skill2job/GestionFormation') {
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
@@ -72,7 +58,7 @@ pipeline {
         }
         stage('Deploy to Kubernetes') {
             steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
+                dir('Back-Skill2job/GestionFormation') {
                     sh '''
                         kubectl apply -f k8s-deployment.yaml
                         kubectl rollout status deployment/gestionformation
