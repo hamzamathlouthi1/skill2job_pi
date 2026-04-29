@@ -1,0 +1,126 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_IMAGE = 'ahmedhoussine/gestion-partner'
+        SONAR_PROJECT_KEY = 'gestionpartner-backend'
+    }
+
+    tools {
+        maven 'Maven'
+        jdk   'JDK17'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    sh 'mvn clean package -DskipTests -pl GestionPartner -am'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionPartner') {
+                    sh 'mvn test'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: 'skill2job_pi-skill2job_finale/Back-Skill2job/GestionPartner/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Code Quality — SonarQube') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionPartner') {
+                    withSonarQubeEnv('SonarQube') {
+                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                            sh '''
+                                mvn sonar:sonar \
+                                  -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                  -Dsonar.projectName="GestionPartner Backend" \
+                                  -Dsonar.host.url=http://192.168.161.129:9000 \
+                                  -Dsonar.login=${SONAR_TOKEN}
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            docker build -f GestionPartner/Dockerfile \
+                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
+                            docker tag ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKERHUB_IMAGE}:latest
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    docker stop partner-service || true
+                    docker rm   partner-service || true
+                    docker run -d \
+                        --name partner-service \
+                        -p 8086:8086 \
+                        -e SPRING_DATASOURCE_URL='jdbc:mysql://mysql:3306/partner_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true' \
+                        -e SPRING_DATASOURCE_USERNAME=root \
+                        -e SPRING_DATASOURCE_PASSWORD=root \
+                        -e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka \
+                        -e SERVER_PORT=8086 \
+                        --network skill2job-network \
+                        ${DOCKERHUB_IMAGE}:latest
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                script {
+                    retry(10) {
+                        sh 'sleep 10'
+                        sh 'curl -f http://localhost:8086/actuator/health'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ GestionPartner deployed successfully!'
+            echo 'Partner API: http://localhost:8086'
+        }
+        failure {
+            echo '❌ Pipeline GestionPartner failed — check the logs above.'
+        }
+        always {
+            sh 'docker logout || true'
+        }
+    }
+}
