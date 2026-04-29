@@ -128,11 +128,8 @@ services:
     networks:
       - skill2job-network
 
-  recruitment-service:
-    image: back-skill2job-recruitment-service
-    build:
-      context: .
-      dockerfile: Recruitment/Dockerfile
+ recruitment-service:
+    image: azizl/recruitment:latest
     container_name: recruitment-service
     ports:
       - "8087:8087"
@@ -144,6 +141,9 @@ services:
       - SERVER_PORT=8087
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+      - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
+      - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
     depends_on:
       mysql:
         condition: service_healthy
