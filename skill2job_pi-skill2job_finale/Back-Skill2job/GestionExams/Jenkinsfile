@@ -23,69 +23,62 @@ pipeline {
         
         stage('Unit Tests') {
             steps {
-                dir('Back-Skill2job') {
-                    sh 'mvn clean test -pl GestionExams -am'
+                dir('Back-Skill2job/GestionExams') {
+                    sh 'mvn clean test'
                 }
             }
             post {
                 always {
-                    junit 'Back-Skill2job/GestionExams/target/surefire-reports/*.xml'
+                    junit allowEmptyResults: true,
+                          testResults: 'Back-Skill2job/GestionExams/target/surefire-reports/*.xml'
                 }
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                script {
-                    dir('Back-Skill2job') {
-                        sh """
-                            docker build \
-                                -f GestionExams/Dockerfile \
-                                -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
-                                -t ${DOCKER_IMAGE}:latest \
-                                .
-                        """
-                    }
+                dir('Back-Skill2job') {
+                    sh """
+                        docker build \
+                            -f GestionExams/Dockerfile \
+                            -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                            -t ${DOCKER_IMAGE}:latest \
+                            .
+                    """
                 }
             }
         }
         
         stage('Push Docker Image') {
             steps {
-                script {
-                    sh """
-                        echo ${DOCKER_CREDS_PSW} | docker login \
-                            -u ${DOCKER_CREDS_USR} \
-                            --password-stdin
-                        docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                        docker push ${DOCKER_IMAGE}:latest
-                    """
-                }
+                sh """
+                    echo ${DOCKER_CREDS_PSW} | docker login \
+                        -u ${DOCKER_CREDS_USR} \
+                        --password-stdin
+                    docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                    docker push ${DOCKER_IMAGE}:latest
+                """
             }
         }
         
         stage('Deploy') {
             steps {
-                script {
-                    dir('Back-Skill2job') {
-                        sh """
-                            docker stop exams-service || true
-                            docker rm exams-service || true
-                            docker run -d \
-                                --name exams-service \
-                                -p 8082:8082 \
-                                -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true\\&useSSL=false\\&serverTimezone=UTC\\&allowPublicKeyRetrieval=true \
-                                -e SPRING_DATASOURCE_USERNAME=root \
-                                -e SPRING_DATASOURCE_PASSWORD=root \
-                                -e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka \
-                                -e SERVER_PORT=8082 \
-                                -e MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus \
-                                -e MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true \
-                                --network skill2job-network \
-                                ${DOCKER_IMAGE}:latest
-                        """
-                    }
-                }
+                sh """
+                    docker stop exams-service || true
+                    docker rm exams-service || true
+                    docker run -d \
+                        --name exams-service \
+                        -p 8082:8082 \
+                        -e SPRING_DATASOURCE_URL='jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true' \
+                        -e SPRING_DATASOURCE_USERNAME=root \
+                        -e SPRING_DATASOURCE_PASSWORD=root \
+                        -e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka \
+                        -e SERVER_PORT=8082 \
+                        -e MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus \
+                        -e MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true \
+                        --network skill2job-network \
+                        ${DOCKER_IMAGE}:latest
+                """
             }
         }
         
