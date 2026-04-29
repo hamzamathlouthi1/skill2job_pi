@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKER_CREDS = credentials('dockerhub-credentials')
         GITHUB_TOKEN = credentials('github-credentials')
-        
         SERVICE_NAME = 'gestion-exams'
         DOCKER_IMAGE = 'klibimayssa/gestion-exams'
     }
@@ -84,26 +83,27 @@ pipeline {
         }
         
         stage('Health Check') {
-    steps {
-        script {
-            retry(10) {
-                sh 'sleep 10'
-                sh 'curl -f http://exams-service:8082/actuator/health'
+            steps {
+                script {
+                    retry(10) {
+                        sh 'sleep 10'
+                        sh 'curl -f http://exams-service:8082/actuator/health'
+                    }
+                }
             }
         }
-    }
-}
         
         stage('Verify Traefik Routing') {
-    steps {
-        script {
-            retry(5) {
-                sh 'sleep 5'
-                sh 'curl -f http://traefik:81/api/exams/actuator/health'
+            steps {
+                script {
+                    retry(5) {
+                        sh 'sleep 5'
+                        sh 'curl -f http://traefik:81/api/exams/actuator/health'
+                    }
+                }
             }
         }
-    }
-}
+    }  // ← closes stages
     
     post {
         success {
@@ -121,4 +121,4 @@ pipeline {
             sh 'docker logout || true'
         }
     }
-}
+}  // ← closes pipeline
