@@ -1,122 +1,271 @@
-version: '3.8'
-
-networks:
-  exams-network:
-    driver: bridge
-
-volumes:
-  mysql_exams_data:
-  prometheus_exams_data:
-  grafana_exams_data:
-
 services:
-  # MySQL for Exams only
-  mysql-exams:
+  mysql:
     image: mysql:8.0
-    container_name: mysql-exams
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: exams_db
+      MYSQL_DATABASE: skill2job_db
     ports:
-      - "3307:3306"  # Different port to avoid conflict with other services
+      - "3306:3306"
     volumes:
-      - mysql_exams_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     networks:
-      - exams-network
+      - skill2job-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Your Exams Service
-  exams-service:
+  eureka-server:
+    image: back-skill2job-eureka-server
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Eureka_project/Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - skill2job-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    image: back-skill2job-api-gateway
+    build:
+      context: .
+      dockerfile: api_gateway_pi/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8090:8090"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - skill2job-network
+
+  # ONLY exams-service has Traefik labels
+  exams-service:
+    image: back-skill2job-exams-service
+    build:
+      context: .
+      dockerfile: GestionExams/Dockerfile
     container_name: exams-service
     ports:
       - "8082:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-exams:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SERVER_PORT=8082
-      # Prometheus metrics endpoint
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
       - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
-      - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
     depends_on:
-      mysql-exams:
+      mysql:
+        condition: service_healthy
+      eureka-server:
         condition: service_healthy
     networks:
-      - exams-network
+      - skill2job-network
+    # Traefik labels ONLY for exams-service
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.exams.rule=PathPrefix(`/api/exams`)"
       - "traefik.http.services.exams.loadbalancer.server.port=8082"
-      - "traefik.http.routers.exams.middlewares=exams-stripprefix"
-      - "traefik.http.middlewares.exams-stripprefix.stripprefix.prefixes=/api/exams"
 
-  # Traefik Reverse Proxy
+  session-service:
+    image: back-skill2job-session-service
+    build:
+      context: .
+      dockerfile: GestionSession/Dockerfile
+    container_name: session-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/session_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8085
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - skill2job-network
+
+  formation-service:
+    image: back-skill2job-formation-service
+    build:
+      context: .
+      dockerfile: GestionFormation/Dockerfile
+    container_name: formation-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/formation_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8083
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - skill2job-network
+
+  recruitment-service:
+    image: back-skill2job-recruitment-service
+    build:
+      context: .
+      dockerfile: Recruitment/Dockerfile
+    container_name: recruitment-service
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/recruitment_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8087
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - skill2job-network
+
+  partner-service:
+    image: back-skill2job-partner-service
+    build:
+      context: .
+      dockerfile: GestionPartner/Dockerfile
+    container_name: partner-service
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/Skill2Job?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8086
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - skill2job-network
+
+  user-management-service:
+    image: back-skill2job-user-management-service
+    build:
+      context: .
+      dockerfile: GestionUser/Dockerfile
+    container_name: user-management-service
+    ports:
+      - "8060:8089"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/user?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8089
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+      - APP_JWT_SECRET=VotreSecretKeyTresLongueEtSecurisee1234567890ABCDEFabcdefghijklmnop
+      - APP_JWT_EXPIRATION=86400000
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - skill2job-network
+
+  frontend:
+    image: back-skill2job-frontend
+    build:
+      context: ../front-skill2job
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - skill2job-network
+
+  # Traefik - ONLY for exams-service
   traefik:
     image: traefik:v3.0
-    container_name: traefik-exams
+    container_name: traefik
     command:
-      - "--api.insecure=true"  # Enable dashboard
+      - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--log.level=DEBUG"  # Helpful for debugging
+      - "--entrypoints.web.address=:81"
     ports:
-      - "80:80"           # HTTP traffic
-      - "8081:8080"       # Traefik dashboard (different port)
+      - "81:81"
+      - "8081:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
-      - exams-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik-dashboard.rule=PathPrefix(`/traefik`)"
-      - "traefik.http.routers.traefik-dashboard.service=api@internal"
-      - "traefik.http.routers.traefik-dashboard.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=admin:$$2y$$10$$YOUR_HASHED_PASSWORD"  # Generate with: htpasswd -nb admin admin
+      - skill2job-network
 
-  # Prometheus for metrics collection
+  # Prometheus - ONLY for exams-service
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus-exams
+    container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_exams_data:/prometheus
+      - prometheus_data:/prometheus
     ports:
-      - "9091:9090"  # Different port to avoid conflicts
+      - "9091:9090"
     networks:
-      - exams-network
+      - skill2job-network
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
-      - "--storage.tsdb.retention.time=30d"
-    depends_on:
-      - exams-service
 
-  # Grafana for visualization
+  # Grafana - ONLY for exams-service
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana-exams
+    container_name: grafana
     ports:
-      - "3001:3000"  # Different port to avoid conflicts
+      - "3001:3000"
     networks:
-      - exams-network
+      - skill2job-network
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel
     volumes:
-      - grafana_exams_data:/var/lib/grafana
-      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
-      - ./grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
-      - ./dashboards:/var/lib/grafana/dashboards
-    depends_on:
-      - prometheus
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  mysql_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  skill2job-network:
+    driver: bridge
