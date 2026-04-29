@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "hamzamathlouthi1/gestion-sessions"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    sh "docker build -f GestionSession/Dockerfile -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh "docker stop gestion-sessions || true"
+                sh "docker rm gestion-sessions || true"
+                sh """
+                    docker run -d \
+                      --name gestion-sessions \
+                      -p 8085:8085 \
+                      ${IMAGE_NAME}:${IMAGE_TAG}
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Gestion Sessions deployed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
