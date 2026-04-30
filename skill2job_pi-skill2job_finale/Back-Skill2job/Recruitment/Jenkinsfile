@@ -23,7 +23,7 @@ pipeline {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment') {
                     sh 'chmod +x mvnw'
-                    sh './mvnw clean package -DskipTests'
+                    sh './mvnw clean package'
                 }
             }
         }
