@@ -93,20 +93,21 @@ pipeline {
             }
         }
         
-  stage('Verify Traefik Routing') {
-    steps {
-        script {
-            try {
-                retry(3) {
-                    sh 'sleep 5'
-                    sh 'curl -f http://traefik:81/api/exams/actuator/health'
+        stage('Verify Traefik Routing') {
+            steps {
+                script {
+                    try {
+                        retry(3) {
+                            sh 'sleep 5'
+                            sh 'curl -f http://traefik:81/api/exams/actuator/health'
+                        }
+                    } catch (e) {
+                        echo '⚠️ Traefik not available, skipping...'
+                    }
                 }
-            } catch (e) {
-                echo '⚠️ Traefik not available, skipping...'
             }
         }
-    }
-}  // ← closes stages
+    }  // ← closes stages
     
     post {
         success {
