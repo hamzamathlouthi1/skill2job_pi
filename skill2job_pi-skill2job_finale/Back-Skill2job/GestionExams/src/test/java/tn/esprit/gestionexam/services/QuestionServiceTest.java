@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,6 +69,15 @@ class QuestionServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw when exam not found on create")
+    void createQuestion_WhenExamNotFound_ShouldThrow() {
+        when(examRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> questionService.createQuestion(sampleQuestion, 99L))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("Should return all questions")
     void getAllQuestions_ShouldReturnList() {
         when(questionRepository.findAll()).thenReturn(Arrays.asList(sampleQuestion));
@@ -75,6 +86,26 @@ class QuestionServiceTest {
 
         assertThat(result).hasSize(1);
         verify(questionRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("Should return question by ID")
+    void getQuestionById_WhenExists_ShouldReturn() {
+        when(questionRepository.findById(1L)).thenReturn(Optional.of(sampleQuestion));
+
+        Question result = questionService.getQuestionById(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("Should throw when question not found by ID")
+    void getQuestionById_WhenNotFound_ShouldThrow() {
+        when(questionRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> questionService.getQuestionById(99L))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -105,6 +136,16 @@ class QuestionServiceTest {
     }
 
     @Test
+    @DisplayName("Should delete question by ID")
+    void deleteQuestion_ShouldCallDelete() {
+        when(questionRepository.findById(1L)).thenReturn(Optional.of(sampleQuestion));
+
+        questionService.deleteQuestion(1L);
+
+        verify(questionRepository).delete(sampleQuestion);
+    }
+
+    @Test
     @DisplayName("Should delete questions by exam ID")
     void deleteQuestionsByExamId_ShouldCallDeleteAll() {
         when(examRepository.findById(1L)).thenReturn(Optional.of(sampleExam));
@@ -127,11 +168,18 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("Should check answer correctly")
-    void checkAnswer_ShouldReturnBoolean() {
+    @DisplayName("Should return true for correct answer")
+    void checkAnswer_ShouldReturnTrue() {
         when(questionRepository.findById(1L)).thenReturn(Optional.of(sampleQuestion));
 
         assertThat(questionService.checkAnswer(1L, "A")).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should return false for wrong answer")
+    void checkAnswer_ShouldReturnFalse() {
+        when(questionRepository.findById(1L)).thenReturn(Optional.of(sampleQuestion));
+
         assertThat(questionService.checkAnswer(1L, "B")).isFalse();
     }
 }
