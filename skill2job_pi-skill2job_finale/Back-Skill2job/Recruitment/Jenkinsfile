@@ -1,24 +1,19 @@
 pipeline {
     agent any
-
     environment {
         DOCKERHUB_IMAGE = 'azizl/recruitment'
         SONAR_PROJECT_KEY = 'recruitment-backend'
     }
-
     tools {
         maven 'Maven'
         jdk 'JDK21'
     }
-
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
         stage('Build') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment') {
@@ -27,7 +22,6 @@ pipeline {
                 }
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment') {
@@ -42,7 +36,6 @@ pipeline {
                 }
             }
         }
-
         stage('Docker Build & Push') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
@@ -62,12 +55,15 @@ pipeline {
                 }
             }
         }
-
+        stage('CD') {
+            steps {
+                load 'skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment/Jenkinsfile.cd'
+            }
+        }
     }
-
     post {
         success {
-            echo 'Pipeline completed successfully.'
+            echo 'CI/CD Pipeline completed successfully.'
         }
         failure {
             echo 'Pipeline failed — check the logs above.'
