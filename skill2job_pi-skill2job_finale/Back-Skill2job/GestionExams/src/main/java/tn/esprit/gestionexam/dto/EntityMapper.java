@@ -1,8 +1,13 @@
 package tn.esprit.gestionexam.dto;
 
+import lombok.Getter;
+import lombok.Setter;
 import tn.esprit.gestionexam.entities.*;
 import java.util.stream.Collectors;
 
+
+@Getter
+@Setter
 public class EntityMapper {
 
     public static ExamenDTO toExamenDTO(Examen e) {
