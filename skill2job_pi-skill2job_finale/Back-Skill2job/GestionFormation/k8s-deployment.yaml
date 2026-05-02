@@ -1,6 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: MYSQL_DATABASE
+          value: "formation_db"
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: gestionformation
   labels:
     app: gestionformation
@@ -14,6 +59,10 @@ spec:
       labels:
         app: gestionformation
     spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox
+        command: ['sh', '-c', 'until nc -z mysql-service 3306; do echo waiting for mysql; sleep 3; done']
       containers:
       - name: gestionformation
         image: souhakhelifi/gestionformation:latest
@@ -21,11 +70,11 @@ spec:
         - containerPort: 8083
         env:
         - name: DB_HOST
-          value: "192.168.161.129"
+          value: "mysql-service"
         - name: DB_PORT
           value: "3306"
         - name: DB_NAME
-          value: "gestionformation"
+          value: "formation_db"
         - name: DB_USERNAME
           value: "root"
         - name: DB_PASSWORD
