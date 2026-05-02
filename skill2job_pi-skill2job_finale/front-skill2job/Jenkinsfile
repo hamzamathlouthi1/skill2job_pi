@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    environment {
+        DOCKERHUB_IMAGE = 'azizl/frontend'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/front-skill2job') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            docker build -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
+                            docker tag ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
+                            docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKERHUB_IMAGE}:latest
+                        '''
+                    }
+                }
+            }
+        }
+        stage('CD') {
+            steps {
+                load 'skill2job_pi-skill2job_finale/front-skill2job/Jenkinsfile.cd'
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Frontend CI/CD Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed — check the logs above.'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
