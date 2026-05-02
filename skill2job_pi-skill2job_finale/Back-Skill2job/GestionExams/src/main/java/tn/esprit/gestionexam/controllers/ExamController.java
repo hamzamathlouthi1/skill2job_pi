@@ -3,61 +3,54 @@ package tn.esprit.gestionexam.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.gestionexam.dto.SubmitExamRequest;
-import tn.esprit.gestionexam.dto.SubmitExamResponse;
+import tn.esprit.gestionexam.dto.*;
 import tn.esprit.gestionexam.entities.*;
-import tn.esprit.gestionexam.services.CertificateService;
-import tn.esprit.gestionexam.services.EvaluationService;
-import tn.esprit.gestionexam.services.ExamService;
-import tn.esprit.gestionexam.services.QuestionService;
-import tn.esprit.gestionexam.repositories.ViolationRepository;
-import tn.esprit.gestionexam.repositories.UserAnswerRepository;
+import tn.esprit.gestionexam.services.*;
+import tn.esprit.gestionexam.repositories.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/exams")
-
 public class ExamController {
 
-    @Autowired
-    private ExamService examService;
-
-    @Autowired
-    private CertificateService certificateService;
-
-    @Autowired
-    private QuestionService questionService;
-
-    @Autowired
-    private EvaluationService evaluationService;
-
-    @Autowired
-    private ViolationRepository violationRepository;
-
-    @Autowired
-    private UserAnswerRepository userAnswerRepository;
+    @Autowired private ExamService examService;
+    @Autowired private CertificateService certificateService;
+    @Autowired private QuestionService questionService;
+    @Autowired private EvaluationService evaluationService;
+    @Autowired private ViolationRepository violationRepository;
+    @Autowired private UserAnswerRepository userAnswerRepository;
 
     // ==================== EXAM ENDPOINTS ====================
 
     @PostMapping("/exams")
-    public Examen createExam(@RequestBody Examen exam) {
-        return examService.createExam(exam);
+    public ExamenDTO createExam(@RequestBody ExamenDTO dto) {
+        Examen exam = new Examen();
+        exam.setTitle(dto.getTitle());
+        exam.setDescription(dto.getDescription());
+        exam.setPassScore(dto.getPassScore());
+        return EntityMapper.toExamenDTO(examService.createExam(exam));
     }
 
     @GetMapping("/exams")
-    public List<Examen> getAllExams() {
-        return examService.getAllExams();
+    public List<ExamenDTO> getAllExams() {
+        return examService.getAllExams().stream()
+                .map(EntityMapper::toExamenDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/exams/{id}")
-    public Examen getExamById(@PathVariable Long id) {
-        return examService.getExamById(id);
+    public ExamenDTO getExamById(@PathVariable Long id) {
+        return EntityMapper.toExamenDTO(examService.getExamById(id));
     }
 
     @PutMapping("/exams/{id}")
-    public Examen updateExam(@PathVariable Long id, @RequestBody Examen exam) {
-        return examService.updateExam(id, exam);
+    public ExamenDTO updateExam(@PathVariable Long id, @RequestBody ExamenDTO dto) {
+        Examen exam = new Examen();
+        exam.setTitle(dto.getTitle());
+        exam.setDescription(dto.getDescription());
+        exam.setPassScore(dto.getPassScore());
+        return EntityMapper.toExamenDTO(examService.updateExam(id, exam));
     }
 
     @DeleteMapping("/exams/{id}")
@@ -68,28 +61,42 @@ public class ExamController {
     // ==================== QUESTION ENDPOINTS ====================
 
     @PostMapping("/exams/{examId}/questions")
-    public Question createQuestion(@RequestBody Question question, @PathVariable Long examId) {
-        return questionService.createQuestion(question, examId);
+    public QuestionDTO createQuestion(@RequestBody QuestionDTO dto, @PathVariable Long examId) {
+        Question question = new Question();
+        question.setContent(dto.getContent());
+        question.setOptionA(dto.getOptionA());
+        question.setOptionB(dto.getOptionB());
+        question.setOptionC(dto.getOptionC());
+        question.setOptionD(dto.getOptionD());
+        return EntityMapper.toQuestionDTO(questionService.createQuestion(question, examId));
     }
 
     @GetMapping("/questions")
-    public List<Question> getAllQuestions() {
-        return questionService.getAllQuestions();
+    public List<QuestionDTO> getAllQuestions() {
+        return questionService.getAllQuestions().stream()
+                .map(EntityMapper::toQuestionDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/questions/{id}")
-    public Question getQuestionById(@PathVariable Long id) {
-        return questionService.getQuestionById(id);
+    public QuestionDTO getQuestionById(@PathVariable Long id) {
+        return EntityMapper.toQuestionDTO(questionService.getQuestionById(id));
     }
 
     @GetMapping("/exams/{examId}/questions")
-    public List<Question> getQuestionsByExamId(@PathVariable Long examId) {
-        return questionService.getQuestionsByExamId(examId);
+    public List<QuestionDTO> getQuestionsByExamId(@PathVariable Long examId) {
+        return questionService.getQuestionsByExamId(examId).stream()
+                .map(EntityMapper::toQuestionDTO).collect(Collectors.toList());
     }
 
     @PutMapping("/questions/{id}")
-    public Question updateQuestion(@PathVariable Long id, @RequestBody Question question) {
-        return questionService.updateQuestion(id, question);
+    public QuestionDTO updateQuestion(@PathVariable Long id, @RequestBody QuestionDTO dto) {
+        Question question = new Question();
+        question.setContent(dto.getContent());
+        question.setOptionA(dto.getOptionA());
+        question.setOptionB(dto.getOptionB());
+        question.setOptionC(dto.getOptionC());
+        question.setOptionD(dto.getOptionD());
+        return EntityMapper.toQuestionDTO(questionService.updateQuestion(id, question));
     }
 
     @DeleteMapping("/questions/{id}")
@@ -115,33 +122,44 @@ public class ExamController {
     // ==================== EVALUATION ENDPOINTS ====================
 
     @PostMapping("/exams/{examId}/evaluations")
-    public Evaluation createEvaluation(@RequestBody Evaluation evaluation, @PathVariable Long examId) {
-        return evaluationService.createEvaluation(evaluation, examId);
+    public EvaluationDTO createEvaluation(@RequestBody EvaluationDTO dto, @PathVariable Long examId) {
+        Evaluation evaluation = new Evaluation();
+        evaluation.setUserId(dto.getUserId());
+        evaluation.setScore(dto.getScore());
+        evaluation.setPassed(dto.getPassed());
+        return EntityMapper.toEvaluationDTO(evaluationService.createEvaluation(evaluation, examId));
     }
 
     @GetMapping("/evaluations")
-    public List<Evaluation> getAllEvaluations() {
-        return evaluationService.getAllEvaluations();
+    public List<EvaluationDTO> getAllEvaluations() {
+        return evaluationService.getAllEvaluations().stream()
+                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/evaluations/{id}")
-    public Evaluation getEvaluationById(@PathVariable Long id) {
-        return evaluationService.getEvaluationById(id);
+    public EvaluationDTO getEvaluationById(@PathVariable Long id) {
+        return EntityMapper.toEvaluationDTO(evaluationService.getEvaluationById(id));
     }
 
     @GetMapping("/exams/{examId}/evaluations")
-    public List<Evaluation> getEvaluationsByExamId(@PathVariable Long examId) {
-        return evaluationService.getEvaluationsByExamId(examId);
+    public List<EvaluationDTO> getEvaluationsByExamId(@PathVariable Long examId) {
+        return evaluationService.getEvaluationsByExamId(examId).stream()
+                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/users/{userId}/evaluations")
-    public List<Evaluation> getEvaluationsByUserId(@PathVariable Long userId) {
-        return evaluationService.getEvaluationsByUserId(userId);
+    public List<EvaluationDTO> getEvaluationsByUserId(@PathVariable Long userId) {
+        return evaluationService.getEvaluationsByUserId(userId).stream()
+                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
     }
 
     @PutMapping("/evaluations/{id}")
-    public Evaluation updateEvaluation(@PathVariable Long id, @RequestBody Evaluation evaluation) {
-        return evaluationService.updateEvaluation(id, evaluation);
+    public EvaluationDTO updateEvaluation(@PathVariable Long id, @RequestBody EvaluationDTO dto) {
+        Evaluation evaluation = new Evaluation();
+        evaluation.setUserId(dto.getUserId());
+        evaluation.setScore(dto.getScore());
+        evaluation.setPassed(dto.getPassed());
+        return EntityMapper.toEvaluationDTO(evaluationService.updateEvaluation(id, evaluation));
     }
 
     @DeleteMapping("/evaluations/{id}")
@@ -150,20 +168,23 @@ public class ExamController {
     }
 
     @GetMapping("/evaluations/passed")
-    public List<Evaluation> getPassedEvaluations() {
-        return evaluationService.getPassedEvaluations();
+    public List<EvaluationDTO> getPassedEvaluations() {
+        return evaluationService.getPassedEvaluations().stream()
+                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/evaluations/failed")
-    public List<Evaluation> getFailedEvaluations() {
-        return evaluationService.getFailedEvaluations();
+    public List<EvaluationDTO> getFailedEvaluations() {
+        return evaluationService.getFailedEvaluations().stream()
+                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/users/{userId}/evaluations/status")
-    public List<Evaluation> getEvaluationsByUserAndStatus(
+    public List<EvaluationDTO> getEvaluationsByUserAndStatus(
             @PathVariable Long userId,
             @RequestParam Boolean passed) {
-        return evaluationService.getEvaluationsByUserAndStatus(userId, passed);
+        return evaluationService.getEvaluationsByUserAndStatus(userId, passed).stream()
+                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/exams/{examId}/evaluations/average")
@@ -179,40 +200,45 @@ public class ExamController {
     // ==================== CERTIFICATE ENDPOINTS ====================
 
     @PostMapping("/evaluations/{evaluationId}/certificate")
-    public Certificate createCertificate(@PathVariable Long evaluationId) {
-        return certificateService.createCertificate(evaluationId);
+    public CertificateDTO createCertificate(@PathVariable Long evaluationId) {
+        return EntityMapper.toCertificateDTO(certificateService.createCertificate(evaluationId));
     }
 
     @GetMapping("/certificates")
-    public List<Certificate> getAllCertificates() {
-        return certificateService.getAllCertificates();
+    public List<CertificateDTO> getAllCertificates() {
+        return certificateService.getAllCertificates().stream()
+                .map(EntityMapper::toCertificateDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/certificates/{id}")
-    public Certificate getCertificateById(@PathVariable Long id) {
-        return certificateService.getCertificateById(id);
+    public CertificateDTO getCertificateById(@PathVariable Long id) {
+        return EntityMapper.toCertificateDTO(certificateService.getCertificateById(id));
     }
 
     @GetMapping("/evaluations/{evaluationId}/certificate")
-    public Certificate getCertificateByEvaluationId(@PathVariable Long evaluationId) {
-        return certificateService.getCertificateByEvaluationId(evaluationId);
+    public CertificateDTO getCertificateByEvaluationId(@PathVariable Long evaluationId) {
+        return EntityMapper.toCertificateDTO(certificateService.getCertificateByEvaluationId(evaluationId));
     }
 
     @GetMapping("/users/{userId}/certificates")
-    public List<Certificate> getCertificatesByUserId(@PathVariable Long userId) {
-        return certificateService.getCertificatesByUserId(userId);
+    public List<CertificateDTO> getCertificatesByUserId(@PathVariable Long userId) {
+        return certificateService.getCertificatesByUserId(userId).stream()
+                .map(EntityMapper::toCertificateDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/users/{userId}/exams/{examId}/certificate")
-    public Certificate getCertificateByUserAndExam(
-            @PathVariable Long userId,
-            @PathVariable Long examId) {
-        return certificateService.getCertificateByUserAndExam(userId, examId);
+    public CertificateDTO getCertificateByUserAndExam(
+            @PathVariable Long userId, @PathVariable Long examId) {
+        return EntityMapper.toCertificateDTO(
+                certificateService.getCertificateByUserAndExam(userId, examId));
     }
 
     @PutMapping("/certificates/{id}")
-    public Certificate updateCertificate(@PathVariable Long id, @RequestBody Certificate certificate) {
-        return certificateService.updateCertificate(id, certificate);
+    public CertificateDTO updateCertificate(@PathVariable Long id, @RequestBody CertificateDTO dto) {
+        Certificate certificate = new Certificate();
+        certificate.setCertificateCode(dto.getCertificateCode());
+        certificate.setIssueDate(dto.getIssueDate());
+        return EntityMapper.toCertificateDTO(certificateService.updateCertificate(id, certificate));
     }
 
     @DeleteMapping("/certificates/{id}")
@@ -231,8 +257,8 @@ public class ExamController {
     }
 
     @GetMapping("/certificates/code/{code}")
-    public Certificate getCertificateByCode(@PathVariable String code) {
-        return certificateService.getCertificateByCode(code);
+    public CertificateDTO getCertificateByCode(@PathVariable String code) {
+        return EntityMapper.toCertificateDTO(certificateService.getCertificateByCode(code));
     }
 
     @GetMapping("/users/{userId}/certificates/count")
@@ -241,8 +267,9 @@ public class ExamController {
     }
 
     @PostMapping("/exams/{examId}/certificates/bulk")
-    public List<Certificate> createCertificatesForExam(@PathVariable Long examId) {
-        return certificateService.createCertificatesForExam(examId);
+    public List<CertificateDTO> createCertificatesForExam(@PathVariable Long examId) {
+        return certificateService.createCertificatesForExam(examId).stream()
+                .map(EntityMapper::toCertificateDTO).collect(Collectors.toList());
     }
 
     @PostMapping("/exams/{examId}/submit")
@@ -254,19 +281,25 @@ public class ExamController {
     }
 
     @GetMapping("/evaluations/{evaluationId}/answers")
-    public List<UserAnswer> getAnswersByEvaluationId(@PathVariable Long evaluationId) {
-        return userAnswerRepository.findByEvaluationId(evaluationId);
+    public List<UserAnswerDTO> getAnswersByEvaluationId(@PathVariable Long evaluationId) {
+        return userAnswerRepository.findByEvaluationId(evaluationId).stream()
+                .map(EntityMapper::toUserAnswerDTO).collect(Collectors.toList());
     }
 
     @PostMapping
-    public ResponseEntity<?> logViolation(@RequestBody ExamViolation violation) {
+    public ResponseEntity<?> logViolation(@RequestBody ExamViolationDTO dto) {
+        ExamViolation violation = new ExamViolation();
+        violation.setExamAttemptId(dto.getExamAttemptId());
+        violation.setLearnerId(dto.getLearnerId());
+        violation.setType(dto.getType());
         violationRepository.save(violation);
         return ResponseEntity.ok("logged");
     }
 
     @GetMapping("/attempt/{attemptId}")
-    public ResponseEntity<List<ExamViolation>> getViolations(@PathVariable Long attemptId) {
+    public ResponseEntity<List<ExamViolationDTO>> getViolations(@PathVariable Long attemptId) {
         return ResponseEntity.ok(
-                violationRepository.findByExamAttemptId(attemptId));
+                violationRepository.findByExamAttemptId(attemptId).stream()
+                        .map(EntityMapper::toViolationDTO).collect(Collectors.toList()));
     }
 }
