@@ -71,6 +71,8 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
+      sonarqube:
+        condition: service_healthy
     networks:
       - skill2job-network
     labels:
@@ -256,10 +258,30 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - skill2job-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/api/system/status | grep -q UP"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 volumes:
   mysql_data:
   prometheus_data:
   grafana_data:
+  sonarqube_data:
+  sonarqube_logs:
 
 networks:
   skill2job-network:
