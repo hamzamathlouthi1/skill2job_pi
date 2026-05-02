@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+    environment {
+        DOCKERHUB_IMAGE = 'souhakhelifi/gestionformation'
+    }
+    tools {
+        maven 'Maven'
+        jdk   'JDK17'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+        stage('Code Quality — SonarQube') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
+                    withSonarQubeEnv('SonarQube') {
+                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                            sh '''
+                                mvn sonar:sonar \
+                                  -Dsonar.projectKey=gestionformation-backend \
+                                  -Dsonar.projectName="GestionFormation Backend" \
+                                  -Dsonar.host.url=http://192.168.161.129:9000 \
+                                  -Dsonar.login=${SONAR_TOKEN}
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            docker build -f GestionFormation/Dockerfile \
+                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
+                            docker tag ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKERHUB_IMAGE}:latest
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "CI Pipeline completed successfully. Image: ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}"
+            build job: 'formation-backend-cd',
+                  parameters: [string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}")],
+                  wait: false
+        }
+        failure {
+            echo 'CI Pipeline failed — check the logs above.'
+        }
+    }
+}
