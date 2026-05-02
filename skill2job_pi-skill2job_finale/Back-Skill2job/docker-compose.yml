@@ -50,7 +50,6 @@ services:
     networks:
       - skill2job-network
 
-  # ONLY exams-service has Traefik labels
   exams-service:
     image: back-skill2job-exams-service
     build:
@@ -74,7 +73,6 @@ services:
         condition: service_healthy
     networks:
       - skill2job-network
-    # Traefik labels ONLY for exams-service
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.exams.rule=PathPrefix(`/api/exams`)"
@@ -128,7 +126,7 @@ services:
     networks:
       - skill2job-network
 
- recruitment-service:
+  recruitment-service:
     image: azizl/recruitment:latest
     container_name: recruitment-service
     ports:
@@ -215,7 +213,6 @@ services:
     networks:
       - skill2job-network
 
-  # Traefik - ONLY for exams-service
   traefik:
     image: traefik:v3.0
     container_name: traefik
@@ -233,12 +230,11 @@ services:
     networks:
       - skill2job-network
 
-  # Prometheus - ONLY for exams-service
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./GestionExams/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     ports:
       - "9091:9090"
@@ -248,7 +244,6 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
 
-  # Grafana - ONLY for exams-service
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
