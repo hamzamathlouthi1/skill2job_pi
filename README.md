@@ -110,7 +110,7 @@ MySQL
 This project was developed by a team of **4th year engineering students at Esprit School of Engineering**:
 
 - Mathlouthi Hamza  
-- Lekhlifi Souha  
+- Khelifi Souha  
 - Loueti Mohamed Aziz
 - Kelibi Mayssa  
 - Khemir Ahmed Houssine  
