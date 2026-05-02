@@ -33,6 +33,19 @@ pipeline {
                 }
             }
         }
+       stage('SonarQube Analysis') {
+           steps {
+               dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
+                    sh """
+                     mvn sonar:sonar \
+                    -Dsonar.projectKey=gestion-exams \
+                    -Dsonar.host.url=http://sonarqube:9000 \
+                    -Dsonar.login=admin \
+                    -Dsonar.password=admin
+                       """
+                 }
+            }
+        }
         
         stage('Build Docker Image') {
             steps {
