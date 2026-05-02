@@ -19,13 +19,11 @@
     <description>Gestion des examens avec JWT</description>
 
     <properties>
-        <java.version>17</java.version>
-        <lombok.version>1.18.34</lombok.version>
-    </properties>
-    <properties>
+    <java.version>17</java.version>
+    <lombok.version>1.18.34</lombok.version>
     <sonar.projectKey>gestion-exams</sonar.projectKey>
     <sonar.host.url>http://sonarqube:9000</sonar.host.url>
-    </properties>
+</properties>
 
     <dependencies>
         <dependency>
@@ -124,6 +122,11 @@
                     </execution>
                 </executions>
             </plugin>
+           <plugin>
+              <groupId>org.sonarsource.scanner.maven</groupId>
+              <artifactId>sonar-maven-plugin</artifactId>
+              <version>3.11.0.3922</version>
+           </plugin>
         </plugins>
     </build>
 
