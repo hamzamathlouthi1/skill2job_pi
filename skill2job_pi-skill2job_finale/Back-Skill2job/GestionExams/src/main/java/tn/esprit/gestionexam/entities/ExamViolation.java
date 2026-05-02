@@ -2,6 +2,7 @@ package tn.esprit.gestionexam.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -10,17 +11,18 @@ import java.time.LocalDateTime;
 @Table(name = "exam_violations")
 @Getter
 @Setter
+@NoArgsConstructor
 public class ExamViolation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long examAttemptId;   // which attempt
+    private Long examAttemptId;
     private Long learnerId;
 
     @Enumerated(EnumType.STRING)
-    private ViolationType type;   // TAB_SWITCH, COPY_PASTE, FULLSCREEN_EXIT, RIGHT_CLICK
+    private ViolationType type;
 
     private LocalDateTime timestamp;
 
@@ -28,6 +30,4 @@ public class ExamViolation {
     public void prePersist() {
         this.timestamp = LocalDateTime.now();
     }
-
-    // getters + setters
 }
