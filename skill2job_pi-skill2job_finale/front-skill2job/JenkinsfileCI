@@ -1,0 +1,99 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_IMAGE = 'skill2job/frontend'
+        NEXUS_REGISTRY  = '192.168.161.129:8082'
+        NEXUS_IMAGE     = "${NEXUS_REGISTRY}/frontend"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/front-skill2job') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            docker run --rm \
+                              -e SONAR_HOST_URL=http://192.168.161.129:9000 \
+                              -e SONAR_SCANNER_OPTS="\
+                                -Dsonar.projectKey=frontend-skill2job \
+                                -Dsonar.sources=src \
+                                -Dsonar.exclusions=**/node_modules/**,**/dist/**" \
+                              -v $(pwd):/usr/src \
+                              sonarsource/sonar-scanner-cli
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/front-skill2job') {
+                    sh '''
+                        docker build \
+                          -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} \
+                          -t ${DOCKERHUB_IMAGE}:latest \
+                          -t ${NEXUS_IMAGE}:${BUILD_NUMBER} \
+                          -t ${NEXUS_IMAGE}:latest \
+                          .
+                    '''
+                }
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
+                        docker push ${DOCKERHUB_IMAGE}:latest
+                        docker logout
+                    '''
+                }
+            }
+        }
+
+        stage('Push to Nexus') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-credentials',
+                    usernameVariable: 'NX_USER',
+                    passwordVariable: 'NX_PASS'
+                )]) {
+                    sh '''
+                        echo $NX_PASS | docker login ${NEXUS_REGISTRY} -u $NX_USER --password-stdin
+                        docker push ${NEXUS_IMAGE}:${BUILD_NUMBER}
+                        docker push ${NEXUS_IMAGE}:latest
+                        docker logout ${NEXUS_REGISTRY}
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CI réussie — image skill2job/frontend:${BUILD_NUMBER} disponible"
+        }
+        failure {
+            echo 'CI échouée — vérifier les logs'
+        }
+        always {
+            sh 'docker image prune -f || true'
+            cleanWs()
+        }
+    }
+}
