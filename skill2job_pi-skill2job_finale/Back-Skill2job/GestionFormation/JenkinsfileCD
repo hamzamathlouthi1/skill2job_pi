@@ -16,16 +16,12 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
-                    sh '''
-                        # Mettre à jour le tag de l'image
-                        sed -i "s|image: ${DOCKERHUB_IMAGE}:.*|image: ${DOCKERHUB_IMAGE}:${IMAGE_TAG}|g" k8s-deployment.yaml
-
-                        # Appliquer le déploiement
+                    sh """
+                        sed -i "s|image: ${DOCKERHUB_IMAGE}:.*|image: ${DOCKERHUB_IMAGE}:${params.IMAGE_TAG}|g" k8s-deployment.yaml
+                        cat k8s-deployment.yaml
                         kubectl apply -f k8s-deployment.yaml
-
-                        # Attendre que le déploiement soit terminé
                         kubectl rollout status deployment/gestionformation --timeout=120s
-                    '''
+                    """
                 }
             }
         }
