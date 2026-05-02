@@ -1,51 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
-  labels:
-    app: mysql
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mysql
-  template:
-    metadata:
-      labels:
-        app: mysql
-    spec:
-      containers:
-      - name: mysql
-        image: mysql:8.0
-        ports:
-        - containerPort: 3306
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: "root"
-        - name: MYSQL_DATABASE
-          value: "formation_db"
-        volumeMounts:
-        - name: mysql-storage
-          mountPath: /var/lib/mysql
-      volumes:
-      - name: mysql-storage
-        emptyDir: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mysql-service
-spec:
-  selector:
-    app: mysql
-  ports:
-  - protocol: TCP
-    port: 3306
-    targetPort: 3306
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: gestionformation
   labels:
     app: gestionformation
@@ -62,7 +17,17 @@ spec:
       initContainers:
       - name: wait-for-mysql
         image: busybox
-        command: ['sh', '-c', 'until nc -z mysql-service 3306; do echo waiting for mysql; sleep 3; done']
+        command:
+          - sh
+          - -c
+          - |
+            echo "Waiting for MySQL to be ready..."
+            until nc -z mysql-service 3306; do
+              echo "MySQL not ready yet, retrying in 3s..."
+              sleep 3
+            done
+            echo "MySQL is up! Starting app..."
+            sleep 5
       containers:
       - name: gestionformation
         image: souhakhelifi/gestionformation:latest
@@ -79,6 +44,27 @@ spec:
           value: "root"
         - name: DB_PASSWORD
           value: "root"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          failureThreshold: 4
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
