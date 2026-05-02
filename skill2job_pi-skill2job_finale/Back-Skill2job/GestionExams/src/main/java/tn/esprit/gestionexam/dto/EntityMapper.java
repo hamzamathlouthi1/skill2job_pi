@@ -1,14 +1,12 @@
 package tn.esprit.gestionexam.dto;
 
-import lombok.Getter;
-import lombok.Setter;
 import tn.esprit.gestionexam.entities.*;
-import java.util.stream.Collectors;
 
-
-@Getter
-@Setter
 public class EntityMapper {
+
+    private EntityMapper() {
+        // utility class — no instantiation
+    }
 
     public static ExamenDTO toExamenDTO(Examen e) {
         ExamenDTO dto = new ExamenDTO();
@@ -17,9 +15,9 @@ public class EntityMapper {
         dto.setDescription(e.getDescription());
         dto.setPassScore(e.getPassScore());
         if (e.getQuestions() != null)
-            dto.setQuestionIds(e.getQuestions().stream().map(Question::getId).collect(Collectors.toList()));
+            dto.setQuestionIds(e.getQuestions().stream().map(Question::getId).toList());
         if (e.getEvaluations() != null)
-            dto.setEvaluationIds(e.getEvaluations().stream().map(Evaluation::getId).collect(Collectors.toList()));
+            dto.setEvaluationIds(e.getEvaluations().stream().map(Evaluation::getId).toList());
         return dto;
     }
 
@@ -43,7 +41,7 @@ public class EntityMapper {
         dto.setPassed(ev.getPassed());
         if (ev.getExam() != null) dto.setExamId(ev.getExam().getId());
         if (ev.getAnswers() != null)
-            dto.setAnswerIds(ev.getAnswers().stream().map(UserAnswer::getId).collect(Collectors.toList()));
+            dto.setAnswerIds(ev.getAnswers().stream().map(UserAnswer::getId).toList());
         return dto;
     }
 
