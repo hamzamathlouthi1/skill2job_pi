@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
+    }
+    environment {
+        DOCKERHUB_IMAGE = 'souhakhelifi/gestionformation'
+        K8S_NAMESPACE   = 'default'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionFormation') {
+                    sh '''
+                        # Mettre à jour le tag de l'image
+                        sed -i "s|image: ${DOCKERHUB_IMAGE}:.*|image: ${DOCKERHUB_IMAGE}:${IMAGE_TAG}|g" k8s-deployment.yaml
+
+                        # Appliquer le déploiement
+                        kubectl apply -f k8s-deployment.yaml
+
+                        # Attendre que le déploiement soit terminé
+                        kubectl rollout status deployment/gestionformation --timeout=120s
+                    '''
+                }
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                    echo "=== Pods ==="
+                    kubectl get pods -l app=gestionformation
+
+                    echo "=== Service ==="
+                    kubectl get service gestionformation-service
+
+                    echo "=== Deployment ==="
+                    kubectl get deployment gestionformation
+                '''
+            }
+        }
+    }
+    post {
+        success {
+            echo "CD Pipeline completed. App deployed at http://192.168.161.129:30083"
+        }
+        failure {
+            echo 'CD Pipeline failed — rolling back...'
+            sh 'kubectl rollout undo deployment/gestionformation'
+        }
+    }
+}
