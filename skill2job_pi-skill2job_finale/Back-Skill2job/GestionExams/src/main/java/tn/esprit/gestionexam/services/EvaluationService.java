@@ -1,6 +1,5 @@
 package tn.esprit.gestionexam.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.gestionexam.dto.SubmitExamRequest;
 import tn.esprit.gestionexam.dto.SubmitExamResponse;
@@ -15,23 +14,34 @@ import java.util.List;
 @Service
 public class EvaluationService {
 
-    @Autowired private EvaluationRepository evaluationRepository;
-    @Autowired private UserAnswerRepository userAnswerRepository;
-    @Autowired private ExamRepository examRepository;
-    @Autowired private QuestionRepository questionRepository;
-    @Autowired private CertificateService certificateService;
+    private final EvaluationRepository evaluationRepository;
+    private final UserAnswerRepository userAnswerRepository;
+    private final ExamRepository examRepository;
+    private final QuestionRepository questionRepository;
+    private final CertificateService certificateService;
+
+    public EvaluationService(EvaluationRepository evaluationRepository,
+                              UserAnswerRepository userAnswerRepository,
+                              ExamRepository examRepository,
+                              QuestionRepository questionRepository,
+                              CertificateService certificateService) {
+        this.evaluationRepository = evaluationRepository;
+        this.userAnswerRepository = userAnswerRepository;
+        this.examRepository = examRepository;
+        this.questionRepository = questionRepository;
+        this.certificateService = certificateService;
+    }
 
     public SubmitExamResponse submitExam(SubmitExamRequest request) {
         Examen exam = examRepository.findById(request.getExamId())
-                .orElseThrow(() -> new RuntimeException("Exam not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Exam not found"));
 
         List<Question> questions = questionRepository.findByExamId(request.getExamId());
 
         if (questions.isEmpty()) {
-            throw new RuntimeException("Exam has no questions");
+            throw new IllegalStateException("Exam has no questions");
         }
 
-        // Calculate score
         long correct = request.getAnswers().stream()
                 .filter(answer -> questions.stream()
                         .anyMatch(q -> q.getId().equals(answer.getQuestionId())
@@ -41,7 +51,6 @@ public class EvaluationService {
         double score = ((double) correct / questions.size()) * 100;
         boolean passed = score >= exam.getPassScore();
 
-        // Save evaluation
         Evaluation evaluation = new Evaluation();
         evaluation.setUserId(request.getUserId());
         evaluation.setScore(score);
@@ -49,7 +58,6 @@ public class EvaluationService {
         evaluation.setExam(exam);
         evaluation = evaluationRepository.save(evaluation);
 
-        // ← Save each answer linked to this evaluation
         for (SubmitExamRequest.AnswerDto answerDto : request.getAnswers()) {
             UserAnswer userAnswer = new UserAnswer();
             userAnswer.setQuestionId(answerDto.getQuestionId());
@@ -58,7 +66,6 @@ public class EvaluationService {
             userAnswerRepository.save(userAnswer);
         }
 
-        // Generate certificate if passed
         String certificateCode = null;
         if (passed) {
             Certificate cert = certificateService.createCertificate(evaluation.getId());
@@ -68,14 +75,13 @@ public class EvaluationService {
         return new SubmitExamResponse(score, passed, evaluation.getId(), certificateCode);
     }
 
-    // Keep all your existing methods below...
     public List<Evaluation> getAllEvaluations() {
         return evaluationRepository.findAll();
     }
 
     public Evaluation getEvaluationById(Long id) {
         return evaluationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Evaluation not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Evaluation not found"));
     }
 
     public List<Evaluation> getEvaluationsByExamId(Long examId) {
@@ -115,7 +121,7 @@ public class EvaluationService {
 
     public Evaluation createEvaluation(Evaluation evaluation, Long examId) {
         Examen exam = examRepository.findById(examId)
-                .orElseThrow(() -> new RuntimeException("Exam not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Exam not found"));
         evaluation.setExam(exam);
         return evaluationRepository.save(evaluation);
     }
