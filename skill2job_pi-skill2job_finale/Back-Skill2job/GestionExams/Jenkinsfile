@@ -41,6 +41,7 @@ pipeline {
                     -Dsonar.projectKey=gestion-exams \
                     -Dsonar.host.url=http://sonarqube:9000 \
                     -Dsonar.token=sqa_ddfb5da3d385821fe63db90630cf729aa6525196
+                    -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
             """
         }
     }
