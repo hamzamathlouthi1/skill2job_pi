@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKERHUB_IMAGE = 'souhakhelifi/gestionformation'
+        NEXUS_IMAGE     = '192.168.161.129:8082/gestionformation'
     }
     tools {
         maven 'Maven'
@@ -40,18 +41,33 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
-                    withCredentials([usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )]) {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'dockerhub-credentials',
+                            usernameVariable: 'DOCKER_USER',
+                            passwordVariable: 'DOCKER_PASS'
+                        ),
+                        usernamePassword(
+                            credentialsId: 'nexus-credentials',
+                            usernameVariable: 'NEXUS_USER',
+                            passwordVariable: 'NEXUS_PASS'
+                        )
+                    ]) {
                         sh '''
+                            # Build l image
                             docker build -f GestionFormation/Dockerfile \
-                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
-                            docker tag ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
+                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} \
+                              -t ${NEXUS_IMAGE}:${BUILD_NUMBER} \
+                              -t ${NEXUS_IMAGE}:latest .
+
+                            # Push vers Docker Hub
                             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                             docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
-                            docker push ${DOCKERHUB_IMAGE}:latest
+
+                            # Push vers Nexus
+                            echo $NEXUS_PASS | docker login 192.168.161.129:8082 -u $NEXUS_USER --password-stdin
+                            docker push ${NEXUS_IMAGE}:${BUILD_NUMBER}
+                            docker push ${NEXUS_IMAGE}:latest
                         '''
                     }
                 }
@@ -60,7 +76,7 @@ pipeline {
     }
     post {
         success {
-            echo "CI Pipeline completed successfully. Image: ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}"
+            echo "CI Pipeline completed. Image pushed to DockerHub and Nexus : ${BUILD_NUMBER}"
             build job: 'formation-backend-cd',
                   parameters: [string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}")],
                   wait: false
