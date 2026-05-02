@@ -23,7 +23,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
-                    sh 'mvn clean test'
+                     sh 'mvn clean test -U -Daether.syncContext.named.factory=noop'
                 }
             }
             post {
