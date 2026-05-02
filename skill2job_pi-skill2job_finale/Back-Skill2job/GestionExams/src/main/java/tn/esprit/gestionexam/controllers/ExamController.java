@@ -1,6 +1,5 @@
 package tn.esprit.gestionexam.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.gestionexam.dto.*;
@@ -9,18 +8,31 @@ import tn.esprit.gestionexam.services.*;
 import tn.esprit.gestionexam.repositories.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/exams")
 public class ExamController {
 
-    @Autowired private ExamService examService;
-    @Autowired private CertificateService certificateService;
-    @Autowired private QuestionService questionService;
-    @Autowired private EvaluationService evaluationService;
-    @Autowired private ViolationRepository violationRepository;
-    @Autowired private UserAnswerRepository userAnswerRepository;
+    private final ExamService examService;
+    private final CertificateService certificateService;
+    private final QuestionService questionService;
+    private final EvaluationService evaluationService;
+    private final ViolationRepository violationRepository;
+    private final UserAnswerRepository userAnswerRepository;
+
+    public ExamController(ExamService examService,
+                          CertificateService certificateService,
+                          QuestionService questionService,
+                          EvaluationService evaluationService,
+                          ViolationRepository violationRepository,
+                          UserAnswerRepository userAnswerRepository) {
+        this.examService = examService;
+        this.certificateService = certificateService;
+        this.questionService = questionService;
+        this.evaluationService = evaluationService;
+        this.violationRepository = violationRepository;
+        this.userAnswerRepository = userAnswerRepository;
+    }
 
     // ==================== EXAM ENDPOINTS ====================
 
@@ -36,7 +48,7 @@ public class ExamController {
     @GetMapping("/exams")
     public List<ExamenDTO> getAllExams() {
         return examService.getAllExams().stream()
-                .map(EntityMapper::toExamenDTO).collect(Collectors.toList());
+                .map(EntityMapper::toExamenDTO).toList();
     }
 
     @GetMapping("/exams/{id}")
@@ -74,7 +86,7 @@ public class ExamController {
     @GetMapping("/questions")
     public List<QuestionDTO> getAllQuestions() {
         return questionService.getAllQuestions().stream()
-                .map(EntityMapper::toQuestionDTO).collect(Collectors.toList());
+                .map(EntityMapper::toQuestionDTO).toList();
     }
 
     @GetMapping("/questions/{id}")
@@ -85,7 +97,7 @@ public class ExamController {
     @GetMapping("/exams/{examId}/questions")
     public List<QuestionDTO> getQuestionsByExamId(@PathVariable Long examId) {
         return questionService.getQuestionsByExamId(examId).stream()
-                .map(EntityMapper::toQuestionDTO).collect(Collectors.toList());
+                .map(EntityMapper::toQuestionDTO).toList();
     }
 
     @PutMapping("/questions/{id}")
@@ -133,7 +145,7 @@ public class ExamController {
     @GetMapping("/evaluations")
     public List<EvaluationDTO> getAllEvaluations() {
         return evaluationService.getAllEvaluations().stream()
-                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
+                .map(EntityMapper::toEvaluationDTO).toList();
     }
 
     @GetMapping("/evaluations/{id}")
@@ -144,13 +156,13 @@ public class ExamController {
     @GetMapping("/exams/{examId}/evaluations")
     public List<EvaluationDTO> getEvaluationsByExamId(@PathVariable Long examId) {
         return evaluationService.getEvaluationsByExamId(examId).stream()
-                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
+                .map(EntityMapper::toEvaluationDTO).toList();
     }
 
     @GetMapping("/users/{userId}/evaluations")
     public List<EvaluationDTO> getEvaluationsByUserId(@PathVariable Long userId) {
         return evaluationService.getEvaluationsByUserId(userId).stream()
-                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
+                .map(EntityMapper::toEvaluationDTO).toList();
     }
 
     @PutMapping("/evaluations/{id}")
@@ -170,13 +182,13 @@ public class ExamController {
     @GetMapping("/evaluations/passed")
     public List<EvaluationDTO> getPassedEvaluations() {
         return evaluationService.getPassedEvaluations().stream()
-                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
+                .map(EntityMapper::toEvaluationDTO).toList();
     }
 
     @GetMapping("/evaluations/failed")
     public List<EvaluationDTO> getFailedEvaluations() {
         return evaluationService.getFailedEvaluations().stream()
-                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
+                .map(EntityMapper::toEvaluationDTO).toList();
     }
 
     @GetMapping("/users/{userId}/evaluations/status")
@@ -184,7 +196,7 @@ public class ExamController {
             @PathVariable Long userId,
             @RequestParam Boolean passed) {
         return evaluationService.getEvaluationsByUserAndStatus(userId, passed).stream()
-                .map(EntityMapper::toEvaluationDTO).collect(Collectors.toList());
+                .map(EntityMapper::toEvaluationDTO).toList();
     }
 
     @GetMapping("/exams/{examId}/evaluations/average")
@@ -207,7 +219,7 @@ public class ExamController {
     @GetMapping("/certificates")
     public List<CertificateDTO> getAllCertificates() {
         return certificateService.getAllCertificates().stream()
-                .map(EntityMapper::toCertificateDTO).collect(Collectors.toList());
+                .map(EntityMapper::toCertificateDTO).toList();
     }
 
     @GetMapping("/certificates/{id}")
@@ -223,7 +235,7 @@ public class ExamController {
     @GetMapping("/users/{userId}/certificates")
     public List<CertificateDTO> getCertificatesByUserId(@PathVariable Long userId) {
         return certificateService.getCertificatesByUserId(userId).stream()
-                .map(EntityMapper::toCertificateDTO).collect(Collectors.toList());
+                .map(EntityMapper::toCertificateDTO).toList();
     }
 
     @GetMapping("/users/{userId}/exams/{examId}/certificate")
@@ -269,7 +281,7 @@ public class ExamController {
     @PostMapping("/exams/{examId}/certificates/bulk")
     public List<CertificateDTO> createCertificatesForExam(@PathVariable Long examId) {
         return certificateService.createCertificatesForExam(examId).stream()
-                .map(EntityMapper::toCertificateDTO).collect(Collectors.toList());
+                .map(EntityMapper::toCertificateDTO).toList();
     }
 
     @PostMapping("/exams/{examId}/submit")
@@ -283,11 +295,11 @@ public class ExamController {
     @GetMapping("/evaluations/{evaluationId}/answers")
     public List<UserAnswerDTO> getAnswersByEvaluationId(@PathVariable Long evaluationId) {
         return userAnswerRepository.findByEvaluationId(evaluationId).stream()
-                .map(EntityMapper::toUserAnswerDTO).collect(Collectors.toList());
+                .map(EntityMapper::toUserAnswerDTO).toList();
     }
 
     @PostMapping
-    public ResponseEntity<?> logViolation(@RequestBody ExamViolationDTO dto) {
+    public ResponseEntity<String> logViolation(@RequestBody ExamViolationDTO dto) {
         ExamViolation violation = new ExamViolation();
         violation.setExamAttemptId(dto.getExamAttemptId());
         violation.setLearnerId(dto.getLearnerId());
@@ -300,6 +312,6 @@ public class ExamController {
     public ResponseEntity<List<ExamViolationDTO>> getViolations(@PathVariable Long attemptId) {
         return ResponseEntity.ok(
                 violationRepository.findByExamAttemptId(attemptId).stream()
-                        .map(EntityMapper::toViolationDTO).collect(Collectors.toList()));
+                        .map(EntityMapper::toViolationDTO).toList());
     }
 }
