@@ -79,8 +79,9 @@ class ExamServiceTest {
     void getExamById_WhenNotExists_ShouldThrowException() {
         when(examRepository.findById(1L)).thenReturn(Optional.empty());
 
+        // Fixed: now throws IllegalArgumentException instead of RuntimeException
         assertThatThrownBy(() -> examService.getExamById(1L))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Exam not found");
     }
 
@@ -120,5 +121,15 @@ class ExamServiceTest {
         boolean result = examService.existsById(1L);
 
         assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should return false when exam does not exist")
+    void existsById_WhenNotExists_ShouldReturnFalse() {
+        when(examRepository.existsById(99L)).thenReturn(false);
+
+        boolean result = examService.existsById(99L);
+
+        assertThat(result).isFalse();
     }
 }
