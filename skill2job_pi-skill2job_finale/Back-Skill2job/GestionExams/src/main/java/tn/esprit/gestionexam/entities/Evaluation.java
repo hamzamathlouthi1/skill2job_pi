@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,10 +32,8 @@ public class Evaluation {
     @JsonIgnoreProperties("evaluation")
     private Certificate certificate;
 
-    // ← Persist user's answers with the evaluation
     @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnoreProperties("evaluation")  // ← break circular ref
-
+    @JsonIgnoreProperties("evaluation")
     private List<UserAnswer> answers = new ArrayList<>();
 
     @JsonProperty("examId")
