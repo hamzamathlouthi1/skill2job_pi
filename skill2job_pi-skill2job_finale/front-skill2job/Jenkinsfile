@@ -28,15 +28,15 @@ pipeline {
                 }
             }
         }
-        stage('CD') {
+        stage('Trigger CD') {
             steps {
-                load 'skill2job_pi-skill2job_finale/front-skill2job/Jenkinsfile.cd'
+                build job: 'frontend-cd', wait: true
             }
         }
     }
     post {
         success {
-            echo 'Frontend CI/CD Pipeline completed successfully.'
+            echo 'Frontend CI Pipeline completed successfully.'
         }
         failure {
             echo 'Pipeline failed — check the logs above.'
