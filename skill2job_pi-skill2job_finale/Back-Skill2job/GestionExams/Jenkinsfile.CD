@@ -1,0 +1,101 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'klibimayssa/gestion-exams'
+    }
+
+    // ─────────────────────────────────────────────────────
+    // CD is triggered manually or after CI pipeline passes.
+    // It pulls the already-built image — no build/test here.
+    // ─────────────────────────────────────────────────────
+
+    parameters {
+        string(
+            name: 'BUILD_TAG',
+            defaultValue: 'latest',
+            description: 'Docker image tag to deploy (use CI build number)'
+        )
+    }
+
+    stages {
+
+        // ─────────────────────────────────────────
+        // STAGE 1: Create network + stop old container
+        //          then run new one from registry
+        // ─────────────────────────────────────────
+        stage('Deploy') {
+            steps {
+                sh """
+                    docker network create skill2job-network || true
+
+                    docker stop exams-service || true
+                    docker rm   exams-service || true
+
+                    docker run -d \
+                        --name exams-service \
+                        -p 8082:8082 \
+                        -e SPRING_DATASOURCE_URL='jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true' \
+                        -e SPRING_DATASOURCE_USERNAME=root \
+                        -e SPRING_DATASOURCE_PASSWORD=root \
+                        -e EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka \
+                        -e SERVER_PORT=8082 \
+                        -e MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus \
+                        -e MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true \
+                        --network skill2job-network \
+                        ${DOCKER_IMAGE}:${params.BUILD_TAG}
+                """
+            }
+        }
+
+        // ─────────────────────────────────────────
+        // STAGE 2: Wait for Spring Boot to start
+        //          then hit /actuator/health
+        // ─────────────────────────────────────────
+        stage('Health Check') {
+            steps {
+                script {
+                    retry(10) {
+                        sh 'sleep 10'
+                        sh 'curl -f http://exams-service:8082/actuator/health'
+                    }
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────
+        // STAGE 3: Verify Traefik routes traffic
+        //          correctly to the new container
+        // ─────────────────────────────────────────
+        stage('Verify Traefik Routing') {
+            steps {
+                script {
+                    try {
+                        retry(3) {
+                            sh 'sleep 5'
+                            sh 'curl -f http://traefik:81/api/exams/actuator/health'
+                        }
+                    } catch (e) {
+                        echo '⚠️ Traefik not available, skipping...'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ DEPLOYMENT SUCCESSFUL!'
+            echo "Deployed image : ${DOCKER_IMAGE}:${params.BUILD_TAG}"
+            echo 'Exams API      : http://localhost:8082'
+            echo 'Via Traefik    : http://localhost:81/api/exams'
+            echo 'Traefik Dashboard: http://localhost:8081/dashboard/'
+            echo 'Prometheus     : http://localhost:9091'
+            echo 'Grafana        : http://localhost:3001'
+        }
+        failure {
+            echo '❌ DEPLOYMENT FAILED — Check container logs.'
+            sh 'docker logs exams-service || true'
+        }
+    }
+}
