@@ -15,18 +15,20 @@ pipeline {
             }
         }
         stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionSession') {
-                        sh """
-                            mvn sonar:sonar \
-                              -Dsonar.projectKey=gestion-sessions \
-                              -Dsonar.host.url=${SONAR_URL}
-                        """
-                    }
-                }
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionSession') {
+                sh """
+                    mvn clean package -DskipTests
+                    mvn sonar:sonar \
+                      -Dsonar.projectKey=gestion-sessions \
+                      -Dsonar.host.url=${SONAR_URL} \
+                      -Dsonar.java.binaries=target/classes
+                """
             }
         }
+    }
+}
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
