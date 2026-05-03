@@ -1,17 +1,15 @@
 def call() {
     stage('Import Image to Kubernetes') {
         sh '''
-            docker save azizl/frontend:latest | sudo ctr -n k8s.io images import -
+            docker save souhakhelifi/frontend:latest | sudo ctr -n k8s.io images import -
         '''
     }
-
     stage('Deploy to Kubernetes') {
         sh '''
             kubectl rollout restart deployment/frontend-deployment
             kubectl rollout status deployment/frontend-deployment --timeout=120s
         '''
     }
-
     stage('Verify Deployment') {
         sh '''
             echo "=== Pods Status ==="
@@ -21,5 +19,4 @@ def call() {
         '''
     }
 }
-
 call()
