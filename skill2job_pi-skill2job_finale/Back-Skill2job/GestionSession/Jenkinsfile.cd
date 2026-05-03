@@ -10,7 +10,7 @@ pipeline {
         IMAGE_NAME      = "hamzamathlouthi/gestion-sessions"
         NAMESPACE       = "skill2job"
         DEPLOYMENT_NAME = "gestion-sessions"
-        MANIFEST_DIR    = "Back-Skill2job/GestionSession/k8s"
+        MANIFEST_DIR    = "skill2job_pi-skill2job_finale/Back-Skill2job/GestionSession/k8s"
     }
     stages {
         stage('Checkout') {
@@ -45,6 +45,6 @@ pipeline {
     }
     post {
         success { echo "gestion-sessions deployed with tag ${params.IMAGE_TAG}!" }
-        failure { echo 'gestion-sessions CD failed!' }
+        failure  { echo 'gestion-sessions CD failed!' }
     }
 }
