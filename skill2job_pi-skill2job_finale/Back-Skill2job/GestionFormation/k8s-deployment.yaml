@@ -45,19 +45,17 @@ spec:
         - name: DB_PASSWORD
           value: "root"
         readinessProbe:
-          httpGet:
-            path: /actuator/health
+          tcpSocket:
             port: 8083
-          initialDelaySeconds: 30
+          initialDelaySeconds: 40
           periodSeconds: 10
-          failureThreshold: 6
+          failureThreshold: 10
         livenessProbe:
-          httpGet:
-            path: /actuator/health
+          tcpSocket:
             port: 8083
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90
           periodSeconds: 15
-          failureThreshold: 4
+          failureThreshold: 5
         resources:
           requests:
             memory: "256Mi"
