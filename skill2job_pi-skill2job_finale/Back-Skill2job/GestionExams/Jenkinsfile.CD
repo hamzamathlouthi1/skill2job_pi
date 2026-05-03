@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'klibimayssa/gestion-exams'
         K8S_NAMESPACE = 'default'
+        KUBECONFIG = '/var/jenkins_home/.kube/config'
     }
 
     parameters {
