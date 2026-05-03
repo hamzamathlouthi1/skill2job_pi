@@ -1,22 +1,24 @@
 def call() {
-    stage('Import Image to Kubernetes') {
-        sh '''
-            docker save souhakhelifi/frontend:latest | sudo ctr -n k8s.io images import -
-        '''
-    }
-    stage('Deploy to Kubernetes') {
-        sh '''
-            kubectl rollout restart deployment/frontend-deployment
-            kubectl rollout status deployment/frontend-deployment --timeout=120s
-        '''
-    }
-    stage('Verify Deployment') {
-        sh '''
-            echo "=== Pods Status ==="
-            kubectl get pods -l app=frontend
-            echo "=== Service Status ==="
-            kubectl get service frontend-service
-        '''
+    node {
+        stage('Import Image to Kubernetes') {
+            sh '''
+                docker save souhakhelifi/frontend:latest | sudo ctr -n k8s.io images import -
+            '''
+        }
+        stage('Deploy to Kubernetes') {
+            sh '''
+                kubectl rollout restart deployment/frontend-deployment
+                kubectl rollout status deployment/frontend-deployment --timeout=120s
+            '''
+        }
+        stage('Verify Deployment') {
+            sh '''
+                echo "=== Pods Status ==="
+                kubectl get pods -l app=frontend
+                echo "=== Service Status ==="
+                kubectl get service frontend-service
+            '''
+        }
     }
 }
 call()
