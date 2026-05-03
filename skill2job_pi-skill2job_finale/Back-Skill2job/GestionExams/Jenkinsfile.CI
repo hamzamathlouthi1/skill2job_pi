@@ -14,23 +14,17 @@ pipeline {
 
     stages {
 
-        // ─────────────────────────────────────────
-        // STAGE 1: Get the source code
-        // ─────────────────────────────────────────
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        // ─────────────────────────────────────────
-        // STAGE 2: Compile + run unit tests
-        //          JaCoCo generates coverage report
-        // ─────────────────────────────────────────
-        stage('Unit Tests') {
+        // mvn package = compile + test + create jar
+        stage('Unit Tests & Package') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
-                    sh 'mvn clean test -U -Daether.syncContext.named.factory=noop'
+                    sh 'mvn clean package -U -Daether.syncContext.named.factory=noop'
                 }
             }
             post {
@@ -41,10 +35,6 @@ pipeline {
             }
         }
 
-        // ─────────────────────────────────────────
-        // STAGE 3: Static analysis + coverage gate
-        //          Results visible in SonarQube UI
-        // ─────────────────────────────────────────
         stage('SonarQube Analysis') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
@@ -59,10 +49,7 @@ pipeline {
             }
         }
 
-        // ─────────────────────────────────────────
-        // STAGE 4: Build Docker image and tag it
-        //          with build number + latest
-        // ─────────────────────────────────────────
+        // jar already built by mvn package above
         stage('Build Docker Image') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
@@ -77,10 +64,6 @@ pipeline {
             }
         }
 
-        // ─────────────────────────────────────────
-        // STAGE 5: Push validated image to registry
-        //          so CD pipeline can pull it
-        // ─────────────────────────────────────────
         stage('Push Docker Image') {
             steps {
                 sh """
@@ -98,7 +81,10 @@ pipeline {
         success {
             echo '✅ CI PASSED — Image pushed to DockerHub.'
             echo "Image: ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-            echo 'CD pipeline can now be triggered.'
+            // Trigger CD with the build number
+            build job: 'gestion-exams-CD',
+                  parameters: [string(name: 'BUILD_TAG', value: "${BUILD_NUMBER}")],
+                  wait: false
         }
         failure {
             echo '❌ CI FAILED — Deployment will not proceed.'
