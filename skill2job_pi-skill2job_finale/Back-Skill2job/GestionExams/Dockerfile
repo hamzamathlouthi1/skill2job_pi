@@ -1,29 +1,25 @@
-# Build stage
-FROM maven:3.9-eclipse-temurin-17 AS builder
+# Stage 1: Build with Maven
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
+
 WORKDIR /app
 
 # Copy parent pom
 COPY pom.xml .
 
-# Copy ALL modules (Maven needs them for dependency resolution)
-COPY Eureka_project Eureka_project/
-COPY api_gateway_pi api_gateway_pi/
-COPY GestionExams GestionExams/
-COPY GestionSession GestionSession/
-COPY GestionFormation GestionFormation/
-COPY Recruitment Recruitment/
-COPY GestionPartner GestionPartner/
-COPY GestionUser GestionUser/
+# Copy GestionExams module
+COPY GestionExams/pom.xml GestionExams/pom.xml
+COPY GestionExams/src GestionExams/src
 
-# Build ONLY the exams-service
-RUN mvn clean package -DskipTests -pl GestionExams -am
+# Build only GestionExams module
+RUN mvn clean package -pl GestionExams -am -DskipTests -q
 
-# Runtime stage
-FROM eclipse-temurin:17-jdk-alpine
+# Stage 2: Run
+FROM eclipse-temurin:17-jdk
+
 WORKDIR /app
 
-# Copy only your service's jar
 COPY --from=builder /app/GestionExams/target/*.jar app.jar
 
 EXPOSE 8082
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
