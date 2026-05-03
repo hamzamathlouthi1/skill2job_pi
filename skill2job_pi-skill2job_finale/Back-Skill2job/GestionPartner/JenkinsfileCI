@@ -27,10 +27,10 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         sh '''
                             mvn sonar:sonar \
-                                -pl GestionPartner \
+                                -f GestionPartner/pom.xml \
                                 -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                                 -Dsonar.projectName="Gestion Partner" \
-                                -Dsonar.java.binaries=GestionPartner/target/classes
+                                -Dsonar.java.binaries=target/classes
                         '''
                     }
                 }
