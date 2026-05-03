@@ -4,7 +4,7 @@ metadata:
   name: gestion-sessions
   namespace: skill2job
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: gestion-sessions
@@ -22,15 +22,22 @@ spec:
           image: hamzamathlouthi/gestion-sessions:latest
           ports:
             - containerPort: 8085
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/session_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            - name: EUREKA_CLIENT_ENABLED
+              value: "false"
           readinessProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
               port: 8085
-            initialDelaySeconds: 15
+            initialDelaySeconds: 20
             periodSeconds: 10
           livenessProbe:
-            httpGet:
-              path: /actuator/health
+            tcpSocket:
               port: 8085
-            initialDelaySeconds: 30
+            initialDelaySeconds: 40
             periodSeconds: 20
