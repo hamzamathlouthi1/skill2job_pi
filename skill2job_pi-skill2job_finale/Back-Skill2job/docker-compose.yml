@@ -274,7 +274,7 @@ services:
       timeout: 10s
       retries: 5
 
-  # ← ADDED: Jenkins on same network as sonarqube
+  
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins
@@ -293,7 +293,7 @@ volumes:
   grafana_data:
   sonarqube_data:
   sonarqube_logs:
-  jenkins_home:        # ← ADDED
+  jenkins_home:       
 
 networks:
   skill2job-network:
