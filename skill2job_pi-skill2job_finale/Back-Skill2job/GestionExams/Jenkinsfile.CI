@@ -1,0 +1,110 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_CREDS = credentials('dockerhub-credentials')
+        SERVICE_NAME  = 'gestion-exams'
+        DOCKER_IMAGE  = 'klibimayssa/gestion-exams'
+    }
+
+    tools {
+        maven 'Maven-3'
+        jdk   'JDK-21'
+    }
+
+    stages {
+
+        // ─────────────────────────────────────────
+        // STAGE 1: Get the source code
+        // ─────────────────────────────────────────
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // ─────────────────────────────────────────
+        // STAGE 2: Compile + run unit tests
+        //          JaCoCo generates coverage report
+        // ─────────────────────────────────────────
+        stage('Unit Tests') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
+                    sh 'mvn clean test -U -Daether.syncContext.named.factory=noop'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: 'skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────
+        // STAGE 3: Static analysis + coverage gate
+        //          Results visible in SonarQube UI
+        // ─────────────────────────────────────────
+        stage('SonarQube Analysis') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
+                    sh """
+                        mvn sonar:sonar \
+                            -Dsonar.projectKey=gestion-exams \
+                            -Dsonar.host.url=http://sonarqube:9000 \
+                            -Dsonar.token=sqa_ddfb5da3d385821fe63db90630cf729aa6525196 \
+                            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                    """
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────
+        // STAGE 4: Build Docker image and tag it
+        //          with build number + latest
+        // ─────────────────────────────────────────
+        stage('Build Docker Image') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    sh """
+                        docker build \
+                            -f GestionExams/Dockerfile \
+                            -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                            -t ${DOCKER_IMAGE}:latest \
+                            .
+                    """
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────
+        // STAGE 5: Push validated image to registry
+        //          so CD pipeline can pull it
+        // ─────────────────────────────────────────
+        stage('Push Docker Image') {
+            steps {
+                sh """
+                    echo ${DOCKER_CREDS_PSW} | docker login \
+                        -u ${DOCKER_CREDS_USR} \
+                        --password-stdin
+                    docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                    docker push ${DOCKER_IMAGE}:latest
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ CI PASSED — Image pushed to DockerHub.'
+            echo "Image: ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+            echo 'CD pipeline can now be triggered.'
+        }
+        failure {
+            echo '❌ CI FAILED — Deployment will not proceed.'
+        }
+        always {
+            sh 'docker logout || true'
+        }
+    }
+}
