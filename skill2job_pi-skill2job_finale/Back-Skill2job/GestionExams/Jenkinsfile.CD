@@ -5,6 +5,7 @@ pipeline {
         DOCKER_IMAGE = 'klibimayssa/gestion-exams'
         K8S_NAMESPACE = 'default'
         KUBECONFIG = '/var/jenkins_home/.kube/config'
+        HOST_IP = '192.168.158.131'
     }
 
     parameters {
@@ -63,15 +64,20 @@ pipeline {
             }
         }
 
+        stage('Import Image to k3s') {
+            steps {
+                sh """
+                    docker save ${DOCKER_IMAGE}:${params.BUILD_TAG} | k3s ctr images import -
+                """
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Create Kubernetes manifests and apply them
                     sh """
-                        # Create namespace if not exists
                         kubectl create namespace ${K8S_NAMESPACE} || true
 
-                        # Apply deployment
                         cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
@@ -98,11 +104,13 @@ spec:
         - containerPort: 8082
         env:
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+          value: "jdbc:mysql://${HOST_IP}:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
         - name: SPRING_DATASOURCE_USERNAME
           value: "root"
         - name: SPRING_DATASOURCE_PASSWORD
           value: "root"
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          value: "http://${HOST_IP}:8761/eureka"
         - name: SERVER_PORT
           value: "8082"
         - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
@@ -113,13 +121,13 @@ spec:
           httpGet:
             path: /actuator/health
             port: 8082
-          initialDelaySeconds: 30
+          initialDelaySeconds: 60
           periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /actuator/health
             port: 8082
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90
           periodSeconds: 20
         resources:
           requests:
@@ -130,7 +138,6 @@ spec:
             cpu: "500m"
 EOF
 
-                        # Apply service
                         cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
@@ -148,10 +155,9 @@ spec:
   type: NodePort
 EOF
 
-                        # Wait for rollout
                         kubectl rollout status deployment/exams-service \
                             -n ${K8S_NAMESPACE} \
-                            --timeout=120s
+                            --timeout=180s
                     """
                 }
             }
