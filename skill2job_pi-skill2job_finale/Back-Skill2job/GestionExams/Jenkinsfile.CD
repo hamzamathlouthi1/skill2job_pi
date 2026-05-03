@@ -93,6 +93,7 @@ spec:
       containers:
       - name: exams-service
         image: ${DOCKER_IMAGE}:${params.BUILD_TAG}
+        imagePullPolicy: Never
         ports:
         - containerPort: 8082
         env:
