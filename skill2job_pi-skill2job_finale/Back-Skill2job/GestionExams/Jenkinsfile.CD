@@ -5,11 +5,6 @@ pipeline {
         DOCKER_IMAGE = 'klibimayssa/gestion-exams'
     }
 
-    // ─────────────────────────────────────────────────────
-    // CD is triggered manually or after CI pipeline passes.
-    // It pulls the already-built image — no build/test here.
-    // ─────────────────────────────────────────────────────
-
     parameters {
         string(
             name: 'BUILD_TAG',
@@ -20,14 +15,22 @@ pipeline {
 
     stages {
 
-        // ─────────────────────────────────────────
-        // STAGE 1: Create network + stop old container
-        //          then run new one from registry
-        // ─────────────────────────────────────────
         stage('Deploy') {
             steps {
                 sh """
                     docker network create skill2job-network || true
+
+                    # Start MySQL if not running
+                    docker start mysql || docker run -d \
+                        --name mysql \
+                        --network skill2job-network \
+                        -e MYSQL_ROOT_PASSWORD=root \
+                        -e MYSQL_DATABASE=exams_db \
+                        -p 3306:3306 \
+                        mysql:8.0
+
+                    # Wait for MySQL to be ready
+                    sleep 20
 
                     docker stop exams-service || true
                     docker rm   exams-service || true
@@ -48,10 +51,6 @@ pipeline {
             }
         }
 
-        // ─────────────────────────────────────────
-        // STAGE 2: Wait for Spring Boot to start
-        //          then hit /actuator/health
-        // ─────────────────────────────────────────
         stage('Health Check') {
             steps {
                 script {
@@ -63,10 +62,6 @@ pipeline {
             }
         }
 
-        // ─────────────────────────────────────────
-        // STAGE 3: Verify Traefik routes traffic
-        //          correctly to the new container
-        // ─────────────────────────────────────────
         stage('Verify Traefik Routing') {
             steps {
                 script {
@@ -94,8 +89,9 @@ pipeline {
             echo 'Grafana        : http://localhost:3001'
         }
         failure {
-            echo '❌ DEPLOYMENT FAILED — Check container logs.'
-            sh 'docker logs exams-service || true'
+            script {
+                sh 'docker logs exams-service || true'
+            }
         }
     }
 }
