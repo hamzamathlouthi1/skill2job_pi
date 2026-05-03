@@ -71,8 +71,6 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
-      sonarqube:
-        condition: service_healthy
     networks:
       - skill2job-network
     labels:
@@ -276,12 +274,26 @@ services:
       timeout: 10s
       retries: 5
 
+  # ← ADDED: Jenkins on same network as sonarqube
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - skill2job-network
+
 volumes:
   mysql_data:
   prometheus_data:
   grafana_data:
   sonarqube_data:
   sonarqube_logs:
+  jenkins_home:        # ← ADDED
 
 networks:
   skill2job-network:
