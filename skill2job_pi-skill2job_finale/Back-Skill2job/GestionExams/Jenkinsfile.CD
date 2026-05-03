@@ -67,6 +67,8 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        export KUBECONFIG=/var/jenkins_home/.kube/config
+
                         kubectl create namespace default || true
 
                         cat <<MANIFEST | kubectl apply -f -
@@ -152,6 +154,7 @@ MANIFEST
             steps {
                 script {
                     sh """
+                        export KUBECONFIG=/var/jenkins_home/.kube/config
                         echo "=== Pods ==="
                         kubectl get pods -n ${K8S_NAMESPACE} -l app=exams-service
 
@@ -195,8 +198,8 @@ MANIFEST
         failure {
             script {
                 sh 'docker logs exams-service || true'
-                sh 'kubectl describe pod -n default -l app=exams-service || true'
-                sh 'kubectl logs -n default -l app=exams-service || true'
+                sh 'export KUBECONFIG=/var/jenkins_home/.kube/config && kubectl describe pod -n default -l app=exams-service || true'
+                sh 'export KUBECONFIG=/var/jenkins_home/.kube/config && kubectl logs -n default -l app=exams-service || true'
             }
         }
     }
