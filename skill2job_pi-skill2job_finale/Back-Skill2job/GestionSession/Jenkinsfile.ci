@@ -17,7 +17,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    dir('Back-Skill2job/GestionSession') {
+                    dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionSession') {
                         sh """
                             mvn sonar:sonar \
                               -Dsonar.projectKey=gestion-sessions \
@@ -36,7 +36,7 @@ pipeline {
         }
         stage('Docker Build') {
             steps {
-                dir('Back-Skill2job') {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
                     sh """
                         docker build \
                           --build-arg BUILDKIT_INLINE_CACHE=1 \
