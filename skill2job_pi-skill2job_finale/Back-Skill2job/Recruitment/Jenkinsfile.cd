@@ -1,25 +1,38 @@
-def call() {
-    stage('Import Image to Kubernetes') {
-        sh '''
-            docker save azizl/recruitment:latest | sudo ctr -n k8s.io images import -
-        '''
+pipeline {
+    agent any
+    stages {
+        stage('Import Image to Kubernetes') {
+            steps {
+                sh '''
+                    docker save azizl/recruitment:latest | sudo ctr -n k8s.io images import -
+                '''
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    kubectl rollout restart deployment/recruitment-deployment
+                    kubectl rollout status deployment/recruitment-deployment --timeout=120s
+                '''
+            }
+        }
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                    echo "=== Pods Status ==="
+                    kubectl get pods -l app=recruitment
+                    echo "=== Service Status ==="
+                    kubectl get service recruitment-service
+                '''
+            }
+        }
     }
-
-    stage('Deploy to Kubernetes') {
-        sh '''
-            kubectl rollout restart deployment/recruitment-deployment
-            kubectl rollout status deployment/recruitment-deployment --timeout=120s
-        '''
-    }
-
-    stage('Verify Deployment') {
-        sh '''
-            echo "=== Pods Status ==="
-            kubectl get pods -l app=recruitment
-            echo "=== Service Status ==="
-            kubectl get service recruitment-service
-        '''
+    post {
+        success {
+            echo 'Deployment to Kubernetes successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
+        }
     }
 }
-
-call()
