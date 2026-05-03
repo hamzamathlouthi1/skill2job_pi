@@ -37,20 +37,13 @@ pipeline {
 stage('SonarQube Analysis') {
     steps {
         dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
-            script {
-                def sonarIP = sh(
-                    script: "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' sonarqube",
-                    returnStdout: true
-                ).trim()
-                echo "SonarQube IP: ${sonarIP}"
-                sh """
-                    mvn sonar:sonar \
-                        -Dsonar.projectKey=gestion-exams \
-                        -Dsonar.host.url=http://${sonarIP}:9000 \
-                        -Dsonar.token=sqa_ddfb5da3d385821fe63db90630cf729aa6525196 \
-                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-                """
-            }
+            sh """
+                mvn sonar:sonar \
+                    -Dsonar.projectKey=gestion-exams \
+                    -Dsonar.host.url=http://sonarqube:9000 \
+                    -Dsonar.token=sqa_ddfb5da3d385821fe63db90630cf729aa6525196 \
+                    -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+            """
         }
     }
 }
