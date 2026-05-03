@@ -1,0 +1,78 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 60, unit: 'MINUTES')
+    }
+    environment {
+        IMAGE_NAME = "hamzamathlouthi/gestion-sessions"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+        SONAR_URL  = "http://localhost:9000"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('Back-Skill2job/GestionSession') {
+                        sh """
+                            mvn sonar:sonar \
+                              -Dsonar.projectKey=gestion-sessions \
+                              -Dsonar.host.url=${SONAR_URL}
+                        """
+                    }
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                dir('Back-Skill2job') {
+                    sh """
+                        docker build \
+                          --build-arg BUILDKIT_INLINE_CACHE=1 \
+                          -f GestionSession/Dockerfile \
+                          -t ${IMAGE_NAME}:${IMAGE_TAG} \
+                          -t ${IMAGE_NAME}:latest \
+                          .
+                    """
+                }
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker push ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+        stage('Trigger CD') {
+            steps {
+                build job: 'gestion-sessions-cd',
+                      parameters: [
+                          string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")
+                      ],
+                      wait: false
+            }
+        }
+    }
+    post {
+        success { echo 'gestion-sessions CI passed!' }
+        failure { echo 'gestion-sessions CI failed!' }
+    }
+}
