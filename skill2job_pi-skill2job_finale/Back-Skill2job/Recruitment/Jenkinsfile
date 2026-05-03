@@ -1,4 +1,4 @@
-   pipeline {
+pipeline {
     agent any
     environment {
         DOCKERHUB_IMAGE = 'azizl/recruitment'
@@ -55,15 +55,15 @@
                 }
             }
         }
-        stage('CD') {
+        stage('Trigger CD') {
             steps {
-                load 'skill2job_pi-skill2job_finale/Back-Skill2job/Recruitment/Jenkinsfile.cd'
+                build job: 'recruitment-cd', wait: true
             }
         }
     }
     post {
         success {
-            echo 'CI/CD Pipeline completed successfully.'
+            echo 'CI Pipeline completed successfully.'
         }
         failure {
             echo 'Pipeline failed — check the logs above.'
