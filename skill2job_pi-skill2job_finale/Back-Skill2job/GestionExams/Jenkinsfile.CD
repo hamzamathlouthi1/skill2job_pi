@@ -64,19 +64,18 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+       stage('Deploy to Kubernetes') {
     steps {
         script {
-            def hostIp = env.HOST_IP
-            sh """
-                kubectl create namespace ${K8S_NAMESPACE} || true
+            sh '''
+                kubectl create namespace default || true
 
-                kubectl apply -f - <<EOF
+                cat <<MANIFEST | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: exams-service
-  namespace: ${K8S_NAMESPACE}
+  namespace: default
 spec:
   replicas: 1
   selector:
@@ -89,19 +88,19 @@ spec:
     spec:
       containers:
       - name: exams-service
-        image: ${DOCKER_IMAGE}:${params.BUILD_TAG}
+        image: klibimayssa/gestion-exams:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 8082
         env:
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:mysql://${hostIp}:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+          value: "jdbc:mysql://192.168.158.131:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
         - name: SPRING_DATASOURCE_USERNAME
           value: "root"
         - name: SPRING_DATASOURCE_PASSWORD
           value: "root"
         - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-          value: "http://${hostIp}:8761/eureka"
+          value: "http://192.168.158.131:8761/eureka"
         - name: SERVER_PORT
           value: "8082"
         - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
@@ -127,12 +126,10 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-EOF
+MANIFEST
 
-                kubectl rollout status deployment/exams-service \
-                    -n ${K8S_NAMESPACE} \
-                    --timeout=180s
-            """
+                kubectl rollout status deployment/exams-service -n default --timeout=180s
+            '''
         }
     }
 }
