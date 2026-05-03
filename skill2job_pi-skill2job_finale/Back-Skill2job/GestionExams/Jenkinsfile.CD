@@ -64,14 +64,6 @@ pipeline {
             }
         }
 
-        stage('Import Image to k3s') {
-            steps {
-                sh """
-                    docker save ${DOCKER_IMAGE}:${params.BUILD_TAG} | k3s ctr images import -
-                """
-            }
-        }
-
         stage('Deploy to Kubernetes') {
             steps {
                 script {
