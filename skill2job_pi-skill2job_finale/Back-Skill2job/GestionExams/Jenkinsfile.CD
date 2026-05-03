@@ -23,7 +23,6 @@ pipeline {
                 sh """
                     docker network create skill2job-network || true
 
-                    # Start MySQL if not running
                     docker start mysql || docker run -d \
                         --name mysql \
                         --network skill2job-network \
@@ -64,13 +63,13 @@ pipeline {
             }
         }
 
-       stage('Deploy to Kubernetes') {
-    steps {
-        script {
-            sh '''
-                kubectl create namespace default || true
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    sh '''
+                        kubectl create namespace default || true
 
-                cat <<MANIFEST | kubectl apply -f -
+                        cat <<MANIFEST | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -89,7 +88,7 @@ spec:
       containers:
       - name: exams-service
         image: klibimayssa/gestion-exams:latest
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
         - containerPort: 8082
         env:
@@ -126,13 +125,28 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exams-service
+  namespace: default
+spec:
+  selector:
+    app: exams-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+      nodePort: 30082
+  type: NodePort
 MANIFEST
 
-                kubectl rollout status deployment/exams-service -n default --timeout=180s
-            '''
+                        kubectl rollout status deployment/exams-service -n default --timeout=180s
+                    '''
+                }
+            }
         }
-    }
-}
 
         stage('Verify Kubernetes Deployment') {
             steps {
