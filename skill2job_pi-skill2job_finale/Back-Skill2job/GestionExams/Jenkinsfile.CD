@@ -65,19 +65,18 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    sh """
-                        kubectl create namespace ${K8S_NAMESPACE} || true
+    steps {
+        script {
+            def hostIp = env.HOST_IP
+            sh """
+                kubectl create namespace ${K8S_NAMESPACE} || true
 
-                        cat <<EOF | kubectl apply -f -
+                kubectl apply -f - <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: exams-service
   namespace: ${K8S_NAMESPACE}
-  labels:
-    app: exams-service
 spec:
   replicas: 1
   selector:
@@ -96,13 +95,13 @@ spec:
         - containerPort: 8082
         env:
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:mysql://${HOST_IP}:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+          value: "jdbc:mysql://${hostIp}:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
         - name: SPRING_DATASOURCE_USERNAME
           value: "root"
         - name: SPRING_DATASOURCE_PASSWORD
           value: "root"
         - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-          value: "http://${HOST_IP}:8761/eureka"
+          value: "http://${hostIp}:8761/eureka"
         - name: SERVER_PORT
           value: "8082"
         - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
@@ -130,30 +129,13 @@ spec:
             cpu: "500m"
 EOF
 
-                        cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Service
-metadata:
-  name: exams-service
-  namespace: ${K8S_NAMESPACE}
-spec:
-  selector:
-    app: exams-service
-  ports:
-  - protocol: TCP
-    port: 8082
-    targetPort: 8082
-    nodePort: 30082
-  type: NodePort
-EOF
-
-                        kubectl rollout status deployment/exams-service \
-                            -n ${K8S_NAMESPACE} \
-                            --timeout=180s
-                    """
-                }
-            }
+                kubectl rollout status deployment/exams-service \
+                    -n ${K8S_NAMESPACE} \
+                    --timeout=180s
+            """
         }
+    }
+}
 
         stage('Verify Kubernetes Deployment') {
             steps {
