@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'klibimayssa/gestion-exams'
+        K8S_NAMESPACE = 'default'
     }
 
     parameters {
@@ -15,7 +16,7 @@ pipeline {
 
     stages {
 
-        stage('Deploy') {
+        stage('Deploy to Docker') {
             steps {
                 sh """
                     docker network create skill2job-network || true
@@ -29,7 +30,6 @@ pipeline {
                         -p 3306:3306 \
                         mysql:8.0
 
-                    # Wait for MySQL to be ready
                     sleep 20
 
                     docker stop exams-service || true
@@ -62,6 +62,116 @@ pipeline {
             }
         }
 
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Create Kubernetes manifests and apply them
+                    sh """
+                        # Create namespace if not exists
+                        kubectl create namespace ${K8S_NAMESPACE} || true
+
+                        # Apply deployment
+                        cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exams-service
+  namespace: ${K8S_NAMESPACE}
+  labels:
+    app: exams-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: exams-service
+  template:
+    metadata:
+      labels:
+        app: exams-service
+    spec:
+      containers:
+      - name: exams-service
+        image: ${DOCKER_IMAGE}:${params.BUILD_TAG}
+        ports:
+        - containerPort: 8082
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "root"
+        - name: SERVER_PORT
+          value: "8082"
+        - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+          value: "health,info,prometheus"
+        - name: MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED
+          value: "true"
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 60
+          periodSeconds: 20
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+EOF
+
+                        # Apply service
+                        cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: exams-service
+  namespace: ${K8S_NAMESPACE}
+spec:
+  selector:
+    app: exams-service
+  ports:
+  - protocol: TCP
+    port: 8082
+    targetPort: 8082
+    nodePort: 30082
+  type: NodePort
+EOF
+
+                        # Wait for rollout
+                        kubectl rollout status deployment/exams-service \
+                            -n ${K8S_NAMESPACE} \
+                            --timeout=120s
+                    """
+                }
+            }
+        }
+
+        stage('Verify Kubernetes Deployment') {
+            steps {
+                script {
+                    sh """
+                        echo "=== Pods ==="
+                        kubectl get pods -n ${K8S_NAMESPACE} -l app=exams-service
+
+                        echo "=== Service ==="
+                        kubectl get svc -n ${K8S_NAMESPACE} exams-service
+
+                        echo "=== Deployment ==="
+                        kubectl get deployment -n ${K8S_NAMESPACE} exams-service
+                    """
+                }
+            }
+        }
+
         stage('Verify Traefik Routing') {
             steps {
                 script {
@@ -81,16 +191,19 @@ pipeline {
     post {
         success {
             echo '✅ DEPLOYMENT SUCCESSFUL!'
-            echo "Deployed image : ${DOCKER_IMAGE}:${params.BUILD_TAG}"
-            echo 'Exams API      : http://localhost:8082'
-            echo 'Via Traefik    : http://localhost:81/api/exams'
-            echo 'Traefik Dashboard: http://localhost:8081/dashboard/'
-            echo 'Prometheus     : http://localhost:9091'
-            echo 'Grafana        : http://localhost:3001'
+            echo "Deployed image    : ${DOCKER_IMAGE}:${params.BUILD_TAG}"
+            echo 'Exams API         : http://localhost:8082'
+            echo 'Via Traefik       : http://localhost:81/api/exams'
+            echo 'Traefik Dashboard : http://localhost:8081/dashboard/'
+            echo 'Prometheus        : http://localhost:9091'
+            echo 'Grafana           : http://localhost:3001'
+            echo 'Kubernetes        : kubectl get pods -n default'
         }
         failure {
             script {
                 sh 'docker logs exams-service || true'
+                sh 'kubectl describe pod -n default -l app=exams-service || true'
+                sh 'kubectl logs -n default -l app=exams-service || true'
             }
         }
     }
