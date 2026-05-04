@@ -14,25 +14,40 @@ pipeline {
                 checkout scm
             }
         }
-        stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionSession') {
-                sh """
-                    mvn clean package -DskipTests
-                    mvn sonar:sonar \
-                      -Dsonar.projectKey=gestion-sessions \
-                      -Dsonar.host.url=${SONAR_URL} \
-                      -Dsonar.java.binaries=target/classes
-                """
+        stage('Check Changes') {
+            steps {
+                script {
+                    def changes = sh(
+                        script: "git diff --name-only HEAD~1 HEAD",
+                        returnStdout: true
+                    ).trim()
+                    echo "Changed files: ${changes}"
+                    if (!changes.contains('GestionSession')) {
+                        currentBuild.result = 'NOT_BUILT'
+                        error('No changes in GestionSession — skipping pipeline')
+                    }
+                }
             }
         }
-    }
-}
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionSession') {
+                        sh """
+                            mvn clean package -DskipTests
+                            mvn sonar:sonar \
+                              -Dsonar.projectKey=gestion-sessions \
+                              -Dsonar.host.url=${SONAR_URL} \
+                              -Dsonar.java.binaries=target/classes
+                        """
+                    }
+                }
+            }
+        }
         stage('Quality Gate') {
-    steps {
-        echo 'SonarQube analysis done - skipping gate wait'
-    }
+            steps {
+                echo 'SonarQube analysis done - skipping gate wait'
+            }
         }
         stage('Docker Build') {
             steps {
