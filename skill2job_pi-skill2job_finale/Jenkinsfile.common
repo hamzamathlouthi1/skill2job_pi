@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Detect Changes') {
+            steps {
+                script {
+                    // Get the list of changed files compared to the previous commit
+                    def changedFiles = sh(
+                        script: "git diff --name-only HEAD~1 HEAD",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed files:\n${changedFiles}"
+
+                    // ── Recruitment (Aziz) ──────────────────────────────────────
+                    if (changedFiles.contains('Back-Skill2job/Recruitment/')) {
+                        echo "Changes detected in Recruitment → triggering recruitment-ci"
+                        build job: 'recruitment-ci', wait: false
+                    }
+
+                    // ── GestionExams (Hamza) ────────────────────────────────────
+                    if (changedFiles.contains('Back-Skill2job/GestionExams/')) {
+                        echo "Changes detected in GestionExams → triggering gestion-exams-CI"
+                        build job: 'gestion-exams-CI', wait: false
+                    }
+
+                    // ── GestionFormation (Souha) ────────────────────────────────
+                    if (changedFiles.contains('Back-Skill2job/GestionFormation/')) {
+                        echo "Changes detected in GestionFormation → triggering formation-backend-ci"
+                        build job: 'formation-backend-ci', wait: false
+                    }
+
+                    // ── GestionSession (Mayssa) ─────────────────────────────────
+                    if (changedFiles.contains('Back-Skill2job/GestionSession/')) {
+                        echo "Changes detected in GestionSession → triggering gestion-sessions-ci"
+                        build job: 'gestion-sessions-ci', wait: false
+                    }
+
+                    // ── GestionPartner (Ahmed) ──────────────────────────────────
+                    if (changedFiles.contains('Back-Skill2job/GestionPartner/')) {
+                        echo "Changes detected in GestionPartner → triggering GestionPartner-CI"
+                        build job: 'GestionPartner-CI', wait: false
+                    }
+
+                    // ── Frontend ────────────────────────────────────────────────
+                    if (changedFiles.contains('front-skill2job/')) {
+                        echo "Changes detected in Frontend → triggering frontend-ci"
+                        build job: 'frontend-ci', wait: false
+                    }
+                }
+            }
+        }
+
+    }
+}
