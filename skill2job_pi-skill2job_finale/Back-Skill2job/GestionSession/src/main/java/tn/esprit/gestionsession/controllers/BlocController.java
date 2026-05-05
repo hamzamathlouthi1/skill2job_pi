@@ -35,4 +35,7 @@ public class BlocController {
     public Bloc update(@RequestBody Bloc bloc, @PathVariable Long id) {
         return blocInterface.updateBloc(id, bloc);
     }
+
+
+    
 }

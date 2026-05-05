@@ -116,7 +116,7 @@ public class PcScraperService {
 
     private List<PcOffer> getMockOffers() {
         List<PcOffer> mocks = new ArrayList<>();
-        mocks.add(new PcOffer("Lenovo IdeaPad 3 15IAU7", "Intel Core i5", "Intel UHD", 8, 1499.0, "Tunisianet"));
+        mocks.add(new PcOffer("Lenovoo IdeaPad 3 15IAU7", "Intel Core i5", "Intel UHD", 8, 1499.0, "Tunisianet"));
         mocks.add(new PcOffer("HP 15s-fq5000nk", "Intel Core i5", "Intel Iris Xe", 8, 1350.0, "Tunisianet"));
         mocks.add(new PcOffer("ASUS VivoBook 15 X1502ZA", "Intel Core i5", "Intel Iris Xe", 16, 1799.0, "Tunisianet"));
         mocks.add(new PcOffer("Acer Aspire 5 A515-57", "Intel Core i7", "Intel Iris Xe", 16, 2199.0, "Tunisianet"));
