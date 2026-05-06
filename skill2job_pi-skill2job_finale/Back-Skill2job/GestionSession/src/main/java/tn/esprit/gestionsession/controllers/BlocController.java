@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.gestionsession.entities.Bloc;
 import tn.esprit.gestionsession.services.interfaces.BlocInterface;
 
-import java.util.List;
+import java.util.List; 
 
 @RestController
 @RequestMapping("/api/blocs")
