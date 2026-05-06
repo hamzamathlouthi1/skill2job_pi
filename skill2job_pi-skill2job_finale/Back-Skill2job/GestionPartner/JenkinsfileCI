@@ -27,21 +27,21 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
-                    withSonarQubeEnv('SonarQube') {
-                        sh '''
-                            mvn sonar:sonar \
-                                -f GestionPartner/pom.xml \
-                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                                -Dsonar.projectName="Gestion Partner" \
-                                -Dsonar.java.binaries=GestionPartner/target/classes
-                        '''
-                    }
-                }
+       stage('SonarQube Analysis') {
+    steps {
+        dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+            withSonarQubeEnv('SonarQube') {
+                sh '''
+                    mvn sonar:sonar \
+                        -f GestionPartner/pom.xml \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.projectName="Gestion Partner" \
+                        -Dsonar.java.binaries=target/classes
+                '''
             }
         }
+    }
+}
 
         stage('Quality Gate') {
             steps {
