@@ -1,18 +1,14 @@
 pipeline {
     agent any
-
     environment {
         DOCKERHUB_IMAGE = 'ahmedhoussine/gestion-partner'
         K8S_NAMESPACE = 'skill2job'
         K8S_DEPLOYMENT = 'partner-service'
     }
-
     parameters {
         string(name: 'IMAGE_TAG', defaultValue: 'latest')
     }
-
     stages {
-
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
@@ -37,14 +33,12 @@ spec:
         image: ${DOCKERHUB_IMAGE}:${IMAGE_TAG}
         ports:
         - containerPort: 8086
-
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8086
           initialDelaySeconds: 15
           periodSeconds: 5
-
         livenessProbe:
           httpGet:
             path: /actuator/health
@@ -69,7 +63,6 @@ EOF
                 '''
             }
         }
-
         stage('Wait Rollout') {
             steps {
                 sh '''
@@ -78,7 +71,6 @@ EOF
                 '''
             }
         }
-
         stage('Health Check') {
             steps {
                 sh '''
@@ -89,12 +81,10 @@ EOF
             }
         }
     }
-
     post {
         success {
             echo '✅ DEPLOY OK'
         }
-
         failure {
             echo '❌ DEPLOY FAILED'
             sh '''
