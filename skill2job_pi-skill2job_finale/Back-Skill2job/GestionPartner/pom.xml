@@ -23,6 +23,9 @@
         <java.version>17</java.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
     </properties>
+    <properties>
+    <sonar.java.binaries>target/classes</sonar.java.binaries>
+    </properties>     
 
     <dependencyManagement>
         <dependencies>
@@ -136,14 +139,11 @@
             <artifactId>io</artifactId>
             <version>7.2.5</version>
         </dependency> 
+             
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency> 
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>     
+        </dependency>    
     </dependencies>
 
     <build>
