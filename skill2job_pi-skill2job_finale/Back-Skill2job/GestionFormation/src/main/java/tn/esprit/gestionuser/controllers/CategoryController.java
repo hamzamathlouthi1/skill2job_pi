@@ -41,13 +41,13 @@ public class CategoryController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    
     @PostMapping
     public ResponseEntity<?> createCategory(@RequestBody Category category) {
         try {
             if (category.getName() == null || category.getName().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Category name is required");
             }
-
             if (categoryRepo.findByName(category.getName()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("Category with name '" + category.getName() + "' already exists");
