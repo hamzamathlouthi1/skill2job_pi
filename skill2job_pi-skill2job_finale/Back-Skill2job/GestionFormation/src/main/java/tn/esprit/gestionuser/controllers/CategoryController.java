@@ -19,12 +19,10 @@ public class CategoryController {
         this.categoryRepo = categoryRepo;
         this.courseRepo = courseRepo;
     }
-
     @GetMapping
     public List<Category> getAllCategories() {
         return categoryRepo.findAll();
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategory(@PathVariable Long id) {
         return categoryRepo.findById(id)
