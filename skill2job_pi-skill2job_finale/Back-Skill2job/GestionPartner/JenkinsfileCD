@@ -1,35 +1,22 @@
 pipeline {
     agent any
+
     environment {
         DOCKERHUB_IMAGE = 'ahmedhoussine/gestion-partner'
         K8S_NAMESPACE = 'skill2job'
         K8S_DEPLOYMENT = 'partner-service'
     }
+
     parameters {
-        string(
-            name: 'IMAGE_TAG',
-            defaultValue: 'latest',
-            description: 'Docker image tag to deploy (BUILD_NUMBER from CI)'
-        )
+        string(name: 'IMAGE_TAG', defaultValue: 'latest')
     }
+
     stages {
-        stage('Pull Image') {
-            steps {
-                sh 'docker pull ${DOCKERHUB_IMAGE}:${IMAGE_TAG}'
-            }
-        }
-        stage('Create Namespace') {
-            steps {
-                sh '''
-                    kubectl get namespace ${K8S_NAMESPACE} || \
-                    kubectl create namespace ${K8S_NAMESPACE}
-                '''
-            }
-        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                    kubectl apply -f - <<EOF
+cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,6 +37,20 @@ spec:
         image: ${DOCKERHUB_IMAGE}:${IMAGE_TAG}
         ports:
         - containerPort: 8086
+
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8086
+          initialDelaySeconds: 15
+          periodSeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8086
+          initialDelaySeconds: 30
+          periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
@@ -68,34 +69,37 @@ EOF
                 '''
             }
         }
-        stage('Wait for Rollout') {
+
+        stage('Wait Rollout') {
             steps {
                 sh '''
                     kubectl rollout status deployment/${K8S_DEPLOYMENT} \
-                        -n ${K8S_NAMESPACE} \
-                        --timeout=120s
+                    -n ${K8S_NAMESPACE} --timeout=120s
                 '''
             }
         }
+
         stage('Health Check') {
             steps {
-                sh 'sleep 15'
                 sh '''
+                    set -e
                     NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}")
-                    curl -f http://${NODE_IP}:30086/actuator/health || true
+                    curl -f --max-time 5 http://${NODE_IP}:30086/actuator/health
                 '''
             }
         }
     }
+
     post {
         success {
-            echo '✅ GestionPartner deployed successfully to Kubernetes!'
+            echo '✅ DEPLOY OK'
         }
+
         failure {
-            echo '❌ CD Pipeline failed'
+            echo '❌ DEPLOY FAILED'
             sh '''
                 kubectl rollout undo deployment/${K8S_DEPLOYMENT} \
-                    -n ${K8S_NAMESPACE} || true
+                -n ${K8S_NAMESPACE} || true
             '''
         }
     }
