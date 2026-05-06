@@ -1,19 +1,24 @@
 pipeline {
     agent any
+
     environment {
         DOCKERHUB_IMAGE = 'ahmedhoussine/gestion-partner'
         SONAR_PROJECT_KEY = 'gestion-partner'
     }
+
     tools {
         maven 'Maven'
         jdk 'JDK17'
     }
+
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
+
         stage('Build') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
@@ -21,6 +26,7 @@ pipeline {
                 }
             }
         }
+
         stage('SonarQube Analysis') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
@@ -30,12 +36,13 @@ pipeline {
                                 -f GestionPartner/pom.xml \
                                 -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                                 -Dsonar.projectName="Gestion Partner" \
-                                -Dsonar.java.binaries=target/classes
+                                -Dsonar.java.binaries=GestionPartner/target/classes
                         '''
                     }
                 }
             }
         }
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
@@ -43,6 +50,7 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Build & Push') {
             steps {
                 dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
@@ -52,10 +60,14 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
                         sh '''
-                            docker build -f GestionPartner/Dockerfile \
-                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} .
+                            docker build \
+                              -f GestionPartner/Dockerfile \
+                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} GestionPartner
+
                             docker tag ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} ${DOCKERHUB_IMAGE}:latest
+
                             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
                             docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
                             docker push ${DOCKERHUB_IMAGE}:latest
                         '''
@@ -64,16 +76,19 @@ pipeline {
             }
         }
     }
+
     post {
         success {
-            echo '✅ CI Pipeline passed — image pushed to DockerHub!'
+            echo '✅ CI OK'
             build job: 'GestionPartner-CD',
                   parameters: [string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}")],
                   wait: false
         }
+
         failure {
-            echo '❌ CI Pipeline failed'
+            echo '❌ CI FAILED'
         }
+
         always {
             sh 'docker logout || true'
         }
