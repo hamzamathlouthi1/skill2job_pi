@@ -22,20 +22,18 @@ pipeline {
             }
         }
         stage('SonarQube Analysis') {
-            steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
-                    withSonarQubeEnv('SonarQube') {
-                        sh '''
-                            mvn sonar:sonar \
-                                -f GestionPartner/pom.xml \
-                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                                -Dsonar.projectName="Gestion Partner" \
-                                -Dsonar.java.binaries=GestionPartner/target/classes
-                        '''
-                    }
-                }
+    steps {
+        dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionPartner') {
+            withSonarQubeEnv('SonarQube') {
+                sh '''
+                    mvn sonar:sonar \
+                      -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                      -Dsonar.projectName="Gestion Partner"
+                '''
             }
         }
+    }
+}
         stage('Quality Gate') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
