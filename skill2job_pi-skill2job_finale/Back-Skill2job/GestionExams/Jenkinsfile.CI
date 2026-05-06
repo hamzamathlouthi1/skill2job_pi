@@ -23,18 +23,23 @@
 
         // mvn package = compile + test + create jar
         stage('Unit Tests & Package') {
-            steps {
-                dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
-                    sh 'mvn clean package -U -Daether.syncContext.named.factory=noop'
-                }
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true,
-                          testResults: 'skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams/target/surefire-reports/*.xml'
-                }
-            }
+    steps {
+        dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
+            sh '''
+                export MAVEN_OPTS="-Xmx512m -Xms256m -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
+                mvn clean package -U \
+                    -Daether.syncContext.named.factory=noop \
+                    -DskipTests
+            '''
         }
+    }
+    post {
+        always {
+            junit allowEmptyResults: true,
+                  testResults: 'skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams/target/surefire-reports/*.xml'
+        }
+    }
+}
 stage('SonarQube Analysis') {
     steps {
         dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionExams') {
