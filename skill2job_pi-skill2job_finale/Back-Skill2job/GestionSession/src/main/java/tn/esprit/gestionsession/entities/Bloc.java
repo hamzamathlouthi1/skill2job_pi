@@ -22,4 +22,4 @@ public class Bloc {
     @OneToMany(mappedBy = "bloc", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("bloc")
     private List<Salle> salles;
-}
+  }
