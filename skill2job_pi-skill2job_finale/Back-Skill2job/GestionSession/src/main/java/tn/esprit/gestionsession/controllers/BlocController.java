@@ -24,7 +24,7 @@ public class BlocController {
     @GetMapping("/all")
     public List<Bloc> getAll() {
         return blocInterface.getAllBloc();
-    }
+     }
 
     @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable Long id) {
