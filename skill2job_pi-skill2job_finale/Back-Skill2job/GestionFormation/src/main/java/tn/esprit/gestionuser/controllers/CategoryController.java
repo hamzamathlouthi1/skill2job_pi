@@ -1,13 +1,13 @@
 package tn.esprit.gestionuser.controllers;
 
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.gestionuser.entities.Category;
 import tn.esprit.gestionuser.repositories.CategoryRepository;
 import tn.esprit.gestionuser.repositories.TrainingCourseRepository;
+
 
 @RestController
 @RequestMapping("/api/categories")
