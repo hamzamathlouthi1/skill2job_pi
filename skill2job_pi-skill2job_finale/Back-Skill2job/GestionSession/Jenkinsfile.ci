@@ -7,6 +7,7 @@ pipeline {
         IMAGE_NAME = "hamzamathlouthi/gestion-sessions"
         IMAGE_TAG  = "${BUILD_NUMBER}"
         SONAR_URL  = "http://localhost:9000"
+        MODULE_PATH = "skill2job_pi-skill2job_finale/Back-Skill2job/GestionSession"
     }
     stages {
         stage('Checkout') {
@@ -17,12 +18,17 @@ pipeline {
         stage('Check Changes') {
             steps {
                 script {
+                    def previousCommit = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: 'HEAD~1'
                     def changes = sh(
-                        script: "git diff --name-only HEAD~1 HEAD",
+                        script: "git diff --name-only ${previousCommit} HEAD",
                         returnStdout: true
                     ).trim()
-                    echo "Changed files: ${changes}"
-                    if (!changes.contains('GestionSession')) {
+                    echo "Changed files:\n${changes}"
+
+                    // Store result for use in when{} conditions
+                    env.GESTIONSESSION_CHANGED = changes.contains('GestionSession') ? 'true' : 'false'
+
+                    if (env.GESTIONSESSION_CHANGED == 'false') {
                         currentBuild.result = 'NOT_BUILT'
                         error('No changes in GestionSession — skipping pipeline')
                     }
@@ -32,7 +38,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    dir('skill2job_pi-skill2job_finale/Back-Skill2job/GestionSession') {
+                    dir("${MODULE_PATH}") {
                         sh """
                             mvn clean package -DskipTests
                             mvn sonar:sonar \
@@ -88,6 +94,7 @@ pipeline {
     }
     post {
         success { echo 'gestion-sessions CI passed!' }
-        failure { echo 'gestion-sessions CI failed!' }
+        failure  { echo 'gestion-sessions CI failed!' }
+        aborted  { echo 'No GestionSession changes — build skipped.' }
     }
 }
