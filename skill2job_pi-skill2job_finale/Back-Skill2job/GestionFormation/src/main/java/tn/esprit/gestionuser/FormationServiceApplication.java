@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients
 public class FormationServiceApplication {
 
+    
     public static void main(String[] args) {
         SpringApplication.run(FormationServiceApplication.class, args);
     }
