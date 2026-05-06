@@ -4,7 +4,7 @@ COPY . .
 # ❌ Avant (cherche un sous-module qui n'existe pas dans ce contexte)
 # RUN mvn clean package -DskipTests -pl GestionPartner -am
 
-# ✅ Après (on est déjà dans GestionPartner/)
+# ✅  (on est déjà dans GestionPartner/)
 RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:17-jre
