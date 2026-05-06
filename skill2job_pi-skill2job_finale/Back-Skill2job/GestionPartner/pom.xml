@@ -22,11 +22,8 @@
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <sonar.java.binaries>target/classes</sonar.java.binaries>     
     </properties>
-    <properties>
-    <sonar.java.binaries>target/classes</sonar.java.binaries>
-    </properties>     
-
     <dependencyManagement>
         <dependencies>
             <dependency>
