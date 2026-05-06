@@ -6,13 +6,11 @@ import tn.esprit.gestionuser.dto.PaymentInitiateRequest;
 import tn.esprit.gestionuser.dto.PaymentResponseDTO;
 import tn.esprit.gestionuser.entities.Payment;
 import tn.esprit.gestionuser.services.PaymentService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,7 +45,6 @@ public class PaymentController {
         // ✅ Coupon fields (replacing discount)
         dto.setCouponCode(p.getCouponCode());
         dto.setDiscountPercentage(p.getDiscountPercentage());
-        // ✅ Username via Feign
         try {
             UserDTO user = userClient.getUserById(p.getUserId());
             if (user != null) {
