@@ -3,7 +3,7 @@
 
     environment {
         DOCKER_CREDS = credentials('dockerhub-credentials')
-        SONAR_TOKEN  = credentials('new_token')  
+        SONAR_TOKEN  = credentials('sonarqube-token')  
         SERVICE_NAME  = 'gestion-exams'
         DOCKER_IMAGE  = 'klibimayssa/gestion-exams'
     }
