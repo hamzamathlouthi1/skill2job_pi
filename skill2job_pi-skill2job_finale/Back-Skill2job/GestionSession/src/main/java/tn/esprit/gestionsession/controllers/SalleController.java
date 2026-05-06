@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.gestionsession.entities.Salle;
 import tn.esprit.gestionsession.services.interfaces.SalleInterface;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/salles")
 public class SalleController {
 
+    
     @Autowired
     private SalleInterface salleService;
 
