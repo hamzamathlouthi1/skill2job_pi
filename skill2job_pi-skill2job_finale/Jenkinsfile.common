@@ -20,7 +20,7 @@ pipeline {
                         build job: 'recruitment-ci', wait: false
                     }
 
-                    // ── GestionExams (Hamza) ────────────────────────────────────
+                    // ── GestionExams (Mayssa) ────────────────────────────────────
                     if (changedFiles.contains('Back-Skill2job/GestionExams/')) {
                         echo "Changes detected in GestionExams → triggering gestion-exams-CI"
                         build job: 'gestion-exams-CI', wait: false
@@ -32,7 +32,7 @@ pipeline {
                         build job: 'formation-backend-ci', wait: false
                     }
 
-                    // ── GestionSession (Mayssa) ─────────────────────────────────
+                    // ── GestionSession (Hamza) ─────────────────────────────────
                     if (changedFiles.contains('Back-Skill2job/GestionSession/')) {
                         echo "Changes detected in GestionSession → triggering gestion-sessions-ci"
                         build job: 'gestion-sessions-ci', wait: false
