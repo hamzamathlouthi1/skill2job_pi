@@ -279,10 +279,14 @@ services:
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins
-    user: root 
+    user: root
     ports:
-      - "8080:8080"
+      - "9090:8080"
       - "50000:50000"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m -XX:MaxMetaspaceSize=256m -XX:+UseG1GC -Djava.awt.headless=true
+    mem_limit: 1g
+    memswap_limit: 1g
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
