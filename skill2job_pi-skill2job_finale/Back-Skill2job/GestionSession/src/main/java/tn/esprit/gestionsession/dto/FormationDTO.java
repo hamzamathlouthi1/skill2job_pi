@@ -8,6 +8,6 @@ public class FormationDTO {
     private String title;
     private String description;
     private String imageUrl;
-    private Double price;
+    private Double price; 
     private String currency;
 }
