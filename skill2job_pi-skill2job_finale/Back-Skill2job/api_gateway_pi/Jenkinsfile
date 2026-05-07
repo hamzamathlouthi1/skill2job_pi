@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_IMAGE = 'hamzamathlouthi/api-gateway'
+        DOCKERHUB_IMAGE = 'ahmedhoussine/api-gateway'
     }
     tools {
         maven 'Maven'
