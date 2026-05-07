@@ -243,7 +243,7 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
-      - "--web.enable-lifecycle" 
+      - "--web.enable-lifecycle"
 
   grafana:
     image: grafana/grafana:latest
@@ -275,7 +275,6 @@ services:
       timeout: 10s
       retries: 5
 
-  
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins
@@ -284,8 +283,8 @@ services:
       - "9090:8080"
       - "50000:50000"
     environment:
- - "JAVA_OPTS=-Xms256m -Xmx512m -XX:MaxMetaspaceSize=256m -XX:+UseG1GC -Djava.awt.headless=true"
- mem_limit: 1g
+      - "JAVA_OPTS=-Xms256m -Xmx512m -XX:MaxMetaspaceSize=256m -XX:+UseG1GC -Djava.awt.headless=true"
+    mem_limit: 1g
     memswap_limit: 1g
     volumes:
       - jenkins_home:/var/jenkins_home
@@ -299,7 +298,7 @@ volumes:
   grafana_data:
   sonarqube_data:
   sonarqube_logs:
-  jenkins_home:       
+  jenkins_home:
 
 networks:
   skill2job-network:
