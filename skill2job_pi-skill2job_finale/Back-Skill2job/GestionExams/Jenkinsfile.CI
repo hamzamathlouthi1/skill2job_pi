@@ -47,7 +47,7 @@ stage('SonarQube Analysis') {
                 mvn sonar:sonar \
                     -Dsonar.projectKey=gestion-exams \
                      -Dsonar.host.url=http://172.17.0.3:9000\
-                    -Dsonar.token=sqa_d01c159cba49e59920bf3dcb1c889edecb0683b1\
+                    -Dsonar.token=sqa_70487314663223b4b5357121ab264619330efdb9\
                     -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
             """
         }
