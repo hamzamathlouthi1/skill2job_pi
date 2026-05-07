@@ -14,6 +14,16 @@ pipeline {
 
                     echo "Changed files:\n${changedFiles}"
 
+                    if (changedFiles.contains('Back-Skill2job/Eureka_project/')) {
+                        echo "Changes detected in Eureka → triggering eureka-ci"
+                        build job: 'eureka-ci', wait: true
+                    }
+
+                    if (changedFiles.contains('Back-Skill2job/api_gateway_pi/')) {
+                        echo "Changes detected in API Gateway → triggering api-gateway-ci"
+                        build job: 'api-gateway-ci', wait: true
+                    }
+
                     // ── Recruitment (Aziz) ──────────────────────────────────────
                     if (changedFiles.contains('Back-Skill2job/Recruitment/')) {
                         echo "Changes detected in Recruitment → triggering recruitment-ci"
