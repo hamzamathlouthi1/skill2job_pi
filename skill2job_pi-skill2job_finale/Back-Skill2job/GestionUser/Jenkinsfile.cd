@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Image tag from CI')
+    }
+    environment {
+        IMAGE_NAME      = "hamzamathlouthi/gestion-user"
+        NAMESPACE       = "skill2job"
+        DEPLOYMENT_NAME = "gestion-user"
+        MANIFEST_DIR    = "skill2job_pi-skill2job_finale/Back-Skill2job/GestionUser/k8s"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Update Image Tag') {
+            steps {
+                sh """
+                    sed -i 's|${IMAGE_NAME}:.*|${IMAGE_NAME}:${params.IMAGE_TAG}|g' \
+                      ${MANIFEST_DIR}/deployment.yaml
+                """
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh "kubectl apply -f ${MANIFEST_DIR}/namespace.yaml"
+                sh "kubectl apply -f ${MANIFEST_DIR}/deployment.yaml"
+                sh "kubectl apply -f ${MANIFEST_DIR}/service.yaml"
+            }
+        }
+        stage('Rollout Check') {
+            steps {
+                sh """
+                    kubectl rollout status deployment/${DEPLOYMENT_NAME} \
+                      -n ${NAMESPACE} \
+                      --timeout=3m
+                """
+            }
+        }
+    }
+    post {
+        success { echo "gestion-user deployed with tag ${params.IMAGE_TAG}!" }
+        failure  { echo 'gestion-user CD failed!' }
+    }
+}
