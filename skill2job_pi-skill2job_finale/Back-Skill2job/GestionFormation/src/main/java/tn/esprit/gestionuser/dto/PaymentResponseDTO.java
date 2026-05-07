@@ -8,7 +8,7 @@ public class PaymentResponseDTO {
     private Long id;
     private String transactionId;
     private Long userId;
-    private String username;       // ✅ username instead of userId
+    private String username;    
     private Long courseId;
     private Double originalPrice;
     private String couponCode;
