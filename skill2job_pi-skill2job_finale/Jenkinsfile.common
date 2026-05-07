@@ -24,7 +24,7 @@ pipeline {
                         build job: 'api-gateway-ci', wait: true
                     }
 
-                    // ── Recruitment (Aziz) ──────────────────────────────────────
+                    // ── Recruitment (Aziz) ───────────────────────────────────
                     if (changedFiles.contains('Back-Skill2job/Recruitment/')) {
                         echo "Changes detected in Recruitment → triggering recruitment-ci"
                         build job: 'recruitment-ci', wait: false
