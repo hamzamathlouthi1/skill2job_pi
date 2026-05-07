@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+    environment {
+        DOCKERHUB_IMAGE = 'hamzamathlouthi/api-gateway'
+    }
+    tools {
+        maven 'Maven'
+        jdk 'JDK17'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Check Changes') {
+            steps {
+                script {
+                    def previousCommit = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: 'HEAD~1'
+                    def changes = sh(
+                        script: "git diff --name-only ${previousCommit} HEAD",
+                        returnStdout: true
+                    ).trim()
+                    echo "Changed files:\n${changes}"
+                    env.APIGATEWAY_CHANGED = changes.contains('api_gateway_pi') ? 'true' : 'false'
+                    if (env.APIGATEWAY_CHANGED == 'false') {
+                        currentBuild.result = 'NOT_BUILT'
+                        error('No changes in api_gateway_pi — skipping pipeline')
+                    }
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    sh 'mvn clean package -DskipTests -pl api_gateway_pi -am'
+                }
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            docker build -f api_gateway_pi/Dockerfile \
+                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} \
+                              -t ${DOCKERHUB_IMAGE}:latest \
+                              .
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKERHUB_IMAGE}:latest
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success { echo '✅ API Gateway CI OK' }
+        failure  { echo '❌ API Gateway CI FAILED' }
+        aborted  { echo 'No API Gateway changes — build skipped.' }
+        always   { sh 'docker logout || true' }
+    }
+}
