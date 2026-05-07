@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-user
+  namespace: skill2job
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-user
+  template:
+    metadata:
+      labels:
+        app: gestion-user
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8089"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+        - name: gestion-user
+          image: hamzamathlouthi/gestion-user:latest
+          ports:
+            - containerPort: 8089
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "root"
+            - name: EUREKA_CLIENT_ENABLED
+              value: "false"
+          readinessProbe:
+            tcpSocket:
+              port: 8089
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8089
+            initialDelaySeconds: 40
+            periodSeconds: 20
