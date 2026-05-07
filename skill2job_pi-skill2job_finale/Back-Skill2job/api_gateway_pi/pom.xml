@@ -11,7 +11,7 @@
         <artifactId>skill2job-parent</artifactId>
         <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
-    </parent>
+    </parent> 
 
     <artifactId>api_gateway_pi</artifactId>
     <version>0.0.1-SNAPSHOT</version>
