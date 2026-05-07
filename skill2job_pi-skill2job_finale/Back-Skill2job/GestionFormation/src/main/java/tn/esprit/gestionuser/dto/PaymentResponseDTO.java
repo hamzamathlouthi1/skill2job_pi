@@ -1,5 +1,4 @@
 package tn.esprit.gestionuser.dto;
-
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -12,7 +11,8 @@ public class PaymentResponseDTO {
     private Long courseId;
     private Double originalPrice;
     private String couponCode;
-    private Double discountPercentage;    private Double finalPrice;
+    private Double discountPercentage;    
+    private Double finalPrice;
     private String currency;
     private String status;
     private String paymentMethod;
