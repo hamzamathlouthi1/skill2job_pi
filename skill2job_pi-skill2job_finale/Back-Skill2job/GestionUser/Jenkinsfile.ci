@@ -1,0 +1,97 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 60, unit: 'MINUTES')
+    }
+    environment {
+        IMAGE_NAME  = "hamzamathlouthi/gestion-user"
+        IMAGE_TAG   = "${BUILD_NUMBER}"
+        SONAR_URL   = "http://localhost:9000"
+        MODULE_PATH = "skill2job_pi-skill2job_finale/Back-Skill2job/GestionUser"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Check Changes') {
+            steps {
+                script {
+                    def previousCommit = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: 'HEAD~1'
+                    def changes = sh(
+                        script: "git diff --name-only ${previousCommit} HEAD",
+                        returnStdout: true
+                    ).trim()
+                    echo "Changed files:\n${changes}"
+                    env.GESTIONUSER_CHANGED = changes.contains('GestionUser') ? 'true' : 'false'
+                    if (env.GESTIONUSER_CHANGED == 'false') {
+                        currentBuild.result = 'NOT_BUILT'
+                        error('No changes in GestionUser — skipping pipeline')
+                    }
+                }
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir("${MODULE_PATH}") {
+                        sh """
+                            mvn clean package -DskipTests
+                            mvn sonar:sonar \
+                              -Dsonar.projectKey=gestion-user \
+                              -Dsonar.host.url=${SONAR_URL} \
+                              -Dsonar.java.binaries=target/classes
+                        """
+                    }
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                echo 'SonarQube analysis done - skipping gate wait'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    sh """
+                        docker build \
+                          --build-arg BUILDKIT_INLINE_CACHE=1 \
+                          -f GestionUser/Dockerfile \
+                          -t ${IMAGE_NAME}:${IMAGE_TAG} \
+                          -t ${IMAGE_NAME}:latest \
+                          .
+                    """
+                }
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker push ${IMAGE_NAME}:latest"
+                }
+            }
+        }
+        stage('Trigger CD') {
+            steps {
+                build job: 'gestion-user-cd',
+                      parameters: [
+                          string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")
+                      ],
+                      wait: false
+            }
+        }
+    }
+    post {
+        success { echo 'gestion-user CI passed!' }
+        failure  { echo 'gestion-user CI failed!' }
+        aborted  { echo 'No GestionUser changes — build skipped.' }
+    }
+}
