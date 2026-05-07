@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+    environment {
+        DOCKERHUB_IMAGE = 'hamzamathlouthi/eureka-server'
+    }
+    tools {
+        maven 'Maven'
+        jdk 'JDK17'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Check Changes') {
+            steps {
+                script {
+                    def previousCommit = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: 'HEAD~1'
+                    def changes = sh(
+                        script: "git diff --name-only ${previousCommit} HEAD",
+                        returnStdout: true
+                    ).trim()
+                    echo "Changed files:\n${changes}"
+                    env.EUREKA_CHANGED = changes.contains('Eureka_project') ? 'true' : 'false'
+                    if (env.EUREKA_CHANGED == 'false') {
+                        currentBuild.result = 'NOT_BUILT'
+                        error('No changes in Eureka_project — skipping pipeline')
+                    }
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    sh 'mvn clean package -DskipTests -pl Eureka_project -am'
+                }
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                dir('skill2job_pi-skill2job_finale/Back-Skill2job') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh '''
+                            docker build -f Eureka_project/Dockerfile \
+                              -t ${DOCKERHUB_IMAGE}:${BUILD_NUMBER} \
+                              -t ${DOCKERHUB_IMAGE}:latest \
+                              .
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            docker push ${DOCKERHUB_IMAGE}:${BUILD_NUMBER}
+                            docker push ${DOCKERHUB_IMAGE}:latest
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success { echo '✅ Eureka CI OK' }
+        failure  { echo '❌ Eureka CI FAILED' }
+        aborted  { echo 'No Eureka changes — build skipped.' }
+        always   { sh 'docker logout || true' }
+    }
+}
