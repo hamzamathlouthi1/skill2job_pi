@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_IMAGE = 'hamzamathlouthi/eureka-server'
+        DOCKERHUB_IMAGE = 'ahmedhoussine/eureka-server'
     }
     tools {
         maven 'Maven'
