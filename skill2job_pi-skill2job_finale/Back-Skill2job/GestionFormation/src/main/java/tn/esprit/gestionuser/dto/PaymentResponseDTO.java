@@ -1,7 +1,6 @@
 package tn.esprit.gestionuser.dto;
 import lombok.Data;
 import java.time.LocalDateTime;
-
 @Data
 public class PaymentResponseDTO {
     private Long id;
@@ -24,4 +23,5 @@ public class PaymentResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
     private LocalDateTime rejectedAt;
+    
 }
