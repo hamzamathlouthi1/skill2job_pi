@@ -1,5 +1,4 @@
 package tn.esprit.gestionuser.controllers;
-
 import tn.esprit.gestionuser.clients.UserClient;
 import tn.esprit.gestionuser.dto.UserDTO;
 import tn.esprit.gestionuser.dto.PaymentInitiateRequest;
@@ -22,7 +21,6 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final UserClient userClient;
-
     private PaymentResponseDTO toDTO(Payment p) {
         PaymentResponseDTO dto = new PaymentResponseDTO();
         dto.setId(p.getId());
@@ -42,7 +40,6 @@ public class PaymentController {
         dto.setCreatedAt(p.getCreatedAt());
         dto.setApprovedAt(p.getApprovedAt());
         dto.setRejectedAt(p.getRejectedAt());
-        // ✅ Coupon fields (replacing discount)
         dto.setCouponCode(p.getCouponCode());
         dto.setDiscountPercentage(p.getDiscountPercentage());
         try {
