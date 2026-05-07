@@ -6,7 +6,7 @@ scrape_configs:
 
   - job_name: 'exams-service'
     static_configs:
-      - targets: ['192.168.158.131:30082']   
+      - targets: ['192.168.158.131:30083']   
     metrics_path: '/actuator/prometheus'
     scrape_interval: 10s
 
