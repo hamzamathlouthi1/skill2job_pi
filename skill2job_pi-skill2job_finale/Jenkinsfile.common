@@ -41,7 +41,7 @@ pipeline {
                     // ── GestionPartner (Ahmed) ──────────────────────────────────
                     if (changedFiles.contains('Back-Skill2job/GestionPartner/')) {
                         echo "Changes detected in GestionPartner → triggering GestionPartner-CI"
-                        build job: 'GestionPartner-CI', wait: false
+                        build job: 'GestionPartner-CI', wait: true
                     }
 
                     // ── Frontend ────────────────────────────────────────────────
