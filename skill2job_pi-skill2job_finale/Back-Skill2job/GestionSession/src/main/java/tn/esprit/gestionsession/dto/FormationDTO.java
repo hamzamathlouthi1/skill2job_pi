@@ -1,7 +1,7 @@
 package tn.esprit.gestionsession.dto;
 
 import lombok.Data;
-
+ 
 @Data
 public class FormationDTO {
     private Long id;
