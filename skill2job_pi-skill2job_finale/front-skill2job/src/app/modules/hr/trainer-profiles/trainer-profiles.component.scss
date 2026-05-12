@@ -1,7 +1,11 @@
 :host {
   display: block;
-  width: 100%;
+  width: calc(100% - 260px);
+  margin-left: 260px;
+  min-width: 0;
   box-sizing: border-box;
+  padding: 2rem;
+  overflow-x: auto;
 }
 
 .page-header {
@@ -51,6 +55,7 @@
   &:hover {
     opacity: 0.85;
   }
+
   &.refresh {
     background: #e8e8e8;
     color: #374151;
@@ -59,6 +64,7 @@
   &.btn-primary {
     background-color: #3498db;
     color: white;
+
     &:hover {
       background-color: #2980b9;
     }
@@ -67,6 +73,7 @@
   &.btn-danger {
     background-color: #e74c3c;
     color: white;
+
     &:hover {
       background-color: #c0392b;
     }
@@ -187,12 +194,14 @@
         padding: 2px 10px;
         border-radius: 12px;
       }
+
       &.inactive {
         background: #f8d7da;
         color: #721c24;
         padding: 2px 10px;
         border-radius: 12px;
       }
+
       &.pending {
         background: #fff3cd;
         color: #856404;
@@ -200,19 +209,6 @@
         border-radius: 12px;
       }
     }
-  }
-}
-
-.profile-bio {
-  margin-bottom: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #ecf0f1;
-
-  p {
-    margin: 0;
-    color: #7f8c8d;
-    font-size: 0.875rem;
-    line-height: 1.5;
   }
 }
 
@@ -260,6 +256,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

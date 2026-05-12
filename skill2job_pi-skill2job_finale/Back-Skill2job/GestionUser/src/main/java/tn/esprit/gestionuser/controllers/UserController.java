@@ -56,6 +56,18 @@ public class UserController {
     }
 
     // ──────────────────────────────────────
+    //  READ TRAINERS (accessible by ADMIN & authenticated users for dropdowns)
+    // ──────────────────────────────────────
+    @GetMapping("/users/trainers")
+    public ResponseEntity<List<User>> getTrainers() {
+        List<User> trainers = userService.getAllUsers().stream()
+            .filter(u -> u.getRoles().stream()
+                .anyMatch(r -> r.getName().name().equals("ROLE_TRAINER")))
+            .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(trainers);
+    }
+
+    // ──────────────────────────────────────
     //  READ ONE (Admin seulement)
     // ──────────────────────────────────────
     @GetMapping("/admin/users/{id}")

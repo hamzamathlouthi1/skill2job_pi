@@ -1,11 +1,23 @@
+:host {
+  display: block;
+  width: calc(100% - 260px);
+  margin-left: 260px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 2rem;
+  overflow-x: auto;
+}
+
 .page-header {
   margin-bottom: 16px;
+
   h2 {
     margin: 0;
     font-size: 22px;
     font-weight: 800;
     color: #111827;
   }
+
   .subtitle {
     color: #6b7280;
     font-size: 13px;
@@ -46,6 +58,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .export-info {
@@ -58,27 +71,35 @@
   border: 1px solid #e5e7eb;
 }
 
+// ── Table wrapper scrolls horizontally ──────────────────
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-}
+  min-width: 900px; // ← prevents column crushing
 
-.table th,
-.table td {
-  border: 1px solid #e5e7eb;
-  padding: 10px 12px;
-  text-align: left;
-  font-size: 14px;
-}
+  th,
+  td {
+    border: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 14px;
+  }
 
-.table th {
-  background: #f9fafb;
-  font-weight: 800;
-  color: #374151;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  th {
+    background: #f9fafb;
+    font-weight: 800;
+    color: #374151;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
 }
 
 .actions {
@@ -105,22 +126,27 @@
   background: #e8e8e8;
   color: #374151;
 }
+
 .analyze {
   background: #6366f1;
   color: white;
 }
+
 .approve {
   background: #22c55e;
   color: white;
 }
+
 .reject {
   background: #ef4444;
   color: white;
 }
+
 .delete {
   background: #374151;
   color: white;
 }
+
 .chat {
   background: #6366f1;
   color: white;
@@ -153,7 +179,7 @@
 }
 
 .motivation {
-  max-width: 300px;
+  max-width: 220px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -171,11 +197,13 @@
     border: 1px solid #fed7aa;
     color: #9a3412;
   }
+
   &.accepted {
     background: #ecfdf5;
     border: 1px solid #a7f3d0;
     color: #065f46;
   }
+
   &.rejected {
     background: #fef2f2;
     border: 1px solid #fecaca;
@@ -183,7 +211,7 @@
   }
 }
 
-// ─── CHAT BADGE ───────────────────────────────────────
+// ── Chat badge ───────────────────────────────────────────
 .chat-badge {
   background: #ef4444;
   color: white;
@@ -200,16 +228,18 @@
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.2);
   }
 }
 
-// ─── CHAT MODAL ───────────────────────────────────────
+// ── Chat modal ───────────────────────────────────────────
 .chat-backdrop {
   position: fixed;
   inset: 0;
@@ -314,6 +344,7 @@
   &.msg-right {
     justify-content: flex-end;
   }
+
   &.msg-left {
     justify-content: flex-start;
   }
@@ -409,6 +440,7 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+
   &:hover:not(:disabled) {
     background: #4f46e5;
   }

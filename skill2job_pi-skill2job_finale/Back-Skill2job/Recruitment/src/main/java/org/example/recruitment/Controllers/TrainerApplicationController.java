@@ -6,6 +6,7 @@ import org.example.recruitment.entities.TrainerDetails;
 import org.example.recruitment.services.TrainerApplicationService;
 import org.example.recruitment.entities.ApplicationStatus;
 import org.example.recruitment.entities.TrainerApplication;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +37,12 @@ public class TrainerApplicationController {
     }
 
     @GetMapping("/me")
-    public TrainerApplication getMine(@RequestParam(name = "userId") Long userId) {
-        return service.getByUserId(userId);
+    public ResponseEntity<TrainerApplication> getMine(@RequestParam(name = "userId") Long userId) {
+        try {
+            return ResponseEntity.ok(service.getByUserId(userId));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // ✅ Nouveau endpoint

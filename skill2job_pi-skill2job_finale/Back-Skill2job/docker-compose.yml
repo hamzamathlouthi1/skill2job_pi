@@ -42,7 +42,7 @@ services:
     ports:
       - "8090:8090"
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       eureka-server:
@@ -62,7 +62,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/exams_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SERVER_PORT=8082
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
       - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
@@ -71,12 +71,11 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
+      ml-service:       
+        condition: service_started
+
     networks:
       - skill2job-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.exams.rule=PathPrefix(`/api/exams`)"
-      - "traefik.http.services.exams.loadbalancer.server.port=8082"
 
   session-service:
     image: back-skill2job-session-service
@@ -90,7 +89,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/session_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SERVER_PORT=8085
     volumes:
       - ./uploads:/app/uploads
@@ -114,7 +113,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/formation_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SERVER_PORT=8083
     volumes:
       - ./uploads:/app/uploads
@@ -127,7 +126,10 @@ services:
       - skill2job-network
 
   recruitment-service:
-    image: azizl/recruitment:latest
+    image: back-skill2job-recruitment-service
+    build:
+      context: .
+      dockerfile: Recruitment/Dockerfile
     container_name: recruitment-service
     ports:
       - "8087:8087"
@@ -135,7 +137,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/recruitment_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SERVER_PORT=8087
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL8Dialect
@@ -162,7 +164,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/Skill2Job?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SERVER_PORT=8086
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
@@ -186,12 +188,14 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/user?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
       - SERVER_PORT=8089
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
       - APP_JWT_SECRET=VotreSecretKeyTresLongueEtSecurisee1234567890ABCDEFabcdefghijklmnop
       - APP_JWT_EXPIRATION=86400000
+      - SPRING_PROFILES_ACTIVE=docker
+
     depends_on:
       mysql:
         condition: service_healthy
@@ -213,89 +217,17 @@ services:
     networks:
       - skill2job-network
 
-  traefik:
-    image: traefik:v3.0
-    container_name: traefik
-    command:
-      - "--api.insecure=true"
-      - "--api.dashboard=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:81"
+  ml-service:
+    build:
+      context: ./ml-service-predection
+    container_name: ml-service
     ports:
-      - "81:81"
-      - "8081:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    networks:
-      - skill2job-network
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./GestionExams/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    ports:
-      - "9091:9090"
-    networks:
-      - skill2job-network
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--web.enable-lifecycle" 
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3001:3000"
-    networks:
-      - skill2job-network
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-
-  sonarqube:
-    image: sonarqube:community
-    container_name: sonarqube
-    ports:
-      - "9000:9000"
-    environment:
-      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
-    volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_logs:/opt/sonarqube/logs
-    networks:
-      - skill2job-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/api/system/status | grep -q UP"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    user: root 
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
+      - "5000:5000"
     networks:
       - skill2job-network
 
 volumes:
   mysql_data:
-  prometheus_data:
-  grafana_data:
-  sonarqube_data:
-  sonarqube_logs:
-  jenkins_home:       
 
 networks:
   skill2job-network:

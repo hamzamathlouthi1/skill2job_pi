@@ -7,6 +7,8 @@ export interface Exam {
   duration?: number;
   createdAt?: Date;
   category?: string; // Add this optional property
+  questionIds?: number[];      // ← add this line
+  evaluationIds?: number[]; 
   difficulty?: 'Beginner' | 'Intermediate' | 'Advanced'; // Optional
 }
 

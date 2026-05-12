@@ -6,6 +6,8 @@ import tn.esprit.gestionexam.dto.*;
 import tn.esprit.gestionexam.entities.*;
 import tn.esprit.gestionexam.services.*;
 import tn.esprit.gestionexam.repositories.*;
+import tn.esprit.gestionexam.dto.PredictionRequest;
+import tn.esprit.gestionexam.dto.PredictionResponse;
 
 import java.util.List;
 
@@ -19,19 +21,23 @@ public class ExamController {
     private final EvaluationService evaluationService;
     private final ViolationRepository violationRepository;
     private final UserAnswerRepository userAnswerRepository;
+    private final PredictionService predictionService;
+
 
     public ExamController(ExamService examService,
                           CertificateService certificateService,
                           QuestionService questionService,
                           EvaluationService evaluationService,
                           ViolationRepository violationRepository,
-                          UserAnswerRepository userAnswerRepository) {
+                          UserAnswerRepository userAnswerRepository,
+                         PredictionService predictionService) {
         this.examService = examService;
         this.certificateService = certificateService;
         this.questionService = questionService;
         this.evaluationService = evaluationService;
         this.violationRepository = violationRepository;
         this.userAnswerRepository = userAnswerRepository;
+        this.predictionService = predictionService;
     }
 
     // ==================== EXAM ENDPOINTS ====================
@@ -314,4 +320,10 @@ public class ExamController {
                 violationRepository.findByExamAttemptId(attemptId).stream()
                         .map(EntityMapper::toViolationDTO).toList());
     }
+    // ==================== ML PREDICTION ENDPOINT ====================
+
+@PostMapping("/predict")
+public PredictionResponse predict(@RequestBody PredictionRequest request) {
+    return predictionService.predict(request);
+}
 }

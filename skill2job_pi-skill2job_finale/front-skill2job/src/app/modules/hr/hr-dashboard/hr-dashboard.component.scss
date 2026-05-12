@@ -15,11 +15,13 @@
     font-weight: 800;
     color: #111827;
   }
+
   .subtitle {
     color: #6b7280;
     font-size: 14px;
     margin-top: 4px;
   }
+
   .updated {
     color: #6b7280;
     font-size: 13px;
@@ -57,15 +59,19 @@
   &.total {
     border-left: 4px solid #6366f1;
   }
+
   &.pending {
     border-left: 4px solid #f59e0b;
   }
+
   &.accepted {
     border-left: 4px solid #22c55e;
   }
+
   &.rejected {
     border-left: 4px solid #ef4444;
   }
+
   &.rate {
     border-left: 4px solid #3b82f6;
   }
@@ -161,6 +167,7 @@
     color: #374151;
     flex: 1;
   }
+
   .legend-val {
     color: #111827;
     font-weight: 900;
@@ -282,11 +289,13 @@
     border: 1px solid #fed7aa;
     color: #9a3412;
   }
+
   &.ok {
     background: #ecfdf5;
     border: 1px solid #a7f3d0;
     color: #065f46;
   }
+
   &.bad {
     background: #fef2f2;
     border: 1px solid #fecaca;

@@ -97,4 +97,13 @@ export class ExamService {
   verifyCertificate(code: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/certificates/verify/${code}`);
   }
+  predictPerformance(data: {
+  previous_score: number;
+  attendance_rate: number;
+  completed_trainings: number;
+  engagement_score: number;
+  submission_rate: number;
+}): Observable<any> {
+  return this.http.post('http://localhost:8090/api/ml/predict', data);
+}
 }

@@ -1,3 +1,13 @@
+:host {
+  display: block;
+  width: calc(100% - 260px);
+  margin-left: 260px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 2rem;
+  overflow-x: auto;
+}
+
 .page-header {
   margin-bottom: 2rem;
 
@@ -30,6 +40,25 @@
       color: #7f8c8d;
       font-size: 0.9rem;
     }
+  }
+}
+
+.btn {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &.refresh {
+    background: #e8e8e8;
+    color: #374151;
   }
 }
 
@@ -75,12 +104,14 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-x: auto; // ← key fix: scroll table horizontally if needed
+  width: 100%;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 700px; // ← prevents columns from crushing
 
   thead {
     background-color: #f8f9fa;
@@ -91,6 +122,7 @@
       font-weight: 600;
       color: #2c3e50;
       border-bottom: 2px solid #e9ecef;
+      white-space: nowrap;
     }
   }
 
@@ -109,47 +141,13 @@
   }
 }
 
-.trainer-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-
-  .trainer-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.9rem;
-  }
-
-  .trainer-name {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.25rem;
-  }
-
-  .trainer-email {
-    font-size: 0.85rem;
-    color: #7f8c8d;
-  }
-}
-
 .application-id {
-  font-family: "Courier New", monospace;
+  font-family: 'Courier New', monospace;
   background-color: #f8f9fa;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.9rem;
   color: #495057;
-}
-
-.specialization {
-  font-weight: 500;
-  color: #2c3e50;
 }
 
 .experience {
@@ -178,6 +176,30 @@
   }
 }
 
+.level-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #374151;
+
+  &.junior {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  &.mid {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+
+  &.senior {
+    background: #dcfce7;
+    color: #166534;
+  }
+}
+
 .status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
@@ -185,27 +207,27 @@
   font-weight: 500;
 
   &.active {
-    background-color: #d4edda;
+    background: #d4edda;
     color: #155724;
   }
 
   &.inactive {
-    background-color: #f8d7da;
+    background: #f8d7da;
     color: #721c24;
   }
 
   &.pending {
-    background-color: #fff3cd;
+    background: #fff3cd;
     color: #856404;
   }
 
   &.approved {
-    background-color: #d1ecf1;
+    background: #d1ecf1;
     color: #0c5460;
   }
 
   &.rejected {
-    background-color: #f5c6cb;
+    background: #f5c6cb;
     color: #721c24;
   }
 }
@@ -268,10 +290,109 @@
   }
 }
 
+// ── Modal ───────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal-card {
+  background: white;
+  border-radius: 12px;
+  width: min(600px, 100%);
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+  }
+}
+
+.close-btn {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+
+  &:hover {
+    background: #e5e7eb;
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.skills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.ai-summary {
+  .summary-text {
+    white-space: pre-wrap;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: #374151;
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem 0 0;
+    border: 1px solid #e5e7eb;
+  }
+}
+
+.cv-link {
+  color: #3498db;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 0.5rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

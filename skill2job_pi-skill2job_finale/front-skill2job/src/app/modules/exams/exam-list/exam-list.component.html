@@ -1,93 +1,160 @@
+<!-- AI Prediction Modal -->
+<div class="prediction-overlay" *ngIf="predictionExam">
+  <div class="prediction-modal">
+
+    <div class="prediction-header">
+      <h2>🤖 AI Performance Prediction</h2>
+      <p>{{ predictionExam.title }}</p>
+    </div>
+
+    <!-- STEP 1: QUIZ -->
+    <div *ngIf="quizStep === 'quiz'" class="quiz-section">
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill"
+               [style.width.%]="(quizCurrentIndex / quizQuestions.length) * 100">
+          </div>
+        </div>
+        <span class="quiz-counter">{{ quizCurrentIndex + 1 }} / {{ quizQuestions.length }}</span>
+      </div>
+
+      <div class="quiz-question-card">
+        <p class="quiz-question-text">
+          {{ quizQuestions[quizCurrentIndex].text }}
+        </p>
+        <div class="quiz-buttons">
+          <button class="quiz-btn true-btn" (click)="answerQuestion(true)">✅ True</button>
+          <button class="quiz-btn false-btn" (click)="answerQuestion(false)">❌ False</button>
+        </div>
+      </div>
+
+      <button class="btn-cancel-sm" (click)="closePrediction()">Cancel</button>
+    </div>
+
+    <!-- STEP 2: LOADING -->
+    <div *ngIf="quizStep === 'loading'" class="prediction-loading">
+      <div class="spinner"></div>
+      <p>Analyzing your answers with AI...</p>
+    </div>
+
+    <!-- STEP 3: RESULT -->
+    <div *ngIf="quizStep === 'result'" class="prediction-result">
+
+      <!-- Error fallback -->
+      <div *ngIf="predictionResult?.error" class="prediction-error">
+        <p>⚠️ Prediction unavailable. You can still start the exam.</p>
+      </div>
+
+      <!-- Success result -->
+      <div *ngIf="!predictionResult?.error">
+        <div class="prediction-badge"
+             [class.pass]="predictionResult.prediction === 'PASS'"
+             [class.fail]="predictionResult.prediction === 'FAIL'">
+          {{ predictionResult.prediction === 'PASS' ? '✅ Likely to PASS' : '⚠️ Risk of FAIL' }}
+        </div>
+
+        <div class="prediction-bars">
+          <div class="bar-row">
+            <span class="bar-label">Success chance</span>
+            <div class="bar-track">
+              <div class="bar-fill success"
+                   [style.width.%]="predictionResult.successProbability"></div>
+            </div>
+            <span class="bar-value">{{ predictionResult.successProbability | number:'1.0-0' }}%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Fail risk</span>
+            <div class="bar-track">
+              <div class="bar-fill fail"
+                   [style.width.%]="predictionResult.failProbability"></div>
+            </div>
+            <span class="bar-value">{{ predictionResult.failProbability | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+
+        <!-- Personalized tips -->
+        <div class="tips-section" *ngIf="predictionTips.length > 0">
+          <p *ngFor="let tip of predictionTips" class="prediction-tip"
+             [class.fail-tip]="predictionResult.prediction === 'FAIL'">
+            {{ tip }}
+          </p>
+        </div>
+
+        <!-- Weak areas -->
+        <div class="weak-areas" *ngIf="weakAreas.length > 0">
+          <p class="weak-title">⚠️ Areas to improve:</p>
+          <span *ngFor="let area of weakAreas" class="weak-tag">{{ area }}</span>
+        </div>
+      </div>
+
+      <div class="prediction-actions">
+        <button class="btn-cancel" (click)="closePrediction()">Cancel</button>
+        <button class="btn-start" (click)="confirmStartExam()">Start Exam →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MAIN PAGE -->
 <div class="exam-platform">
-  <!-- Welcome Header -->
   <div class="welcome-header">
     <h1>Welcome back, <span class="highlight">Mayssa</span> 👋</h1>
     <p class="subtitle">Ready to test your knowledge? Choose an exam below.</p>
   </div>
 
-  <!-- Stats Cards (Black/Red/White) -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-value">{{ stats.completedExams || 0 }}</div>
       <div class="stat-label">COMPLETED EXAMS</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-value">{{ stats.averageScore || 0 }}%</div>
       <div class="stat-label">AVERAGE SCORE</div>
     </div>
-
     <div class="stat-card clickable" (click)="goToCertificates()">
       <div class="stat-value">{{ stats.certificates || 0 }}</div>
       <div class="stat-label">CERTIFICATES</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-value">{{ stats.pendingExams || 0 }}</div>
       <div class="stat-label">PENDING EXAMS</div>
     </div>
   </div>
 
-  <!-- Filter Tabs -->
   <div class="filter-tabs">
-    <button
-      class="tab-btn"
-      [class.active]="activeFilter === 'all'"
-      (click)="filterExams('all')"
-    >
+    <button class="tab-btn" [class.active]="activeFilter === 'all'" (click)="filterExams('all')">
       All Exams
     </button>
-    <button
-      class="tab-btn"
-      [class.active]="activeFilter === 'available'"
-      (click)="filterExams('available')"
-    >
+    <button class="tab-btn" [class.active]="activeFilter === 'available'" (click)="filterExams('available')">
       Available
     </button>
-    <button
-      class="tab-btn"
-      [class.active]="activeFilter === 'completed'"
-      (click)="filterExams('completed')"
-    >
+    <button class="tab-btn" [class.active]="activeFilter === 'completed'" (click)="filterExams('completed')">
       Completed
     </button>
   </div>
 
-  <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
     <div class="spinner"></div>
     <p>Loading exams...</p>
   </div>
 
-  <!-- Exams Grid -->
   <div *ngIf="!loading" class="exams-grid">
     <div *ngFor="let exam of filteredExams" class="exam-card">
-      <!-- Status Badge -->
-      <div
-        class="exam-status"
-        [class.available]="isExamAvailable(exam.id)"
-        [class.completed]="!isExamAvailable(exam.id)"
-      >
+
+      <div class="exam-status"
+           [class.available]="isExamAvailable(exam.id)"
+           [class.completed]="!isExamAvailable(exam.id)">
         {{ getExamStatus(exam.id) }}
       </div>
 
-      <!-- Exam Content -->
       <h3 class="exam-title">{{ exam.title }}</h3>
-      <p class="exam-description">
-        {{ exam.description || "No description available" }}
-      </p>
+      <p class="exam-description">{{ exam.description || 'No description available' }}</p>
 
-      <!-- Exam Details -->
       <div class="exam-details">
         <div class="detail-item">
           <span class="detail-icon">❓</span>
-          <span
-            [class.no-questions]="
-              !exam.questions || exam.questions.length === 0
-            "
-          >
-            {{ exam.questions?.length || 0 }} Questions
-          </span>
+          <span>{{ exam.questionIds?.length || exam.questions?.length || 0 }} Questions</span>
         </div>
         <div class="detail-item">
           <span class="detail-icon">⏱️</span>
@@ -99,46 +166,33 @@
         </div>
       </div>
 
-      <!-- Show warning if no questions -->
-      <div
-        *ngIf="
-          isExamAvailable(exam.id) &&
-          (!exam.questions || exam.questions.length === 0)
-        "
-        class="no-questions-warning"
-      >
+      <div *ngIf="isExamAvailable(exam.id) && !hasQuestions(exam)" class="no-questions-warning">
         ⚠️ No questions available yet
       </div>
 
-      <!-- Score for completed exams -->
       <div *ngIf="getUserScore(exam.id) as score" class="score-section">
         <div class="score-label">
           <span>Your Score:</span>
-          <span [style.color]="score >= exam.passScore ? '#4caf50' : '#b71c1c'">
-            {{ score }}%
-          </span>
+          <span [style.color]="score >= exam.passScore ? '#4caf50' : '#b71c1c'">{{ score }}%</span>
         </div>
         <div class="progress-bar">
-          <div
-            class="progress-fill"
-            [style.width]="score + '%'"
-            [style.background]="score >= exam.passScore ? '#4caf50' : '#b71c1c'"
-          ></div>
+          <div class="progress-fill"
+               [style.width]="score + '%'"
+               [style.background]="score >= exam.passScore ? '#4caf50' : '#b71c1c'">
+          </div>
         </div>
       </div>
 
-      <!-- Action Button -->
       <button
         class="action-btn"
         [class.start]="isExamAvailable(exam.id)"
         [class.view]="!isExamAvailable(exam.id)"
-        (click)="handleExamAction(exam)"
-      >
-        {{ isExamAvailable(exam.id) ? "START EXAM" : "VIEW RESULTS" }}
+        (click)="handleExamAction(exam)">
+        {{ isExamAvailable(exam.id) ? 'START EXAM' : 'VIEW RESULTS' }}
       </button>
+
     </div>
 
-    <!-- No Exams Message -->
     <div *ngIf="filteredExams.length === 0" class="no-exams">
       <p>No exams available</p>
     </div>
